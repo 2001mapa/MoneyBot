@@ -98,6 +98,8 @@ const actionSchema: Schema = {
   required: ["action_type", "is_complete", "amount", "transaction_type", "category_name", "payment_method", "description", "person_name", "debt_type", "response_to_user"]
 }
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()
