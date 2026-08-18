@@ -54,7 +54,7 @@ const actionSchema: Schema = {
     },
     is_complete: { 
       type: SchemaType.BOOLEAN, 
-      description: "True si se tienen los datos obligatorios para la acción elegida. False si debes preguntar lo que falta al usuario." 
+      description: "CRÍTICO: True SOLO si tienes TODOS los datos (monto, tipo, método de pago, descripción) y vas a registrarlo YA. False si te falta algún dato y vas a preguntarlo en response_to_user. NUNCA pongas True si vas a preguntar o pedir confirmación de algo." 
     },
     amount: { 
       type: SchemaType.NUMBER, 
@@ -92,7 +92,7 @@ const actionSchema: Schema = {
     },
     response_to_user: { 
       type: SchemaType.STRING, 
-      description: "Tu respuesta como Luka. Si faltan datos, pregúntalos. Si te piden un estado de cuenta, usa el contexto que se te provee. Sé cálido y natural." 
+      description: "Tu respuesta como Luka. Si is_complete es false, pregunta amablemente el dato que falta. Si is_complete es true, confirma que YA se registró con éxito. Sé cálido y natural." 
     }
   },
   required: ["action_type", "is_complete", "amount", "transaction_type", "category_name", "payment_method", "description", "person_name", "debt_type", "response_to_user"]
@@ -140,7 +140,7 @@ export async function POST(req: Request) {
 
     let balanceTotal = 0;
     let gastosMes = 0;
-    const last3Txs = [];
+    const last3Txs: string[] = [];
 
     if (allTxs) {
       for (let i = 0; i < allTxs.length; i++) {
@@ -182,7 +182,11 @@ export async function POST(req: Request) {
 
     // Construir System Prompt Dinámico
     const systemPrompt = `Eres Luka, un asistente financiero personal muy inteligente (Alias del usuario: ${profile.bot_alias}).
-Analiza el mensaje (junto con el historial de chat para entender respuestas cortas) y determina la intención usando la estructura JSON proveída.
+Analiza el mensaje (junto con el historial de chat para entender respuestas cortas) y determina la intención usando la estructura JSON.
+
+REGLA CRÍTICA DE DUPLICADOS:
+Si el usuario está respondiendo a una pregunta tuya donde pedías información faltante (ej. el método de pago), DEBES recopilar los datos de la interacción anterior, unirlos con la respuesta actual, y marcar is_complete=true. Como is_complete=true causará que se INSERTE el registro en base de datos, NUNCA debes poner is_complete=true si vas a hacer una pregunta de seguimiento, porque eso causará que se guarde un registro incompleto y luego otro duplicado cuando el usuario responda. 
+REGLA ORO: is_complete = false -> Preguntas. is_complete = true -> Confirmas registro exitoso.
 
 CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
 - Saldo Total: $${balanceTotal.toLocaleString('es-CO')} ${profile.currency}
@@ -190,10 +194,8 @@ CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
 - Deudas: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
 - Últimos 3 movimientos:\n${last3Txs.join('\n') || 'Ninguno'}
 
-HISTORIAL DE CHAT RECIENTE (Utilízalo para entender si el usuario está respondiendo a una pregunta tuya anterior, como indicar un medio de pago que faltaba):
-${chatHistory}
-
-Toma en cuenta este contexto al generar tu 'response_to_user', especialmente si el action_type es 'query' (consulta de saldo o dudas) o si es para completar un 'transaction' usando el historial.`;
+HISTORIAL DE CHAT RECIENTE:
+${chatHistory}`;
 
     // 4. Llamar a Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
