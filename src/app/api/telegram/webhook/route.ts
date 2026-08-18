@@ -43,6 +43,10 @@ const transactionSchema: Schema = {
       type: SchemaType.BOOLEAN, 
       description: "Verdadero si el usuario está reportando un gasto o ingreso. Falso si solo es una charla normal." 
     },
+    is_deletion: {
+      type: SchemaType.BOOLEAN,
+      description: "Verdadero si el usuario pide eliminar, borrar o deshacer el último registro."
+    },
     is_complete: {
       type: SchemaType.BOOLEAN,
       description: "Verdadero si se tiene el monto, la descripción y el método de pago claro."
@@ -76,7 +80,7 @@ const transactionSchema: Schema = {
       description: "Tu respuesta como Luka al usuario. Si faltan datos (ej: método de pago), pregúntalos cálidamente. Si todo está, confirma el registro." 
     }
   },
-  required: ["is_transaction", "is_complete", "amount", "type", "category_name", "payment_method", "description", "response_to_user"]
+  required: ["is_transaction", "is_deletion", "is_complete", "amount", "type", "category_name", "payment_method", "description", "response_to_user"]
 }
 
 export async function POST(req: Request) {
@@ -140,8 +144,20 @@ export async function POST(req: Request) {
     const jsonStr = result.response.text()
     const parsedData = JSON.parse(jsonStr)
 
-    // 2. Si es una transacción completa, insertarla en la DB
-    if (parsedData.is_transaction && parsedData.is_complete && parsedData.type !== 'none') {
+    // 2. Si es una petición de borrado o una transacción nueva
+    if (parsedData.is_deletion) {
+      const { data: lastTx } = await supabaseAdmin
+        .from('transactions')
+        .select('id')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+      
+      if (lastTx) {
+        await supabaseAdmin.from('transactions').delete().eq('id', lastTx.id)
+      }
+    } else if (parsedData.is_transaction && parsedData.is_complete && parsedData.type !== 'none') {
       
       // Buscar o crear categoría
       let categoryId = null;

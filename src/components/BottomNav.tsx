@@ -11,11 +11,11 @@ export function BottomNav() {
   return (
     <div className="fixed bottom-0 left-0 w-full bg-background border-t border-foreground/10 pb-safe z-40">
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-        <Link href="/" className="flex flex-col items-center justify-center w-full h-full text-foreground/70 hover:text-foreground">
+        <Link href="/" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/' ? 'text-foreground' : 'text-foreground/50 hover:text-foreground/80'}`}>
           <Home className="w-5 h-5 mb-1" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Inicio</span>
         </Link>
-        <Link href="/stats" className="flex flex-col items-center justify-center w-full h-full text-foreground/70 hover:text-foreground">
+        <Link href="/stats" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/stats' ? 'text-foreground' : 'text-foreground/50 hover:text-foreground/80'}`}>
           <PieChart className="w-5 h-5 mb-1" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Stats</span>
         </Link>
@@ -27,11 +27,11 @@ export function BottomNav() {
           </div>
         </div>
 
-        <Link href="/debts" className="flex flex-col items-center justify-center w-full h-full text-foreground/70 hover:text-foreground">
+        <Link href="/debts" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/debts' ? 'text-foreground' : 'text-foreground/50 hover:text-foreground/80'}`}>
           <Receipt className="w-5 h-5 mb-1" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Deudas</span>
         </Link>
-        <Link href="/profile" className="flex flex-col items-center justify-center w-full h-full text-foreground/70 hover:text-foreground">
+        <Link href="/profile" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/profile' ? 'text-foreground' : 'text-foreground/50 hover:text-foreground/80'}`}>
           <User className="w-5 h-5 mb-1" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Perfil</span>
         </Link>
