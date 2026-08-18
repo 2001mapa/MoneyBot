@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
+import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai'
 import { createClient } from '@supabase/supabase-js'
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN!
@@ -36,7 +36,7 @@ async function getVoiceFileBase64(fileId: string): Promise<string | null> {
 }
 
 // Esquema estricto para Gemini
-const transactionSchema = {
+const transactionSchema: Schema = {
   type: SchemaType.OBJECT,
   properties: {
     is_transaction: { 
