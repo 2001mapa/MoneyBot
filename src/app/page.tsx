@@ -1,14 +1,43 @@
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
 import { ArrowDownIcon, ArrowUpIcon, Wallet } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient()
+
+  // Obtener transacciones reales de la base de datos
+  const { data: transactions, error } = await supabase
+    .from('transactions')
+    .select('*, categories(name, icon, color)')
+    .order('transaction_date', { ascending: false })
+    .limit(10)
+
+  // Calcular totales (idealmente esto se hace en una vista o RPC de Supabase)
+  let totalBalance = 0
+  let ingresosMes = 0
+  let gastosMes = 0
+
+  const { data: allTx } = await supabase.from('transactions').select('*')
+  
+  if (allTx) {
+    allTx.forEach(tx => {
+      if (tx.type === 'income') {
+        totalBalance += Number(tx.amount)
+        ingresosMes += Number(tx.amount)
+      } else if (tx.type === 'expense') {
+        totalBalance -= Number(tx.amount)
+        gastosMes += Number(tx.amount)
+      }
+    })
+  }
+
   return (
     <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
       {/* Header */}
       <header className="flex justify-between items-start mb-8 mt-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Hola, Miguel 👋</h1>
-          <p className="text-foreground/60 text-sm mt-1">Aquí está tu resumen de hoy</p>
+          <h1 className="text-2xl font-bold tracking-tight">Hola 👋</h1>
+          <p className="text-foreground/60 text-sm mt-1">Aquí está tu resumen real</p>
         </div>
         <ThemeSwitcher />
       </header>
@@ -19,7 +48,7 @@ export default function Home() {
           <Wallet className="w-32 h-32" />
         </div>
         <h2 className="text-background/80 font-medium text-sm mb-2">Balance Total</h2>
-        <p className="text-4xl font-extrabold tracking-tight">$ 1,240,500 <span className="text-lg text-background/60 font-medium">COP</span></p>
+        <p className="text-4xl font-extrabold tracking-tight">$ {totalBalance.toLocaleString()} <span className="text-lg text-background/60 font-medium">COP</span></p>
       </section>
 
       {/* Stats Grid */}
@@ -30,7 +59,7 @@ export default function Home() {
           </div>
           <div>
             <p className="text-xs text-foreground/60 font-medium mb-1 uppercase tracking-wider">Ingresos</p>
-            <p className="font-bold text-lg text-emerald-700 dark:text-emerald-400">$2.4M</p>
+            <p className="font-bold text-lg text-emerald-700 dark:text-emerald-400">${ingresosMes.toLocaleString()}</p>
           </div>
         </div>
         <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 flex items-start space-x-3">
@@ -39,7 +68,7 @@ export default function Home() {
           </div>
           <div>
             <p className="text-xs text-foreground/60 font-medium mb-1 uppercase tracking-wider">Gastos</p>
-            <p className="font-bold text-lg text-red-700 dark:text-red-400">$1.1M</p>
+            <p className="font-bold text-lg text-red-700 dark:text-red-400">${gastosMes.toLocaleString()}</p>
           </div>
         </div>
       </div>
@@ -52,26 +81,31 @@ export default function Home() {
         </div>
         
         <div className="space-y-3">
-          {[
-            { title: 'Mercado Carulla', cat: 'Alimentación', amount: '-$140.000', icon: '🛒', color: 'bg-orange-500/10 border-orange-500/20 text-orange-500' },
-            { title: 'Pago Freelance', cat: 'Ingreso', amount: '+$500.000', icon: '💻', color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' },
-            { title: 'Uber a casa', cat: 'Transporte', amount: '-$24.500', icon: '🚗', color: 'bg-blue-500/10 border-blue-500/20 text-blue-500' },
-          ].map((tx, i) => (
-            <div key={i} className="flex justify-between items-center p-4 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-foreground/5 transition-colors cursor-pointer">
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center text-xl shadow-sm ${tx.color}`}>
-                  {tx.icon}
+          {!transactions || transactions.length === 0 ? (
+            <p className="text-center text-sm text-foreground/50 py-8 border border-dashed border-foreground/20 rounded-2xl">
+              No hay transacciones aún. (O el RLS está bloqueando la vista sin Login).
+            </p>
+          ) : (
+            transactions.map((tx: any) => (
+              <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-foreground/5 transition-colors cursor-pointer">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-xl border flex items-center justify-center text-xl shadow-sm bg-foreground/5">
+                    {/* Placeholder icon hasta tener categorías conectadas */}
+                    {tx.type === 'income' ? '💵' : '🛒'}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm capitalize">{tx.description}</p>
+                    <p className="text-xs font-medium text-foreground/50 mt-0.5">
+                      {tx.payment_method}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-sm">{tx.title}</p>
-                  <p className="text-xs font-medium text-foreground/50 mt-0.5">{tx.cat}</p>
-                </div>
+                <p className={`font-bold tracking-tight ${tx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
+                  {tx.type === 'income' ? '+' : '-'}${Number(tx.amount).toLocaleString()}
+                </p>
               </div>
-              <p className={`font-bold tracking-tight ${tx.amount.startsWith('+') ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
-                {tx.amount}
-              </p>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
     </main>
