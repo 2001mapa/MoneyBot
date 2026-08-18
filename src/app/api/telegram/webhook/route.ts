@@ -54,6 +54,7 @@ const transactionSchema: Schema = {
     type: { 
       type: SchemaType.STRING, 
       description: "expense para gastos, income para ingresos",
+      format: "enum",
       enum: ["income", "expense", "none"] 
     },
     category_name: { 
@@ -63,6 +64,7 @@ const transactionSchema: Schema = {
     payment_method: { 
       type: SchemaType.STRING, 
       description: "Método de pago deducido",
+      format: "enum",
       enum: ["efectivo", "nequi", "daviplata", "banco", "tarjeta", "none"] 
     },
     description: { 
