@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai'
 import { createClient } from '@supabase/supabase-js'
+import { Redis } from '@upstash/redis'
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN!
 
@@ -9,6 +10,12 @@ const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+// Cliente Redis para memoria conversacional
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+})
 
 async function sendMessage(chatId: string | number, text: string) {
   await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
@@ -35,31 +42,29 @@ async function getVoiceFileBase64(fileId: string): Promise<string | null> {
   }
 }
 
-// Esquema estricto para Gemini
-const transactionSchema: Schema = {
+// Esquema de ruteo maestro para Gemini
+const actionSchema: Schema = {
   type: SchemaType.OBJECT,
   properties: {
-    is_transaction: { 
+    action_type: {
+      type: SchemaType.STRING,
+      description: "Tipo de intención detectada en el mensaje.",
+      format: "enum",
+      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "query", "delete_last", "delete_all", "none"]
+    },
+    is_complete: { 
       type: SchemaType.BOOLEAN, 
-      description: "Verdadero si el usuario está reportando un gasto o ingreso. Falso si solo es una charla normal." 
-    },
-    is_deletion: {
-      type: SchemaType.BOOLEAN,
-      description: "Verdadero si el usuario pide eliminar, borrar o deshacer el último registro."
-    },
-    is_complete: {
-      type: SchemaType.BOOLEAN,
-      description: "Verdadero si se tiene el monto, la descripción y el método de pago claro."
+      description: "True si se tienen los datos obligatorios para la acción elegida. False si debes preguntar lo que falta al usuario." 
     },
     amount: { 
       type: SchemaType.NUMBER, 
-      description: "Monto de la transacción en positivo. 0 si no aplica." 
+      description: "Monto involucrado (transacción, deuda, abono o presupuesto). 0 si no aplica." 
     },
-    type: { 
+    transaction_type: { 
       type: SchemaType.STRING, 
-      description: "expense para gastos, income para ingresos",
+      description: "expense o income (solo para action_type=transaction)", 
       format: "enum",
-      enum: ["income", "expense", "none"] 
+      enum: ["expense", "income", "none"] 
     },
     category_name: { 
       type: SchemaType.STRING, 
@@ -73,14 +78,24 @@ const transactionSchema: Schema = {
     },
     description: { 
       type: SchemaType.STRING, 
-      description: "Breve descripción (Ej: Almuerzo corrientazo)" 
+      description: "Breve descripción (Ej: Almuerzo corrientazo, Prestamo a Juan)." 
+    },
+    person_name: { 
+      type: SchemaType.STRING, 
+      description: "Nombre de la persona involucrada (solo para deudas o abonos)." 
+    },
+    debt_type: { 
+      type: SchemaType.STRING, 
+      description: "i_owe (yo le debo a la persona) o they_owe (la persona me debe).",
+      format: "enum",
+      enum: ["i_owe", "they_owe", "none"] 
     },
     response_to_user: { 
       type: SchemaType.STRING, 
-      description: "Tu respuesta como Luka al usuario. Si faltan datos (ej: método de pago), pregúntalos cálidamente. Si todo está, confirma el registro." 
+      description: "Tu respuesta como Luka. Si faltan datos, pregúntalos. Si te piden un estado de cuenta, usa el contexto que se te provee. Sé cálido y natural." 
     }
   },
-  required: ["is_transaction", "is_deletion", "is_complete", "amount", "type", "category_name", "payment_method", "description", "response_to_user"]
+  required: ["action_type", "is_complete", "amount", "transaction_type", "category_name", "payment_method", "description", "person_name", "debt_type", "response_to_user"]
 }
 
 export async function POST(req: Request) {
@@ -95,37 +110,103 @@ export async function POST(req: Request) {
 
     if (!isVoice && !isText) return NextResponse.json({ status: 'ignored' })
 
-    // 1. Verificar si el usuario está vinculado en Supabase
+    // 1. Verificar si el usuario está vinculado
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('id')
+      .select('*')
       .eq('telegram_chat_id', chatId)
       .single()
 
     if (!profile) {
       const loginUrl = `https://${req.headers.get('host')}/login?chat_id=${chatId}`
-      await sendMessage(chatId, `¡Hola! Soy Luka 👋.\nPara poder guardar tus gastos de forma segura, necesito que vincules tu cuenta de Telegram con la plataforma web.\n\nPor favor, inicia sesión aquí: ${loginUrl}`)
+      await sendMessage(chatId, `¡Hola! Soy Luka 👋.\nPara poder gestionar tus finanzas, necesito que vincules tu cuenta de Telegram con la plataforma web.\n\nPor favor, inicia sesión aquí: ${loginUrl}`)
       return NextResponse.json({ status: 'unlinked' })
     }
 
-    // Informar al usuario que estamos pensando
+    // Informar que estamos pensando
     await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendChatAction`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
     })
 
+    // 2. Extraer Contexto Financiero de Supabase
+    // Traer todas las transacciones para calcular balance
+    const { data: allTxs } = await supabaseAdmin
+      .from('transactions')
+      .select('amount, type, description, created_at')
+      .eq('user_id', profile.id)
+      .order('created_at', { ascending: false })
+
+    let balanceTotal = 0;
+    let gastosMes = 0;
+    const last3Txs = [];
+
+    if (allTxs) {
+      for (let i = 0; i < allTxs.length; i++) {
+        const tx = allTxs[i];
+        if (tx.type === 'income') balanceTotal += Number(tx.amount);
+        if (tx.type === 'expense') {
+          balanceTotal -= Number(tx.amount);
+          gastosMes += Number(tx.amount);
+        }
+        if (i < 3) {
+          last3Txs.push(`- ${tx.type === 'income' ? '+' : '-'}$${tx.amount} (${tx.description})`);
+        }
+      }
+    }
+
+    // Traer deudas para resumen
+    const { data: allDebts } = await supabaseAdmin
+      .from('debts')
+      .select('debt_type, balance_remaining')
+      .eq('user_id', profile.id)
+      .neq('status', 'paid')
+
+    let deboTotal = 0;
+    let meDebenTotal = 0;
+    if (allDebts) {
+      allDebts.forEach(d => {
+        if (d.debt_type === 'i_owe') deboTotal += Number(d.balance_remaining);
+        if (d.debt_type === 'they_owe') meDebenTotal += Number(d.balance_remaining);
+      });
+    }
+
+    const budgetLimit = Number(profile.monthly_budget) || 0;
+    const budgetRemaining = budgetLimit > 0 ? budgetLimit - gastosMes : 0;
+
+    // 3. Extraer Memoria Conversacional de Redis
+    const redisKey = `chat_history_${chatId}`;
+    const rawHistory = await redis.lrange(redisKey, 0, -1);
+    const chatHistory = rawHistory.length > 0 ? rawHistory.join('\n') : "Sin historial reciente.";
+
+    // Construir System Prompt Dinámico
+    const systemPrompt = `Eres Luka, un asistente financiero personal muy inteligente (Alias del usuario: ${profile.bot_alias}).
+Analiza el mensaje (junto con el historial de chat para entender respuestas cortas) y determina la intención usando la estructura JSON proveída.
+
+CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
+- Saldo Total: $${balanceTotal.toLocaleString('es-CO')} ${profile.currency}
+- Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible: $${budgetRemaining.toLocaleString('es-CO')})
+- Deudas: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
+- Últimos 3 movimientos:\n${last3Txs.join('\n') || 'Ninguno'}
+
+HISTORIAL DE CHAT RECIENTE (Utilízalo para entender si el usuario está respondiendo a una pregunta tuya anterior, como indicar un medio de pago que faltaba):
+${chatHistory}
+
+Toma en cuenta este contexto al generar tu 'response_to_user', especialmente si el action_type es 'query' (consulta de saldo o dudas) o si es para completar un 'transaction' usando el historial.`;
+
+    // 4. Llamar a Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-3.5-flash',
       generationConfig: {
         responseMimeType: "application/json",
-        responseSchema: transactionSchema,
+        responseSchema: actionSchema,
       }
     })
 
-    const systemPrompt = "Eres Luka, un asistente financiero personal muy inteligente. Analiza el mensaje y extrae los datos JSON."
     let result;
+    const userMessageText = isText ? message.text : 'Nota de voz procesada';
 
     if (isVoice) {
       const audioBase64 = await getVoiceFileBase64(message.voice.file_id)
@@ -138,70 +219,111 @@ export async function POST(req: Request) {
         { inlineData: { data: audioBase64, mimeType: "audio/ogg" } }
       ])
     } else {
-      result = await model.generateContent(`${systemPrompt}\nMensaje: "${message.text}"`)
+      result = await model.generateContent(`${systemPrompt}\nNuevo Mensaje del Usuario: "${message.text}"`)
     }
 
     const jsonStr = result.response.text()
     const parsedData = JSON.parse(jsonStr)
 
-    // 2. Si es una petición de borrado o una transacción nueva
-    if (parsedData.is_deletion) {
+    // 5. Ruteo y Ejecución en Base de Datos
+    
+    // CASO A: Borrado Total
+    if (parsedData.action_type === 'delete_all' && parsedData.is_complete) {
+      await supabaseAdmin.from('transactions').delete().eq('user_id', profile.id)
+      await supabaseAdmin.from('debts').delete().eq('user_id', profile.id)
+    }
+    
+    // CASO B: Borrado Único (Último)
+    else if (parsedData.action_type === 'delete_last' && parsedData.is_complete) {
       const { data: lastTx } = await supabaseAdmin
-        .from('transactions')
-        .select('id')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-      
+        .from('transactions').select('id').eq('user_id', profile.id)
+        .order('created_at', { ascending: false }).limit(1).single()
       if (lastTx) {
         await supabaseAdmin.from('transactions').delete().eq('id', lastTx.id)
       }
-    } else if (parsedData.is_transaction && parsedData.is_complete && parsedData.type !== 'none') {
-      
-      // Buscar o crear categoría
+    }
+    
+    // CASO C: Transacción Nueva
+    else if (parsedData.action_type === 'transaction' && parsedData.is_complete && parsedData.transaction_type !== 'none') {
       let categoryId = null;
       if (parsedData.category_name) {
-        // Normalizar nombre de categoría para buscar
         const { data: cat } = await supabaseAdmin
-          .from('categories')
-          .select('id')
-          .eq('user_id', profile.id)
-          .ilike('name', parsedData.category_name)
-          .single()
+          .from('categories').select('id').eq('user_id', profile.id).ilike('name', parsedData.category_name).single()
         
         if (cat) {
           categoryId = cat.id
         } else {
-          // Crear categoría nueva
-          const { data: newCat } = await supabaseAdmin
-            .from('categories')
-            .insert({
-              user_id: profile.id,
-              name: parsedData.category_name,
-              type: parsedData.type,
-              icon: '🏷️'
-            })
-            .select('id')
-            .single()
+          const { data: newCat } = await supabaseAdmin.from('categories').insert({
+            user_id: profile.id, name: parsedData.category_name, type: parsedData.transaction_type, icon: '🏷️'
+          }).select('id').single()
           if (newCat) categoryId = newCat.id
         }
       }
 
-      // Insertar Transacción
       await supabaseAdmin.from('transactions').insert({
         user_id: profile.id,
         category_id: categoryId,
-        type: parsedData.type,
+        type: parsedData.transaction_type,
         amount: parsedData.amount,
         payment_method: parsedData.payment_method !== 'none' ? parsedData.payment_method : 'efectivo',
         description: parsedData.description,
         source: isVoice ? 'telegram_voice' : 'telegram_text',
-        raw_input: isText ? message.text : 'Nota de voz'
+        raw_input: userMessageText
       })
     }
 
-    // 3. Enviar la respuesta amigable generada por Gemini
+    // CASO D: Deuda Nueva
+    else if (parsedData.action_type === 'debt_create' && parsedData.is_complete) {
+      await supabaseAdmin.from('debts').insert({
+        user_id: profile.id,
+        person_name: parsedData.person_name || 'Desconocido',
+        debt_type: parsedData.debt_type,
+        total_amount: parsedData.amount,
+        balance_remaining: parsedData.amount,
+        description: parsedData.description
+      })
+    }
+
+    // CASO E: Abono a Deuda (Aún experimental, requiere buscar la deuda correcta)
+    else if (parsedData.action_type === 'debt_payment' && parsedData.is_complete) {
+      // Buscar deuda más coincidente por person_name
+      const { data: existingDebts } = await supabaseAdmin
+        .from('debts').select('*').eq('user_id', profile.id).neq('status', 'paid')
+        .ilike('person_name', `%${parsedData.person_name}%`).limit(1)
+
+      if (existingDebts && existingDebts.length > 0) {
+        const targetDebt = existingDebts[0];
+        const newBalance = Math.max(0, Number(targetDebt.balance_remaining) - Number(parsedData.amount));
+        const newStatus = newBalance === 0 ? 'paid' : 'pending';
+
+        await supabaseAdmin.from('debt_payments').insert({
+          debt_id: targetDebt.id,
+          user_id: profile.id,
+          amount: parsedData.amount,
+          payment_method: parsedData.payment_method !== 'none' ? parsedData.payment_method : 'efectivo'
+        });
+
+        await supabaseAdmin.from('debts').update({
+          balance_remaining: newBalance,
+          status: newStatus
+        }).eq('id', targetDebt.id);
+      }
+    }
+
+    // CASO F: Ajuste de Presupuesto
+    else if (parsedData.action_type === 'budget_update' && parsedData.is_complete) {
+      await supabaseAdmin.from('profiles').update({
+        monthly_budget: parsedData.amount
+      }).eq('id', profile.id)
+    }
+
+    // 6. Guardar la conversación en la memoria Redis
+    await redis.rpush(redisKey, `Usuario: ${userMessageText}`)
+    await redis.rpush(redisKey, `Luka: ${parsedData.response_to_user}`)
+    // Mantener solo los últimos 10 mensajes (5 interacciones completas)
+    await redis.ltrim(redisKey, -10, -1)
+
+    // 7. Enviar la respuesta amigable generada por Gemini
     await sendMessage(chatId, parsedData.response_to_user)
 
     return NextResponse.json({ status: 'success' })
