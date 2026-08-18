@@ -181,7 +181,9 @@ export async function POST(req: Request) {
     const chatHistory = rawHistory.length > 0 ? rawHistory.join('\n') : "Sin historial reciente.";
 
     // Construir System Prompt Dinámico
-    const systemPrompt = `Eres Luka, un asistente financiero personal muy inteligente (Alias del usuario: ${profile.bot_alias}).
+    const botName = profile.bot_alias || 'Luka';
+    const userName = profile.full_name || 'Usuario';
+    const systemPrompt = `Eres ${botName}, un asistente financiero personal muy inteligente. Estás ayudando a tu dueño/usuario llamado ${userName}.
 Analiza el mensaje (junto con el historial de chat para entender respuestas cortas) y determina la intención usando la estructura JSON.
 
 REGLA CRÍTICA DE DUPLICADOS:
