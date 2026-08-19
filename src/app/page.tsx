@@ -21,7 +21,7 @@ export default async function Home() {
     .order('transaction_date', { ascending: false })
     .limit(10)
 
-  // Calcular totales (idealmente esto se hace en una vista o RPC de Supabase)
+  // Calcular totales
   let totalBalance = 0
   let ingresosMes = 0
   let gastosMes = 0
@@ -36,6 +36,18 @@ export default async function Home() {
       } else if (tx.type === 'expense') {
         totalBalance -= Number(tx.amount)
         gastosMes += Number(tx.amount)
+      }
+    })
+  }
+
+  // Ajustar el balance total con las deudas (Flujo de caja real)
+  const { data: allDebts } = await supabase.from('debts').select('*').eq('user_id', user?.id || '').neq('status', 'paid')
+  if (allDebts) {
+    allDebts.forEach(debt => {
+      if (debt.debt_type === 'i_owe') {
+        totalBalance += Number(debt.balance_remaining) // Dinero que entró a mi bolsillo prestado
+      } else if (debt.debt_type === 'they_owe') {
+        totalBalance -= Number(debt.balance_remaining) // Dinero que salió de mi bolsillo para prestar
       }
     })
   }
