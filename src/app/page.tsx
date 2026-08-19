@@ -6,9 +6,18 @@ export default async function Home() {
   const supabase = await createClient()
 
   // Obtener transacciones reales de la base de datos
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  let profile = { full_name: 'Usuario', currency: 'COP' }
+  if (user) {
+    const { data: profileData } = await supabase.from('profiles').select('full_name, currency').eq('id', user.id).single()
+    if (profileData) profile = profileData
+  }
+
   const { data: transactions, error } = await supabase
     .from('transactions')
     .select('*, categories(name, icon, color)')
+    .eq('user_id', user?.id || '')
     .order('transaction_date', { ascending: false })
     .limit(10)
 
@@ -17,7 +26,7 @@ export default async function Home() {
   let ingresosMes = 0
   let gastosMes = 0
 
-  const { data: allTx } = await supabase.from('transactions').select('*')
+  const { data: allTx } = await supabase.from('transactions').select('*').eq('user_id', user?.id || '')
   
   if (allTx) {
     allTx.forEach(tx => {
@@ -36,7 +45,7 @@ export default async function Home() {
       {/* Header */}
       <header className="flex justify-between items-start mb-8 mt-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Hola 👋</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Hola, {profile.full_name?.split(' ')[0] || 'Usuario'} 👋</h1>
           <p className="text-foreground/60 text-sm mt-1">Aquí está tu resumen real</p>
         </div>
         <ThemeSwitcher />
@@ -48,7 +57,7 @@ export default async function Home() {
           <Wallet className="w-32 h-32" />
         </div>
         <h2 className="text-background/80 font-medium text-sm mb-2">Balance Total</h2>
-        <p className="text-4xl font-extrabold tracking-tight">$ {totalBalance.toLocaleString()} <span className="text-lg text-background/60 font-medium">COP</span></p>
+        <p className="text-4xl font-extrabold tracking-tight">$ {totalBalance.toLocaleString()} <span className="text-lg text-background/60 font-medium">{profile.currency}</span></p>
       </section>
 
       {/* Stats Grid */}

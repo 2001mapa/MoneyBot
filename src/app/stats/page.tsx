@@ -49,16 +49,35 @@ export default function StatsPage() {
     loadStats()
   }, [])
 
+  const handleExportCSV = () => {
+    if (!data.length) return alert('No hay datos para exportar')
+    const csvRows = ['Categoría,Total Gastado']
+    data.forEach(item => {
+      csvRows.push(`${item.name},${item.value}`)
+    })
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'gastos_moneybot.csv'
+    a.click()
+  }
+
   return (
     <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
-      <header className="flex items-center mb-8 mt-4">
-        <Link href="/" className="mr-4 p-2 bg-foreground/5 rounded-full hover:bg-foreground/10 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Estadísticas</h1>
-          <p className="text-foreground/60 text-sm mt-1">Análisis de tus gastos</p>
+      <header className="flex items-center justify-between mb-8 mt-4">
+        <div className="flex items-center">
+          <Link href="/" className="mr-4 p-2 bg-foreground/5 rounded-full hover:bg-foreground/10 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Estadísticas</h1>
+            <p className="text-foreground/60 text-sm mt-1">Análisis de tus gastos</p>
+          </div>
         </div>
+        <button onClick={handleExportCSV} className="text-xs font-bold bg-blue-600 text-white px-3 py-2 rounded-xl shadow-sm hover:bg-blue-500 transition-colors">
+          Exportar CSV
+        </button>
       </header>
 
       {loading ? (

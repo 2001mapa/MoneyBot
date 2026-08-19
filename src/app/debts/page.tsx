@@ -30,6 +30,37 @@ export default function DebtsPage() {
 
   const filteredDebts = debts.filter(d => d.debt_type === tab)
 
+  const handleAbono = async (debt: any) => {
+    const amountStr = prompt(`¿Cuánto deseas abonar a la deuda de ${debt.person_name}? (Restante: $${debt.balance_remaining})`)
+    if (!amountStr) return
+    const amount = Number(amountStr)
+    if (isNaN(amount) || amount <= 0 || amount > debt.balance_remaining) {
+      return alert("Monto inválido")
+    }
+
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const newBalance = debt.balance_remaining - amount
+    const newStatus = newBalance === 0 ? 'paid' : 'pending'
+
+    await supabase.from('debt_payments').insert({
+      debt_id: debt.id,
+      user_id: user.id,
+      amount: amount,
+      payment_method: 'efectivo'
+    })
+
+    await supabase.from('debts').update({
+      balance_remaining: newBalance,
+      status: newStatus
+    }).eq('id', debt.id)
+
+    setDebts(debts.map(d => d.id === debt.id ? { ...d, balance_remaining: newBalance, status: newStatus } : d))
+    alert(`Abono de $${amount} registrado con éxito.`)
+  }
+
   return (
     <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
       <header className="flex items-center mb-6 mt-4">
@@ -91,7 +122,7 @@ export default function DebtsPage() {
 
               {debt.status !== 'paid' && (
                 <div className="flex gap-2">
-                  <button className="flex-1 bg-foreground text-background font-bold py-2.5 text-xs rounded-xl shadow-sm hover:opacity-90">
+                  <button onClick={() => handleAbono(debt)} className="flex-1 bg-foreground text-background font-bold py-2.5 text-xs rounded-xl shadow-sm hover:opacity-90">
                     Abonar
                   </button>
                   <button className="flex-1 bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10">

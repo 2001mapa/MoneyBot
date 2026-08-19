@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, LogOut, User, Palette, Coins, Bot, Wallet } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null)
@@ -12,6 +13,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const { setTheme } = useTheme()
 
   useEffect(() => {
     async function loadProfile() {
@@ -117,7 +119,10 @@ export default function ProfilePage() {
                 </label>
                 <select 
                   value={profile.theme || 'luxury_gold'} 
-                  onChange={e => setProfile({...profile, theme: e.target.value})}
+                  onChange={e => {
+                    setProfile({...profile, theme: e.target.value});
+                    setTheme(e.target.value);
+                  }}
                   className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
                 >
                   <option value="luxury_gold">Luxury Gold</option>
