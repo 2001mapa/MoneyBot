@@ -2,39 +2,45 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, PlusCircle, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
+import { ArrowLeft, PlusCircle, CheckCircle2, X } from 'lucide-react'
 
 export default function DebtsPage() {
   const [debts, setDebts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'i_owe' | 'they_owe'>('i_owe')
+  
+  // Modal states
+  const [payModalDebt, setPayModalDebt] = useState<any>(null)
+  const [payAmount, setPayAmount] = useState('')
+  const [detailsModalDebt, setDetailsModalDebt] = useState<any>(null)
+  const [debtPayments, setDebtPayments] = useState<any[]>([])
+  const [loadingDetails, setLoadingDetails] = useState(false)
 
   useEffect(() => {
-    async function loadDebts() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return setLoading(false)
-
-      const { data } = await supabase
-        .from('debts')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-      
-      if (data) setDebts(data)
-      setLoading(false)
-    }
     loadDebts()
   }, [])
 
+  const loadDebts = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return setLoading(false)
+
+    const { data } = await supabase
+      .from('debts')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (data) setDebts(data)
+    setLoading(false)
+  }
+
   const filteredDebts = debts.filter(d => d.debt_type === tab)
 
-  const handleAbono = async (debt: any) => {
-    const amountStr = prompt(`¿Cuánto deseas abonar a la deuda de ${debt.person_name}? (Restante: $${debt.balance_remaining})`)
-    if (!amountStr) return
-    const amount = Number(amountStr)
-    if (isNaN(amount) || amount <= 0 || amount > debt.balance_remaining) {
+  const handleAbonoSubmit = async () => {
+    const amount = Number(payAmount)
+    if (isNaN(amount) || amount <= 0 || amount > payModalDebt.balance_remaining) {
       return alert("Monto inválido")
     }
 
@@ -42,11 +48,11 @@ export default function DebtsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const newBalance = debt.balance_remaining - amount
+    const newBalance = payModalDebt.balance_remaining - amount
     const newStatus = newBalance === 0 ? 'paid' : 'pending'
 
     await supabase.from('debt_payments').insert({
-      debt_id: debt.id,
+      debt_id: payModalDebt.id,
       user_id: user.id,
       amount: amount,
       payment_method: 'efectivo'
@@ -55,14 +61,29 @@ export default function DebtsPage() {
     await supabase.from('debts').update({
       balance_remaining: newBalance,
       status: newStatus
-    }).eq('id', debt.id)
+    }).eq('id', payModalDebt.id)
 
-    setDebts(debts.map(d => d.id === debt.id ? { ...d, balance_remaining: newBalance, status: newStatus } : d))
-    alert(`Abono de $${amount} registrado con éxito.`)
+    setDebts(debts.map(d => d.id === payModalDebt.id ? { ...d, balance_remaining: newBalance, status: newStatus } : d))
+    setPayModalDebt(null)
+    setPayAmount('')
+  }
+
+  const openDetails = async (debt: any) => {
+    setDetailsModalDebt(debt)
+    setLoadingDetails(true)
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('debt_payments')
+      .select('*')
+      .eq('debt_id', debt.id)
+      .order('created_at', { ascending: false })
+    
+    if (data) setDebtPayments(data)
+    setLoadingDetails(false)
   }
 
   return (
-    <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
+    <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full relative">
       <header className="flex items-center mb-6 mt-4">
         <Link href="/" className="mr-4 p-2 bg-foreground/5 rounded-full hover:bg-foreground/10 transition-colors">
           <ArrowLeft className="w-5 h-5" />
@@ -122,22 +143,88 @@ export default function DebtsPage() {
 
               {debt.status !== 'paid' && (
                 <div className="flex gap-2">
-                  <button onClick={() => handleAbono(debt)} className="flex-1 bg-foreground text-background font-bold py-2.5 text-xs rounded-xl shadow-sm hover:opacity-90">
+                  <button onClick={() => setPayModalDebt(debt)} className="flex-1 bg-foreground text-background font-bold py-2.5 text-xs rounded-xl shadow-sm hover:opacity-90">
                     Abonar
                   </button>
-                  <button onClick={() => alert(debt.description ? `Detalles: ${debt.description}` : 'No hay detalles adicionales para esta deuda.')} className="flex-1 bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10">
+                  <button onClick={() => openDetails(debt)} className="flex-1 bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10">
                     Detalles
                   </button>
                 </div>
+              )}
+              {debt.status === 'paid' && (
+                <button onClick={() => openDetails(debt)} className="w-full bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10 mt-2">
+                  Ver Historial
+                </button>
               )}
             </div>
           ))
         )}
       </div>
 
-      <button className="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500 hover:scale-105 transition-all text-white z-50">
-        <PlusCircle className="w-7 h-7" />
-      </button>
+      {/* Pay Modal */}
+      {payModalDebt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="bg-background border border-foreground/10 p-6 rounded-3xl w-full max-w-sm shadow-2xl relative">
+            <button onClick={() => setPayModalDebt(null)} className="absolute top-4 right-4 p-2 bg-foreground/5 rounded-full text-foreground/60 hover:text-foreground">
+              <X className="w-4 h-4" />
+            </button>
+            <h2 className="text-xl font-bold mb-1">Registrar Abono</h2>
+            <p className="text-sm text-foreground/60 mb-6">¿Cuánto vas a abonar a {payModalDebt.person_name}?</p>
+            
+            <div className="mb-6">
+              <label className="text-xs font-bold uppercase tracking-wider text-foreground/50 mb-2 block">Monto a abonar</label>
+              <input 
+                type="number" 
+                value={payAmount}
+                onChange={e => setPayAmount(e.target.value)}
+                placeholder={`Máximo: $${payModalDebt.balance_remaining}`}
+                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            <button onClick={handleAbonoSubmit} className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-blue-500 transition-colors">
+              Confirmar Abono
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Details Modal */}
+      {detailsModalDebt && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-sm">
+          <div className="bg-background border-t sm:border border-foreground/10 p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-md shadow-2xl relative max-h-[80vh] flex flex-col">
+            <button onClick={() => setDetailsModalDebt(null)} className="absolute top-4 right-4 p-2 bg-foreground/5 rounded-full text-foreground/60 hover:text-foreground">
+              <X className="w-4 h-4" />
+            </button>
+            <h2 className="text-xl font-bold mb-1">Detalles de la Deuda</h2>
+            <p className="text-sm text-foreground/60 mb-6">{detailsModalDebt.description || 'Sin descripción'}</p>
+            
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground/50 mb-3">Historial de Abonos</h3>
+            <div className="overflow-y-auto flex-1 pr-2">
+              {loadingDetails ? (
+                <p className="text-sm text-foreground/50 py-4">Cargando historial...</p>
+              ) : debtPayments.length === 0 ? (
+                <p className="text-sm text-foreground/50 py-4 italic">No hay abonos registrados todavía.</p>
+              ) : (
+                <div className="space-y-3">
+                  {debtPayments.map(payment => (
+                    <div key={payment.id} className="flex justify-between items-center p-3 bg-foreground/5 rounded-xl">
+                      <div>
+                        <p className="font-bold text-sm">${Number(payment.amount).toLocaleString()}</p>
+                        <p className="text-[10px] text-foreground/50 uppercase">{new Date(payment.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <span className="text-xs font-medium px-2 py-1 bg-foreground/10 rounded-md">
+                        {payment.payment_method}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </main>
   )
 }
