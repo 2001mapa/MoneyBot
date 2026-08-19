@@ -68,7 +68,11 @@ const actionSchema: Schema = {
     },
     category_name: { 
       type: SchemaType.STRING, 
-      description: "Categoría sugerida (Ej: Alimentación, Transporte, Salario). Vacío si no aplica." 
+      description: "Nombre de la categoría (ej. Comida, Transporte, Salario). Usa las categorías existentes si aplican." 
+    },
+    category_icon: {
+      type: SchemaType.STRING,
+      description: "Un solo emoji que represente fielmente la categoría (ej. 🍔, 🚌, 💰, 🛒, 🏠, ⚡). Útil al crear nuevas categorías."
     },
     payment_method: { 
       type: SchemaType.STRING, 
@@ -318,7 +322,7 @@ ${chatHistory}`;
           categoryId = cat.id
         } else {
           const { data: newCat } = await supabaseAdmin.from('categories').insert({
-            user_id: profile.id, name: parsedData.category_name, type: parsedData.transaction_type, icon: '🏷️'
+            user_id: profile.id, name: parsedData.category_name, type: parsedData.transaction_type, icon: parsedData.category_icon || '🏷️'
           }).select('id').single()
           if (newCat) categoryId = newCat.id
         }
