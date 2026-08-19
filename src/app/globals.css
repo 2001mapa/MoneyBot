@@ -1,15 +1,130 @@
 @import "tailwindcss";
 
+/* =====================
+   LIGHT (default)
+   ===================== */
 :root {
-  --background: #ffffff;
-  --foreground: #09090b;
-  --card: #f4f4f5;
-  --card-foreground: #09090b;
-  --primary: #2563eb;
-  --primary-foreground: #f8fafc;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --card-elevated: #f1f5f9;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
   --border: #e2e8f0;
+  --income: #059669;
+  --expense: #dc2626;
+}
+
+/* =====================
+   DARK
+   ===================== */
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --card-elevated: #27272a;
+  --primary: #818cf8;
+  --primary-foreground: #1e1b4b;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #3f3f46;
+  --income: #34d399;
+  --expense: #f87171;
+}
+
+/* =====================
+   LUXURY GOLD
+   ===================== */
+.luxury_gold {
+  --background: #080808;
+  --foreground: #fdf6e3;
+  --card: #111111;
+  --card-foreground: #fdf6e3;
+  --card-elevated: #1a1a1a;
+  --primary: #c9a84c;
+  --primary-foreground: #080808;
+  --muted: #1c1c1c;
+  --muted-foreground: #a09060;
+  --border: #2a2218;
+  --income: #c9a84c;
+  --expense: #b94040;
+}
+
+/* =====================
+   RETRO PIXEL
+   ===================== */
+.retro_pixel {
+  --background: #14122b;
+  --foreground: #e8e0ff;
+  --card: #1e1a3a;
+  --card-foreground: #e8e0ff;
+  --card-elevated: #2a2550;
+  --primary: #7c3aed;
+  --primary-foreground: #ede9fe;
+  --muted: #252048;
+  --muted-foreground: #9b8fcf;
+  --border: #3730a3;
+  --income: #34d399;
+  --expense: #f472b6;
+  --font-sans: 'Courier New', Courier, monospace;
+}
+
+/* =====================
+   CYBERPUNK
+   ===================== */
+.cyberpunk {
+  --background: #050505;
+  --foreground: #f0f0f0;
+  --card: #0f0f0f;
+  --card-foreground: #f0f0f0;
+  --card-elevated: #1a1a1a;
+  --primary: #f9e11e;
+  --primary-foreground: #050505;
+  --muted: #181818;
+  --muted-foreground: #888888;
+  --border: #00b4d8;
+  --income: #39ff14;
+  --expense: #ff3864;
+}
+
+/* =====================
+   EMERALD
+   ===================== */
+.emerald {
+  --background: #011a12;
+  --foreground: #ecfdf5;
+  --card: #042f20;
+  --card-foreground: #ecfdf5;
+  --card-elevated: #065f46;
+  --primary: #10b981;
+  --primary-foreground: #011a12;
+  --muted: #064e3b;
+  --muted-foreground: #6ee7b7;
+  --border: #065f46;
+  --income: #34d399;
+  --expense: #fca5a5;
+}
+
+/* =====================
+   SOFT PASTEL
+   ===================== */
+.soft_pastel {
+  --background: #fdfcfb;
+  --foreground: #2d1f1a;
+  --card: #ffffff;
+  --card-foreground: #2d1f1a;
+  --card-elevated: #fef3f2;
+  --primary: #e879a0;
+  --primary-foreground: #ffffff;
+  --muted: #fdf2f8;
+  --muted-foreground: #9d6b82;
+  --border: #fce7f3;
+  --income: #059669;
+  --expense: #e11d48;
 }
 
 @theme inline {
@@ -17,91 +132,37 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-card-elevated: var(--card-elevated);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-income: var(--income);
+  --color-expense: var(--expense);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
-}
-
-.luxury_gold {
-  --background: #0a0a0a;
-  --foreground: #f8fafc;
-  --card: #141414;
-  --card-foreground: #f8fafc;
-  --primary: #d4af37;
-  --primary-foreground: #000000;
-  --muted: #1f1f1f;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
-}
-
-.retro_pixel {
-  --background: #1e1b4b;
-  --foreground: #e0e7ff;
-  --card: #2e1065;
-  --card-foreground: #e0e7ff;
-  --primary: #4ade80;
-  --primary-foreground: #022c22;
-  --muted: #312e81;
-  --muted-foreground: #818cf8;
-  --border: #4338ca;
-  --font-sans: 'Courier New', Courier, monospace;
-}
-
-.cyberpunk {
-  --background: #000000;
-  --foreground: #f8fafc;
-  --card: #121212;
-  --card-foreground: #f8fafc;
-  --primary: #fcee0a;
-  --primary-foreground: #000000;
-  --muted: #1c1c1c;
-  --muted-foreground: #a1a1aa;
-  --border: #06b6d4;
-}
-
-.emerald {
-  --background: #022c22;
-  --foreground: #ecfdf5;
-  --card: #064e3b;
-  --card-foreground: #ecfdf5;
-  --primary: #10b981;
-  --primary-foreground: #022c22;
-  --muted: #065f46;
-  --muted-foreground: #6ee7b7;
-  --border: #047857;
-}
-
-.soft_pastel {
-  --background: #fafaf9;
-  --foreground: #1c1917;
-  --card: #ffffff;
-  --card-foreground: #1c1917;
-  --primary: #f472b6;
-  --primary-foreground: #fff1f2;
-  --muted: #f5f5f4;
-  --muted-foreground: #78716c;
-  --border: #e7e5e4;
-}
-
-.dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans, 'Inter'), Arial, Helvetica, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Cyberpunk scanline effect subtle */
+.cyberpunk body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 180, 216, 0.015) 2px, rgba(0, 180, 216, 0.015) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Smooth theme icon transitions */
+svg {
+  transition: color 0.2s ease;
 }

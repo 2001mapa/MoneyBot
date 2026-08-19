@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Download } from 'lucide-react'
 import Link from 'next/link'
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6']
+const COLORS = ['#818cf8', '#10b981', '#f59e0b', '#f472b6', '#60a5fa', '#a78bfa', '#34d399']
 
 export default function StatsPage() {
   const [data, setData] = useState<any[]>([])
@@ -15,34 +15,26 @@ export default function StatsPage() {
   useEffect(() => {
     async function loadStats() {
       const supabase = createClient()
-      
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return setLoading(false)
 
-      // Por ahora traemos todo para calcular en cliente
       const { data: txs } = await supabase
         .from('transactions')
         .select('amount, type, description, transaction_date')
         .eq('user_id', user.id)
       
       if (txs) {
-        // Agrupar por categoría (por ahora agruparemos por 'description' simulando categoría, ya que el webhook insertó nombres en description)
-        // O mejor agrupar por type expense
         const expenses = txs.filter(t => t.type === 'expense')
-        
-        // Simular agrupación por "Categoría/Descripción"
         const grouped: Record<string, number> = {}
         expenses.forEach(t => {
           const desc = t.description.split(' ')[0] || 'Otros'
           grouped[desc] = (grouped[desc] || 0) + Number(t.amount)
         })
-
-        const chartData = Object.keys(grouped).map(key => ({
-          name: key,
-          value: grouped[key]
-        }))
-
-        setData(chartData.sort((a,b) => b.value - a.value).slice(0, 6)) // Top 6
+        const chartData = Object.keys(grouped)
+          .map(key => ({ name: key, value: grouped[key] }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 6)
+        setData(chartData)
       }
       setLoading(false)
     }
@@ -50,100 +42,152 @@ export default function StatsPage() {
   }, [])
 
   const handleExportCSV = () => {
-    if (!data.length) return alert('No hay datos para exportar')
+    if (!data.length) return
     const csvRows = ['Categoría,Total Gastado']
-    data.forEach(item => {
-      csvRows.push(`${item.name},${item.value}`)
-    })
+    data.forEach(item => csvRows.push(`${item.name},${item.value}`))
     const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'gastos_moneybot.csv'
+    a.download = 'gastos_panel_financiero.csv'
     a.click()
   }
 
+  const totalGastos = data.reduce((s, d) => s + d.value, 0)
+
   return (
-    <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
-      <header className="flex items-center justify-between mb-8 mt-4">
-        <div className="flex items-center">
-          <Link href="/" className="mr-4 p-2 bg-card rounded-full hover:bg-muted transition-colors">
+    <main className="flex-1 pb-28 max-w-lg mx-auto w-full">
+
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 pt-8 pb-6">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="p-2 bg-card border border-border rounded-xl hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
+            <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-0.5">Análisis</p>
             <h1 className="text-2xl font-bold tracking-tight">Estadísticas</h1>
-            <p className="text-muted-foreground text-sm mt-1">Análisis de tus gastos</p>
           </div>
         </div>
-        <button onClick={handleExportCSV} className="text-xs font-bold bg-primary text-primary-foreground px-3 py-2 rounded-xl shadow-sm hover:opacity-90 transition-colors">
-          Exportar CSV
+        <button
+          onClick={handleExportCSV}
+          className="p-2.5 bg-card border border-border rounded-xl hover:bg-muted transition-colors"
+          title="Exportar CSV"
+        >
+          <Download className="w-4 h-4" />
         </button>
       </header>
 
       {loading ? (
-        <p className="text-center text-muted-foreground py-10">Cargando datos...</p>
+        <div className="flex items-center justify-center py-20">
+          <p className="text-muted-foreground text-sm">Cargando datos...</p>
+        </div>
       ) : data.length === 0 ? (
-        <p className="text-center text-muted-foreground py-10">No hay datos suficientes para graficar.</p>
+        <div className="mx-6 text-center py-16 border border-dashed border-border rounded-3xl">
+          <p className="text-3xl mb-3">📊</p>
+          <p className="text-muted-foreground text-sm font-medium">Sin datos suficientes aún</p>
+          <p className="text-xs text-muted-foreground mt-1">Registra gastos con Luka para ver tus estadísticas</p>
+        </div>
       ) : (
-        <div className="space-y-8">
-          <section className="bg-foreground/[0.02] border border-foreground/5 p-6 rounded-3xl">
-            <h3 className="text-sm font-bold mb-6 text-center text-muted-foreground uppercase tracking-wider">Top Gastos (Doughnut)</h3>
-            <div className="h-64 w-full">
+        <div className="px-6 space-y-5">
+
+          {/* Total summary */}
+          <div className="bg-card border border-border rounded-3xl p-5">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Total gastado (top categorías)</p>
+            <p className="text-3xl font-black">${totalGastos.toLocaleString()}</p>
+          </div>
+
+          {/* Donut Chart */}
+          <div className="bg-card border border-border rounded-3xl p-6">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Distribución de gastos</h3>
+            <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={data}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
+                    innerRadius={56}
                     outerRadius={80}
-                    paddingAngle={5}
+                    paddingAngle={4}
                     dataKey="value"
+                    strokeWidth={0}
                   >
-                    {data.map((entry, index) => (
+                    {data.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Gasto']}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
+                    contentStyle={{
+                      borderRadius: '12px',
+                      border: '1px solid var(--border)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                      backgroundColor: 'var(--card)',
+                      color: 'var(--foreground)',
+                      fontSize: '12px'
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
             
-            <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="grid grid-cols-2 gap-2 mt-4">
               {data.map((item, i) => (
-                <div key={item.name} className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                <div key={item.name} className="flex items-center gap-2 p-2 rounded-xl bg-muted">
+                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                   <p className="text-xs font-medium truncate flex-1">{item.name}</p>
-                  <p className="text-xs font-bold">${item.value.toLocaleString()}</p>
+                  <p className="text-xs font-bold flex-shrink-0">${(item.value / 1000).toFixed(0)}k</p>
                 </div>
               ))}
             </div>
-          </section>
+          </div>
 
-          <section className="bg-foreground/[0.02] border border-foreground/5 p-6 rounded-3xl">
-            <h3 className="text-sm font-bold mb-6 text-center text-muted-foreground uppercase tracking-wider">Comparativa</h3>
-            <div className="h-64 w-full">
+          {/* Bar Chart */}
+          <div className="bg-card border border-border rounded-3xl p-6">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Comparativa por categoría</h3>
+            <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
-                  <XAxis dataKey="name" tick={{fontSize: 10}} interval={0} angle={-45} textAnchor="end" height={60} />
-                  <YAxis tickFormatter={(val) => `$${val/1000}k`} tick={{fontSize: 10}} width={45} />
-                  <Tooltip 
-                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Gasto']}
-                    cursor={{fill: 'var(--foreground)', opacity: 0.05}}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
+                <BarChart data={data} barSize={28}>
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                    interval={0}
+                    angle={-30}
+                    textAnchor="end"
+                    height={50}
+                    axisLine={false}
+                    tickLine={false}
                   />
-                  <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]}>
-                    {data.map((entry, index) => (
+                  <YAxis
+                    tickFormatter={(val) => `$${val / 1000}k`}
+                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                    width={42}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Gasto']}
+                    cursor={{ fill: 'var(--muted)', radius: 8 }}
+                    contentStyle={{
+                      borderRadius: '12px',
+                      border: '1px solid var(--border)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                      backgroundColor: 'var(--card)',
+                      color: 'var(--foreground)',
+                      fontSize: '12px'
+                    }}
+                  />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    {data.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </section>
+          </div>
+
         </div>
       )}
     </main>

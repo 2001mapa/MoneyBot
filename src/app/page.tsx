@@ -1,11 +1,10 @@
 import { ThemeSwitcher } from '@/components/ThemeSwitcher'
-import { ArrowDownIcon, ArrowUpIcon, Wallet } from 'lucide-react'
+import { TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function Home() {
   const supabase = await createClient()
 
-  // Obtener transacciones reales de la base de datos
   const { data: { user } } = await supabase.auth.getUser()
   
   let profile = { full_name: 'Usuario', currency: 'COP' }
@@ -14,19 +13,21 @@ export default async function Home() {
     if (profileData) profile = profileData
   }
 
-  const { data: transactions, error } = await supabase
+  const { data: transactions } = await supabase
     .from('transactions')
     .select('*, categories(name, icon, color)')
     .eq('user_id', user?.id || '')
     .order('transaction_date', { ascending: false })
     .limit(10)
 
-  // Calcular totales
   let totalBalance = 0
   let ingresosMes = 0
   let gastosMes = 0
 
-  const { data: allTx } = await supabase.from('transactions').select('*, categories(icon)').eq('user_id', user?.id || '')
+  const { data: allTx } = await supabase
+    .from('transactions')
+    .select('*, categories(icon)')
+    .eq('user_id', user?.id || '')
   
   if (allTx) {
     allTx.forEach(tx => {
@@ -40,87 +41,98 @@ export default async function Home() {
     })
   }
 
-  // Ajustar el balance total con las deudas (Flujo de caja real)
-  const { data: allDebts } = await supabase.from('debts').select('*').eq('user_id', user?.id || '').neq('status', 'paid')
+  const { data: allDebts } = await supabase
+    .from('debts')
+    .select('*')
+    .eq('user_id', user?.id || '')
+    .neq('status', 'paid')
   if (allDebts) {
     allDebts.forEach(debt => {
       if (debt.debt_type === 'i_owe') {
-        totalBalance += Number(debt.balance_remaining) // Dinero que entró a mi bolsillo prestado
+        totalBalance += Number(debt.balance_remaining)
       } else if (debt.debt_type === 'they_owe') {
-        totalBalance -= Number(debt.balance_remaining) // Dinero que salió de mi bolsillo para prestar
+        totalBalance -= Number(debt.balance_remaining)
       }
     })
   }
 
+  const isPositive = totalBalance >= 0
+
   return (
-    <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
+    <main className="flex-1 pb-28 max-w-lg mx-auto w-full">
+
       {/* Header */}
-      <header className="flex justify-between items-start mb-8 mt-4">
+      <header className="flex justify-between items-start px-6 pt-8 pb-6">
         <div>
+          <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-1">Panel Financiero</p>
           <h1 className="text-2xl font-bold tracking-tight">Hola, {profile.full_name?.split(' ')[0] || 'Usuario'} 👋</h1>
-          <p className="text-muted-foreground text-sm mt-1">Aquí está tu resumen real</p>
         </div>
         <ThemeSwitcher />
       </header>
 
       {/* Balance Card */}
-      <section className="bg-primary text-primary-foreground rounded-3xl p-7 mb-8 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Wallet className="w-32 h-32" />
+      <div className="px-6 mb-6">
+        <div className="bg-primary text-primary-foreground rounded-3xl p-7 shadow-2xl relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 opacity-[0.08]">
+            <Wallet className="w-40 h-40" />
+          </div>
+          <p className="text-primary-foreground/60 font-semibold text-xs uppercase tracking-widest mb-3">Balance Total</p>
+          <p className="text-4xl font-black tracking-tight leading-none mb-1">
+            {isPositive ? '+' : ''}${totalBalance.toLocaleString()}
+          </p>
+          <p className="text-primary-foreground/50 text-sm font-medium mt-2">{profile.currency} · Liquidez disponible</p>
         </div>
-        <h2 className="text-background/80 font-medium text-sm mb-2">Balance Total</h2>
-        <p className="text-4xl font-extrabold tracking-tight">$ {totalBalance.toLocaleString()} <span className="text-lg text-background/60 font-medium">{profile.currency}</span></p>
-      </section>
+      </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 flex items-start space-x-3">
-          <div className="bg-emerald-500/20 p-2 rounded-full text-emerald-600 dark:text-emerald-400 mt-0.5">
-            <ArrowDownIcon className="w-4 h-4" />
+      <div className="grid grid-cols-2 gap-4 px-6 mb-8">
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Ingresos</p>
+            <div className="p-1.5 rounded-lg bg-income/10">
+              <TrendingUp className="w-3.5 h-3.5 text-income" />
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wider">Ingresos</p>
-            <p className="font-bold text-lg text-emerald-700 dark:text-emerald-400">${ingresosMes.toLocaleString()}</p>
-          </div>
+          <p className="font-black text-xl tracking-tight text-income">${ingresosMes.toLocaleString()}</p>
         </div>
-        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 flex items-start space-x-3">
-          <div className="bg-red-500/20 p-2 rounded-full text-red-600 dark:text-red-400 mt-0.5">
-            <ArrowUpIcon className="w-4 h-4" />
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Gastos</p>
+            <div className="p-1.5 rounded-lg bg-expense/10">
+              <TrendingDown className="w-3.5 h-3.5 text-expense" />
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wider">Gastos</p>
-            <p className="font-bold text-lg text-red-700 dark:text-red-400">${gastosMes.toLocaleString()}</p>
-          </div>
+          <p className="font-black text-xl tracking-tight text-expense">${gastosMes.toLocaleString()}</p>
         </div>
       </div>
 
       {/* Recent Transactions */}
-      <section>
-        <div className="flex justify-between items-end mb-5">
-          <h3 className="text-lg font-bold">Movimientos Recientes</h3>
-          <button className="text-xs font-semibold text-primary hover:text-primary">Ver todos</button>
+      <section className="px-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-base font-bold">Movimientos Recientes</h3>
+          <span className="text-xs font-semibold text-primary">Ver todos</span>
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-2">
           {!transactions || transactions.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground py-8 border border-dashed border-border rounded-2xl">
-              No hay transacciones aún. (O el RLS está bloqueando la vista sin Login).
-            </p>
+            <div className="text-center py-12 border border-dashed border-border rounded-3xl">
+              <p className="text-2xl mb-2">📭</p>
+              <p className="text-sm text-muted-foreground font-medium">Sin movimientos aún</p>
+              <p className="text-xs text-muted-foreground mt-1">Dile algo a Luka por Telegram</p>
+            </div>
           ) : (
             transactions.map((tx: any) => (
-              <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-card transition-colors cursor-pointer">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-xl border flex items-center justify-center text-xl shadow-sm bg-card border-border">
+              <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl bg-card border border-border hover:bg-card-elevated transition-colors cursor-pointer group">
+                <div className="flex items-center space-x-3">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl bg-muted border border-border flex-shrink-0">
                     {tx.categories?.icon ? tx.categories.icon : (tx.type === 'income' ? '💵' : '🛒')}
                   </div>
-                  <div>
-                    <p className="font-bold text-sm capitalize">{tx.description}</p>
-                    <p className="text-xs font-medium text-muted-foreground mt-0.5">
-                      {tx.payment_method}
-                    </p>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm capitalize truncate">{tx.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 capitalize">{tx.payment_method}</p>
                   </div>
                 </div>
-                <p className={`font-bold tracking-tight ${tx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
+                <p className={`font-black text-sm tracking-tight flex-shrink-0 ml-2 ${tx.type === 'income' ? 'text-income' : 'text-expense'}`}>
                   {tx.type === 'income' ? '+' : '-'}${Number(tx.amount).toLocaleString()}
                 </p>
               </div>

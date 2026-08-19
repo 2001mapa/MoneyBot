@@ -4,29 +4,42 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, PieChart, Receipt, User } from 'lucide-react'
 
+const navItems = [
+  { href: '/', icon: Home, label: 'Inicio' },
+  { href: '/stats', icon: PieChart, label: 'Stats' },
+  { href: '/debts', icon: Receipt, label: 'Deudas' },
+  { href: '/profile', icon: User, label: 'Perfil' },
+]
+
 export function BottomNav() {
   const pathname = usePathname()
+  if (pathname === '/login') return null
 
-  if (pathname === '/login') return null;
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-background border-t border-border pb-safe z-40">
-      <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-        <Link href="/" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}>
-          <Home className="w-5 h-5 mb-1" />
-          <span className="text-[10px] font-medium uppercase tracking-wider">Inicio</span>
-        </Link>
-        <Link href="/stats" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/stats' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}>
-          <PieChart className="w-5 h-5 mb-1" />
-          <span className="text-[10px] font-medium uppercase tracking-wider">Stats</span>
-        </Link>
-        <Link href="/debts" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/debts' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}>
-          <Receipt className="w-5 h-5 mb-1" />
-          <span className="text-[10px] font-medium uppercase tracking-wider">Deudas</span>
-        </Link>
-        <Link href="/profile" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/profile' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}>
-          <User className="w-5 h-5 mb-1" />
-          <span className="text-[10px] font-medium uppercase tracking-wider">Perfil</span>
-        </Link>
+    <div className="fixed bottom-0 left-0 w-full z-40">
+      <div className="max-w-lg mx-auto">
+        <div className="bg-card border-t border-border">
+          <div className="flex justify-around items-center h-16 px-2">
+            {navItems.map(({ href, icon: Icon, label }) => {
+              const isActive = pathname === href
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors relative ${
+                    isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {isActive && (
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
+                  )}
+                  <Icon className="w-5 h-5" />
+                  <span className="text-[10px] font-semibold uppercase tracking-wider">{label}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )
