@@ -177,6 +177,9 @@ export async function POST(req: Request) {
       });
     }
 
+    // El balance real en el bolsillo es: lo que me ingresó - lo que gasté + lo que me prestaron - lo que presté
+    balanceTotal = balanceTotal + deboTotal - meDebenTotal;
+
     const budgetLimit = Number(profile.monthly_budget) || 0;
     const budgetRemaining = budgetLimit > 0 ? budgetLimit - gastosMes : 0;
 
@@ -192,14 +195,18 @@ export async function POST(req: Request) {
 Analiza el mensaje (junto con el historial de chat para entender respuestas cortas) y determina la intención usando la estructura JSON.
 
 REGLA CRÍTICA DE DUPLICADOS:
-Si el usuario está respondiendo a una pregunta tuya donde pedías información faltante (ej. el método de pago), DEBES recopilar los datos de la interacción anterior, unirlos con la respuesta actual, y marcar is_complete=true. Como is_complete=true causará que se INSERTE el registro en base de datos, NUNCA debes poner is_complete=true si vas a hacer una pregunta de seguimiento, porque eso causará que se guarde un registro incompleto y luego otro duplicado cuando el usuario responda. 
+Si el usuario está respondiendo a una pregunta tuya donde pedías información faltante (ej. el método de pago), DEBES recopilar los datos de la interacción anterior, unirlos con la respuesta actual, y marcar is_complete=true. NUNCA pongas is_complete=true si vas a hacer una pregunta. 
 REGLA ORO: is_complete = false -> Preguntas. is_complete = true -> Confirmas registro exitoso.
 
 CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
-- Saldo Total: $${balanceTotal.toLocaleString('es-CO')} ${profile.currency}
-- Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible: $${budgetRemaining.toLocaleString('es-CO')})
+- Liquidez Real en Bolsillo (Saldo Total): $${balanceTotal.toLocaleString('es-CO')} ${profile.currency}. (Éste es el dinero FÍSICO/REAL que tiene el usuario en sus manos ahora mismo).
+- Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible en Presupuesto: $${budgetRemaining.toLocaleString('es-CO')}).
 - Deudas: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
 - Últimos 3 movimientos:\n${last3Txs.join('\n') || 'Ninguno'}
+
+REGLA SOBRE DINERO DISPONIBLE:
+Si el usuario te pregunta "¿Cuánto tengo?", "¿Cuánto puedo gastar?" o "¿Cuál es mi saldo?", debes responder SIEMPRE con su "Liquidez Real en Bolsillo" ($${balanceTotal.toLocaleString('es-CO')}). 
+Si el "Disponible en Presupuesto" es MAYOR a la "Liquidez Real", ADVÍERTELE: "Tu presupuesto te permite gastar $${budgetRemaining.toLocaleString('es-CO')}, PERO ten cuidado, en tu bolsillo solo tienes $${balanceTotal.toLocaleString('es-CO')} reales porque has prestado dinero o pagado cosas fuera de presupuesto." NUNCA lo dejes confiarse de un presupuesto si no tiene la liquidez para pagarlo.
 
 HISTORIAL DE CHAT RECIENTE:
 ${chatHistory}`;
