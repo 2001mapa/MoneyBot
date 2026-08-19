@@ -1,5 +1,6 @@
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -26,9 +27,21 @@ export default async function Home() {
     .from('transactions').select('*, categories(icon)').eq('user_id', user?.id || '')
   
   if (allTx) {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    const currentYear = now.getFullYear()
+
     allTx.forEach(tx => {
-      if (tx.type === 'income') { totalBalance += Number(tx.amount); ingresosMes += Number(tx.amount) }
-      else if (tx.type === 'expense') { totalBalance -= Number(tx.amount); gastosMes += Number(tx.amount) }
+      const txDate = new Date(tx.transaction_date || tx.created_at)
+      const isCurrentMonth = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear
+
+      if (tx.type === 'income') { 
+        totalBalance += Number(tx.amount)
+        if (isCurrentMonth) ingresosMes += Number(tx.amount)
+      } else if (tx.type === 'expense') { 
+        totalBalance -= Number(tx.amount)
+        if (isCurrentMonth) gastosMes += Number(tx.amount)
+      }
     })
   }
 
@@ -74,31 +87,31 @@ export default async function Home() {
 
       {/* Stats — glass cards */}
       <div className="grid grid-cols-2 gap-3 px-6 mb-6">
-        <div className="glass border border-border/50 rounded-2xl p-4">
+        <Link href="/transactions?type=income" className="glass border border-border/50 rounded-2xl p-4 hover:border-income/50 hover:bg-income/5 transition-all active:scale-95 block group">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Ingresos</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider group-hover:text-income transition-colors">Ingresos</p>
             <div className="p-1.5 rounded-lg bg-income/15">
               <TrendingUp className="w-3.5 h-3.5 text-income" />
             </div>
           </div>
           <p className="font-black text-xl tracking-tight text-income">${ingresosMes.toLocaleString()}</p>
-        </div>
-        <div className="glass border border-border/50 rounded-2xl p-4">
+        </Link>
+        <Link href="/transactions?type=expense" className="glass border border-border/50 rounded-2xl p-4 hover:border-expense/50 hover:bg-expense/5 transition-all active:scale-95 block group">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Gastos</p>
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider group-hover:text-expense transition-colors">Gastos</p>
             <div className="p-1.5 rounded-lg bg-expense/15">
               <TrendingDown className="w-3.5 h-3.5 text-expense" />
             </div>
           </div>
           <p className="font-black text-xl tracking-tight text-expense">${gastosMes.toLocaleString()}</p>
-        </div>
+        </Link>
       </div>
 
       {/* Recent Transactions */}
       <section className="px-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-base font-bold">Movimientos Recientes</h3>
-          <span className="text-xs font-semibold text-primary">Ver todos</span>
+          <Link href="/transactions" className="text-xs font-semibold text-primary hover:underline">Ver todos</Link>
         </div>
         
         <div className="space-y-2">
