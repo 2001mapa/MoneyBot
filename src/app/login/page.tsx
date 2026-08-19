@@ -12,6 +12,7 @@ function LoginContent() {
   const [message, setMessage] = useState('')
   const searchParams = useSearchParams()
   const chatId = searchParams.get('chat_id')
+  const errorParam = searchParams.get('error')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,6 +88,13 @@ function LoginContent() {
         </form>
         
         {message && <p className="mt-4 text-sm font-medium text-center text-primary">{message}</p>}
+        {errorParam === 'unauthorized_email' && (
+          <div className="mt-4 p-3 bg-expense/10 border border-expense/20 rounded-xl">
+            <p className="text-xs font-bold text-center text-expense">
+              Acceso denegado. Tu correo no está autorizado para usar este sistema.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

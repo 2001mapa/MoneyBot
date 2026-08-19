@@ -39,6 +39,14 @@ export async function GET(request: Request) {
     const { data: { user }, error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error && user) {
+      // Bloqueo de seguridad: Lista blanca de correos autorizados
+      const ALLOWED_EMAIL = 'miguelalbornoz.dev@gmail.com'
+      if (!user.email || user.email.toLowerCase() !== ALLOWED_EMAIL) {
+        // Cerramos la sesión inmediatamente y redirigimos con un parámetro de error
+        await supabase.auth.signOut()
+        return NextResponse.redirect(`${origin}/login?error=unauthorized_email`)
+      }
+
       // Upsert profile. Si no existe, se crea; si existe, se actualiza.
       const updateData: any = { 
         id: user.id, 
