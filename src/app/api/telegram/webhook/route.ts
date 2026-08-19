@@ -191,18 +191,34 @@ export async function POST(req: Request) {
     const budgetLimit = Number(profile.monthly_budget) || 0;
     const budgetRemaining = budgetLimit > 0 ? budgetLimit - gastosMes : 0;
 
-    // Traer últimos 3 abonos a deudas para el contexto
+    // Traer categorías del usuario
+    const { data: userCategories } = await supabaseAdmin
+      .from('categories')
+      .select('name, type')
+      .eq('user_id', profile.id);
+    const catList = userCategories ? userCategories.map(c => `- ${c.name} (${c.type})`).join('\n  ') : 'Ninguna';
+
+    // Construir historial de transacciones ampliado (hasta 50)
+    const recentTxList: string[] = [];
+    if (allTxs) {
+      for (let i = 0; i < Math.min(allTxs.length, 50); i++) {
+        const tx = allTxs[i];
+        recentTxList.push(`- ${tx.type === 'income' ? '+' : '-'}$${tx.amount} | ${tx.description} | Fecha: ${new Date(tx.created_at).toLocaleString()}`);
+      }
+    }
+
+    // Traer últimos 10 abonos a deudas para el contexto
     const { data: recentPayments } = await supabaseAdmin
       .from('debt_payments')
       .select('amount, created_at, debts(person_name, debt_type)')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
-      .limit(3);
+      .limit(10);
 
     if (recentPayments) {
       recentPayments.forEach((p: any) => {
         const typeStr = p.debts?.debt_type === 'i_owe' ? 'Aboné a' : 'Me abonó';
-        last3Txs.push(`- Abono de deuda: ${typeStr} ${p.debts?.person_name} $${p.amount} (Fecha: ${new Date(p.created_at).toLocaleString()})`);
+        recentTxList.push(`- Abono de deuda: ${typeStr} ${p.debts?.person_name} $${p.amount} | Fecha: ${new Date(p.created_at).toLocaleString()}`);
       });
     }
 
@@ -230,7 +246,11 @@ CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
 - Deudas Totales: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
 - Lista de Deudas Activas (¡ÚSALAS PARA INFERIR EL NOMBRE DE LA PERSONA CUANDO HAGAN ABONOS!): 
   ${activeDebtsList.length > 0 ? activeDebtsList.join('\n  ') : 'Ninguna'}
-- Últimos movimientos (Transacciones y Abonos):\n${last3Txs.join('\n') || 'Ninguno'}
+- Categorías Existentes (Si aplica, usa una de estas en lugar de inventar nuevas):
+  ${catList}
+
+HISTORIAL DE MOVIMIENTOS RECIENTES (Úsalo para responder consultas precisas sobre en qué gastó, fechas, o últimos abonos):
+${recentTxList.join('\n') || 'Ninguno'}
 
 REGLA SOBRE DINERO DISPONIBLE:
 Si el usuario te pregunta "¿Cuánto tengo?", "¿Cuánto puedo gastar?" o "¿Cuál es mi saldo?", debes responder SIEMPRE con su "Liquidez Real en Bolsillo" ($${balanceTotal.toLocaleString('es-CO')}). 
