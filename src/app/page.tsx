@@ -26,7 +26,7 @@ export default async function Home() {
   let ingresosMes = 0
   let gastosMes = 0
 
-  const { data: allTx } = await supabase.from('transactions').select('*').eq('user_id', user?.id || '')
+  const { data: allTx } = await supabase.from('transactions').select('*, categories(icon)').eq('user_id', user?.id || '')
   
   if (allTx) {
     allTx.forEach(tx => {
@@ -110,9 +110,8 @@ export default async function Home() {
             transactions.map((tx: any) => (
               <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-card transition-colors cursor-pointer">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-xl border flex items-center justify-center text-xl shadow-sm bg-card">
-                    {/* Placeholder icon hasta tener categorías conectadas */}
-                    {tx.type === 'income' ? '💵' : '🛒'}
+                  <div className="w-12 h-12 rounded-xl border flex items-center justify-center text-xl shadow-sm bg-card border-border">
+                    {tx.categories?.icon ? tx.categories.icon : (tx.type === 'income' ? '💵' : '🛒')}
                   </div>
                   <div>
                     <p className="font-bold text-sm capitalize">{tx.description}</p>
