@@ -11,7 +11,7 @@ function LoginContent() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const searchParams = useSearchParams()
-  const chatId = searchParams.get('chat_id')
+  const token = searchParams.get('token')
   const errorParam = searchParams.get('error')
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ function LoginContent() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${location.origin}/auth/callback${chatId ? `?chat_id=${chatId}` : ''}`,
+        emailRedirectTo: `${location.origin}/auth/callback${token ? `?token=${token}` : ''}`,
       },
     })
 
@@ -40,7 +40,7 @@ function LoginContent() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback${chatId ? `?chat_id=${chatId}` : ''}`,
+        redirectTo: `${location.origin}/auth/callback${token ? `?token=${token}` : ''}`,
       },
     })
   }
@@ -53,7 +53,7 @@ function LoginContent() {
         </div>
         <h1 className="text-2xl font-bold mb-2">MoneyBot</h1>
         <p className="text-muted-foreground text-center text-sm mb-8">
-          {chatId ? "Vincula tu cuenta con Telegram para continuar." : "Inicia sesión para gestionar tus finanzas."}
+          {token ? "Vincula tu cuenta con Telegram para continuar." : "Inicia sesión para gestionar tus finanzas."}
         </p>
 
         <button 
