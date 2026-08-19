@@ -191,6 +191,21 @@ export async function POST(req: Request) {
     const budgetLimit = Number(profile.monthly_budget) || 0;
     const budgetRemaining = budgetLimit > 0 ? budgetLimit - gastosMes : 0;
 
+    // Traer últimos 3 abonos a deudas para el contexto
+    const { data: recentPayments } = await supabaseAdmin
+      .from('debt_payments')
+      .select('amount, created_at, debts(person_name, debt_type)')
+      .eq('user_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    if (recentPayments) {
+      recentPayments.forEach((p: any) => {
+        const typeStr = p.debts?.debt_type === 'i_owe' ? 'Aboné a' : 'Me abonó';
+        last3Txs.push(`- Abono de deuda: ${typeStr} ${p.debts?.person_name} $${p.amount} (Fecha: ${new Date(p.created_at).toLocaleString()})`);
+      });
+    }
+
     // 3. Extraer Memoria Conversacional de Redis
     const redisKey = `chat_history_${chatId}`;
     const rawHistory = await redis.lrange(redisKey, 0, -1);
@@ -199,6 +214,8 @@ export async function POST(req: Request) {
     // Construir System Prompt Dinámico
     const botName = profile.bot_alias || 'Luka';
     const userName = profile.full_name || 'Usuario';
+    const currentDate = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+
     const systemPrompt = `Eres ${botName}, un asistente financiero personal muy inteligente. Estás ayudando a tu dueño/usuario llamado ${userName}.
 Analiza el mensaje (junto con el historial de chat para entender respuestas cortas) y determina la intención usando la estructura JSON.
 
@@ -207,12 +224,13 @@ Si el usuario está respondiendo a una pregunta tuya donde pedías información 
 REGLA ORO: is_complete = false -> Preguntas. is_complete = true -> Confirmas registro exitoso.
 
 CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
+- Fecha y Hora Actual: ${currentDate}
 - Liquidez Real en Bolsillo (Saldo Total): $${balanceTotal.toLocaleString('es-CO')} ${profile.currency}. (Éste es el dinero FÍSICO/REAL que tiene el usuario en sus manos ahora mismo).
 - Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible en Presupuesto: $${budgetRemaining.toLocaleString('es-CO')}).
 - Deudas Totales: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
 - Lista de Deudas Activas (¡ÚSALAS PARA INFERIR EL NOMBRE DE LA PERSONA CUANDO HAGAN ABONOS!): 
   ${activeDebtsList.length > 0 ? activeDebtsList.join('\n  ') : 'Ninguna'}
-- Últimos 3 movimientos:\n${last3Txs.join('\n') || 'Ninguno'}
+- Últimos movimientos (Transacciones y Abonos):\n${last3Txs.join('\n') || 'Ninguno'}
 
 REGLA SOBRE DINERO DISPONIBLE:
 Si el usuario te pregunta "¿Cuánto tengo?", "¿Cuánto puedo gastar?" o "¿Cuál es mi saldo?", debes responder SIEMPRE con su "Liquidez Real en Bolsillo" ($${balanceTotal.toLocaleString('es-CO')}). 
@@ -356,6 +374,7 @@ ${chatHistory}`;
         await sendMessage(chatId, parsedData.response_to_user)
       } catch (error) {
         console.error('Error dentro del background task (after):', error)
+        await sendMessage(chatId, "Ups, tuve un pequeño problema analizando tu mensaje o calculando las fechas. ¿Puedes repetírmelo de otra forma por favor?")
       }
     });
 
