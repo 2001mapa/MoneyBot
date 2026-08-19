@@ -55,7 +55,13 @@ export function ThemeSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-52 glass border border-border/50 rounded-2xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-52 z-50 overflow-hidden rounded-2xl shadow-2xl"
+          style={{
+            background: 'var(--card-elevated, var(--card))',
+            border: '1px solid var(--border)',
+            backdropFilter: 'none',
+          }}
+        >
           <div className="p-2">
             {groups.map(group => (
               <div key={group}>
@@ -66,8 +72,8 @@ export function ThemeSwitcher() {
                     onClick={() => { setTheme(t.id); setIsOpen(false) }}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left group ${
                       theme === t.id
-                        ? 'bg-primary/15 text-primary'
-                        : 'hover:bg-muted text-foreground'
+                        ? 'bg-primary/20 text-primary'
+                        : 'text-foreground hover:bg-primary/10'
                     }`}
                   >
                     {/* Swatch with the theme's bg + accent */}
