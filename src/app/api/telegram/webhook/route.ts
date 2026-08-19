@@ -395,11 +395,7 @@ ${chatHistory}`;
       } catch (error) {
         console.error('Error dentro del background task (after):', error)
         const errStr = String(error);
-        if (errStr.includes('429') || errStr.includes('quota') || errStr.includes('Too Many Requests')) {
-          await sendMessage(chatId, "¡Woah, vas muy rápido! 😅 He alcanzado mi límite de mensajes por minuto. Dame un respiro de 60 segundos y vuelve a intentarlo.")
-        } else {
-          await sendMessage(chatId, "Ups, tuve un error interno al procesar tu mensaje. Intenta de nuevo más tarde.")
-        }
+        await sendMessage(chatId, `DEBUG ERROR: ${errStr}`)
       }
     });
 
