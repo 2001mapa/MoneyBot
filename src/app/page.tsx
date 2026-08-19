@@ -14,8 +14,8 @@ export default async function Home() {
   const [profileRes, transactionsRes, allTxRes, allDebtsRes] = await Promise.all([
     supabase.from('profiles').select('full_name, currency').eq('id', user.id).single(),
     supabase.from('transactions').select('*, categories(name, icon, color)').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(10),
-    supabase.from('transactions').select('amount, type, transaction_date, created_at').eq('user_id', user.id),
-    supabase.from('debts').select('debt_type, balance_remaining, status').eq('user_id', user.id).neq('status', 'paid')
+    supabase.from('transactions').select('amount, type, transaction_date, created_at, payment_method').eq('user_id', user.id),
+    supabase.from('debts').select('debt_type, balance_remaining, status, payment_method').eq('user_id', user.id).neq('status', 'paid')
   ]);
 
   let profile = { full_name: 'Usuario', currency: 'COP' }
@@ -24,6 +24,8 @@ export default async function Home() {
   const transactions = transactionsRes.data || []
 
   let totalBalance = 0
+  let bankBalance = 0
+  let cashBalance = 0
   let ingresosMes = 0
   let gastosMes = 0
 
@@ -39,12 +41,21 @@ export default async function Home() {
       const txMonth = parseInt(parts[1]) - 1
 
       const isCurrentMonth = txYear === currentYear && txMonth === currentMonth
+      
+      const method = tx.payment_method || 'efectivo'
+      const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes(method.toLowerCase())
 
       if (tx.type === 'income') { 
         totalBalance += Number(tx.amount)
+        if (isBank) bankBalance += Number(tx.amount)
+        else cashBalance += Number(tx.amount)
+        
         if (isCurrentMonth) ingresosMes += Number(tx.amount)
       } else if (tx.type === 'expense') { 
         totalBalance -= Number(tx.amount)
+        if (isBank) bankBalance -= Number(tx.amount)
+        else cashBalance -= Number(tx.amount)
+        
         if (isCurrentMonth) gastosMes += Number(tx.amount)
       }
     })
@@ -53,8 +64,19 @@ export default async function Home() {
   if (allDebtsRes.data) {
     allDebtsRes.data.forEach(debt => {
       if (debt.status === 'cancelled') return
-      if (debt.debt_type === 'i_owe') totalBalance += Number(debt.balance_remaining)
-      else if (debt.debt_type === 'they_owe') totalBalance -= Number(debt.balance_remaining)
+      
+      const method = debt.payment_method || 'efectivo'
+      const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes(method.toLowerCase())
+      
+      if (debt.debt_type === 'i_owe') {
+        totalBalance += Number(debt.balance_remaining)
+        if (isBank) bankBalance += Number(debt.balance_remaining)
+        else cashBalance += Number(debt.balance_remaining)
+      } else if (debt.debt_type === 'they_owe') {
+        totalBalance -= Number(debt.balance_remaining)
+        if (isBank) bankBalance -= Number(debt.balance_remaining)
+        else cashBalance -= Number(debt.balance_remaining)
+      }
     })
   }
 
@@ -85,7 +107,21 @@ export default async function Home() {
             <p className="text-4xl font-black tracking-tight leading-none text-primary-foreground">
               {isPositive ? '+' : ''}<span className="text-5xl">${Math.abs(totalBalance).toLocaleString()}</span>
             </p>
-            <p className="text-primary-foreground/50 text-sm font-medium mt-3">{profile.currency} · Liquidez real disponible</p>
+            
+            {/* Breakdown */}
+            <div className="flex gap-6 mt-5 pt-5 border-t border-primary-foreground/10">
+              <div>
+                <p className="text-primary-foreground/50 text-[10px] font-bold uppercase tracking-wider mb-1">🏦 En Banco</p>
+                <p className="text-primary-foreground font-semibold text-sm">${bankBalance.toLocaleString()}</p>
+              </div>
+              <div className="w-px bg-primary-foreground/10"></div>
+              <div>
+                <p className="text-primary-foreground/50 text-[10px] font-bold uppercase tracking-wider mb-1">💵 En Efectivo</p>
+                <p className="text-primary-foreground font-semibold text-sm">${cashBalance.toLocaleString()}</p>
+              </div>
+            </div>
+            
+            <p className="text-primary-foreground/40 text-[11px] font-medium mt-4">{profile.currency} · Liquidez real disponible</p>
           </div>
         </div>
       </div>

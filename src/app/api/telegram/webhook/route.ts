@@ -155,11 +155,13 @@ export async function POST(req: Request) {
     // Traer todas las transacciones para calcular balance
     const { data: allTxs } = await supabaseAdmin
       .from('transactions')
-      .select('amount, type, description, created_at, transaction_date')
+      .select('amount, type, description, created_at, transaction_date, payment_method')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
 
     let balanceTotal = 0;
+    let bankBalance = 0;
+    let cashBalance = 0;
     let gastosMes = 0;
     const last3Txs: string[] = [];
     const now = new Date();
@@ -184,9 +186,18 @@ export async function POST(req: Request) {
           }
         }
 
-        if (tx.type === 'income') balanceTotal += Number(tx.amount);
+        const method = tx.payment_method || 'efectivo';
+        const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes(method.toLowerCase());
+
+        if (tx.type === 'income') {
+          balanceTotal += Number(tx.amount);
+          if (isBank) bankBalance += Number(tx.amount);
+          else cashBalance += Number(tx.amount);
+        }
         if (tx.type === 'expense') {
           balanceTotal -= Number(tx.amount);
+          if (isBank) bankBalance -= Number(tx.amount);
+          else cashBalance -= Number(tx.amount);
           if (isCurrentMonth) gastosMes += Number(tx.amount);
         }
         if (i < 3) {
@@ -198,7 +209,7 @@ export async function POST(req: Request) {
     // Traer deudas para resumen
     const { data: allDebts } = await supabaseAdmin
       .from('debts')
-      .select('person_name, debt_type, balance_remaining, status')
+      .select('person_name, debt_type, balance_remaining, status, payment_method')
       .eq('user_id', profile.id)
       .neq('status', 'paid')
 
@@ -209,13 +220,21 @@ export async function POST(req: Request) {
     if (allDebts) {
       allDebts.forEach(d => {
         if (d.status === 'cancelled') return;
+        
+        const method = d.payment_method || 'efectivo';
+        const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes(method.toLowerCase());
+        
         if (d.debt_type === 'i_owe') {
           deboTotal += Number(d.balance_remaining);
           activeDebtsList.push(`Debo a ${d.person_name}: $${d.balance_remaining}`);
+          if (isBank) bankBalance += Number(d.balance_remaining);
+          else cashBalance += Number(d.balance_remaining);
         }
         if (d.debt_type === 'they_owe') {
           meDebenTotal += Number(d.balance_remaining);
           activeDebtsList.push(`${d.person_name} me debe: $${d.balance_remaining}`);
+          if (isBank) bankBalance -= Number(d.balance_remaining);
+          else cashBalance -= Number(d.balance_remaining);
         }
       });
     }
@@ -287,9 +306,13 @@ CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
 HISTORIAL DE MOVIMIENTOS RECIENTES (Úsalo para responder consultas precisas sobre en qué gastó, fechas, o últimos abonos):
 ${recentTxList.join('\n') || 'Ninguno'}
 
-REGLA SOBRE DINERO DISPONIBLE:
-Si el usuario te pregunta "¿Cuánto tengo?", "¿Cuánto puedo gastar?" o "¿Cuál es mi saldo?", debes responder SIEMPRE con su "Liquidez Real en Bolsillo" ($${balanceTotal.toLocaleString('es-CO')}). 
-Si el "Disponible en Presupuesto" es MAYOR a la "Liquidez Real", ADVÍERTELE: "Tu presupuesto te permite gastar $${budgetRemaining.toLocaleString('es-CO')}, PERO ten cuidado, en tu bolsillo solo tienes $${balanceTotal.toLocaleString('es-CO')} reales porque has prestado dinero o pagado cosas fuera de presupuesto." NUNCA lo dejes confiarse de un presupuesto si no tiene la liquidez para pagarlo.
+REGLA SOBRE DINERO DISPONIBLE Y MÉTODOS DE PAGO:
+Si el usuario pregunta "¿Cuánto tengo?", "¿Cuál es mi saldo?", "¿Cuánto dinero tengo en bancos?" o similar, debes responder con su "Liquidez Real Total" ($${balanceTotal.toLocaleString('es-CO')}).
+Desglósalo SIEMPRE de la siguiente manera:
+- 🏦 En Banco (Tarjetas y transferencias): $${bankBalance.toLocaleString('es-CO')}
+- 💵 En Efectivo (Billetes físicos): $${cashBalance.toLocaleString('es-CO')}
+
+Si el "Disponible en Presupuesto" es MAYOR a la "Liquidez Real Total", ADVIÉRTELE: "Tu presupuesto te permite gastar $${budgetRemaining.toLocaleString('es-CO')}, PERO ten cuidado, tu liquidez real sumando cuentas y efectivo es solo $${balanceTotal.toLocaleString('es-CO')}".
 
 HISTORIAL DE CHAT RECIENTE:
 ${chatHistory}`;
@@ -380,7 +403,8 @@ ${chatHistory}`;
         debt_type: parsedData.debt_type,
         total_amount: parsedData.amount,
         balance_remaining: parsedData.amount,
-        description: parsedData.description
+        description: parsedData.description,
+        payment_method: parsedData.payment_method !== 'none' ? parsedData.payment_method : 'efectivo'
       })
     }
 
