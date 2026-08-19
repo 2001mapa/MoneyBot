@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, PieChart, PlusCircle, Receipt, User } from 'lucide-react'
+import { Home, PieChart, Receipt, User } from 'lucide-react'
 
 export function BottomNav() {
   const pathname = usePathname()
@@ -19,14 +19,6 @@ export function BottomNav() {
           <PieChart className="w-5 h-5 mb-1" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Stats</span>
         </Link>
-        
-        {/* FAB (Floating Action Button) for adding transactions */}
-        <div className="flex flex-col items-center justify-center w-full h-full relative">
-          <div className="absolute -top-6 bg-blue-600 rounded-full p-3 shadow-lg hover:bg-blue-500 cursor-pointer transition-transform hover:scale-105">
-            <PlusCircle className="w-7 h-7 text-white" />
-          </div>
-        </div>
-
         <Link href="/debts" className={`flex flex-col items-center justify-center w-full h-full ${pathname === '/debts' ? 'text-foreground' : 'text-foreground/50 hover:text-foreground/80'}`}>
           <Receipt className="w-5 h-5 mb-1" />
           <span className="text-[10px] font-medium uppercase tracking-wider">Deudas</span>
