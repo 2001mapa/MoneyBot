@@ -18,17 +18,23 @@ export default function StatsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return setLoading(false)
 
+      const now = new Date()
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
       const { data: txs } = await supabase
         .from('transactions')
-        .select('amount, type, description, transaction_date')
+        .select('amount, type, description, transaction_date, categories(name)')
         .eq('user_id', user.id)
+        .eq('type', 'expense')
+        .gte('transaction_date', startOfMonth)
       
       if (txs) {
-        const expenses = txs.filter(t => t.type === 'expense')
         const grouped: Record<string, number> = {}
-        expenses.forEach(t => {
-          const desc = t.description.split(' ')[0] || 'Otros'
-          grouped[desc] = (grouped[desc] || 0) + Number(t.amount)
+        txs.forEach(t => {
+          const cat = (t as any).categories
+          const categoryName = Array.isArray(cat) ? cat[0]?.name : cat?.name
+          const finalName = categoryName || 'Otros'
+          grouped[finalName] = (grouped[finalName] || 0) + Number(t.amount)
         })
         const chartData = Object.keys(grouped)
           .map(key => ({ name: key, value: grouped[key] }))

@@ -143,21 +143,27 @@ export async function POST(req: Request) {
     // Traer todas las transacciones para calcular balance
     const { data: allTxs } = await supabaseAdmin
       .from('transactions')
-      .select('amount, type, description, created_at')
+      .select('amount, type, description, created_at, transaction_date')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
 
     let balanceTotal = 0;
     let gastosMes = 0;
     const last3Txs: string[] = [];
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
 
     if (allTxs) {
       for (let i = 0; i < allTxs.length; i++) {
         const tx = allTxs[i];
+        const txDate = new Date(tx.transaction_date || tx.created_at);
+        const isCurrentMonth = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+
         if (tx.type === 'income') balanceTotal += Number(tx.amount);
         if (tx.type === 'expense') {
           balanceTotal -= Number(tx.amount);
-          gastosMes += Number(tx.amount);
+          if (isCurrentMonth) gastosMes += Number(tx.amount);
         }
         if (i < 3) {
           last3Txs.push(`- ${tx.type === 'income' ? '+' : '-'}$${tx.amount} (${tx.description})`);
