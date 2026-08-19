@@ -2,30 +2,48 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, LogOut, User, Palette, Coins, Bot, Wallet } from 'lucide-react'
+import { ArrowLeft, LogOut, User, Coins, Bot, Wallet, MessageCircle, CheckCircle, XCircle, Save } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
+
+const CURRENCIES = [
+  { value: 'COP', label: 'COP — Peso Colombiano', symbol: '$' },
+  { value: 'USD', label: 'USD — Dólar', symbol: '$' },
+  { value: 'EUR', label: 'EUR — Euro', symbol: '€' },
+  { value: 'MXN', label: 'MXN — Peso Mexicano', symbol: '$' },
+  { value: 'ARS', label: 'ARS — Peso Argentino', symbol: '$' },
+]
+
+const THEMES = [
+  { value: 'dark',        label: 'Dark',      swatch: '#0a84ff' },
+  { value: 'light',       label: 'Light',     swatch: '#007aff' },
+  { value: 'luxury_gold', label: 'Gold',      swatch: '#c9a84c' },
+  { value: 'emerald',     label: 'Emerald',   swatch: '#10b981' },
+  { value: 'cyberpunk',   label: 'Cyberpunk', swatch: '#f9e11e' },
+  { value: 'retro_pixel', label: 'Synthwave', swatch: '#bf5fff' },
+  { value: 'soft_pastel', label: 'Pastel',    swatch: '#e879a0' },
+  { value: 'ocean',       label: 'Ocean',     swatch: '#38bdf8' },
+  { value: 'rose_gold',   label: 'Rose Gold', swatch: '#e8818a' },
+  { value: 'nord',        label: 'Nord',      swatch: '#88c0d0' },
+  { value: 'sunset',      label: 'Sunset',    swatch: '#f97316' },
+  { value: 'matrix',      label: 'Matrix',    swatch: '#00ff41' },
+]
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-  const { setTheme } = useTheme()
+  const { setTheme, theme } = useTheme()
 
   useEffect(() => {
     async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return setLoading(false)
-
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (data) setProfile(data)
       setLoading(false)
     }
@@ -40,129 +58,191 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!profile) return
     setSaving(true)
-    await supabase
-      .from('profiles')
-      .update({
-        bot_alias: profile.bot_alias,
-        theme: profile.theme,
-        currency: profile.currency,
-        monthly_budget: profile.monthly_budget
-      })
-      .eq('id', profile.id)
+    await supabase.from('profiles').update({
+      bot_alias: profile.bot_alias,
+      theme: profile.theme,
+      currency: profile.currency,
+      monthly_budget: profile.monthly_budget
+    }).eq('id', profile.id)
     setSaving(false)
-    alert("¡Cambios guardados con éxito!")
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
   }
 
   return (
-    <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
-      <header className="flex items-center mb-8 mt-4">
-        <Link href="/" className="mr-4 p-2 bg-card rounded-full hover:bg-muted transition-colors">
+    <main className="flex-1 pb-28 max-w-lg mx-auto w-full">
+
+      {/* Header */}
+      <header className="flex items-center gap-4 px-6 pt-10 pb-6">
+        <Link href="/" className="p-2 glass border border-border/50 rounded-xl hover:border-border transition-all">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Perfil</h1>
-          <p className="text-muted-foreground text-sm mt-1">Configuración y preferencias</p>
+          <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-0.5">Configuración</p>
+          <h1 className="text-2xl font-bold tracking-tight">Mi Perfil</h1>
         </div>
       </header>
 
       {loading ? (
-        <p className="text-center text-muted-foreground py-10">Cargando perfil...</p>
+        <div className="flex items-center justify-center py-20">
+          <p className="text-muted-foreground text-sm">Cargando perfil...</p>
+        </div>
       ) : !profile ? (
-        <p className="text-center text-muted-foreground py-10">Error al cargar el perfil.</p>
+        <div className="px-6 text-center py-20">
+          <p className="text-muted-foreground text-sm">Error al cargar el perfil.</p>
+        </div>
       ) : (
-        <div className="space-y-6">
-          
-          <div className="bg-foreground/[0.02] border border-foreground/5 p-6 rounded-3xl flex items-center space-x-4">
-            <div className="w-16 h-16 bg-blue-600/10 text-primary rounded-full flex items-center justify-center">
-              <User className="w-8 h-8" />
+        <div className="px-6 space-y-4">
+
+          {/* User Card */}
+          <div className="glass border border-border/50 rounded-3xl p-5 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+              <User className="w-7 h-7 text-primary" />
             </div>
-            <div>
-              <p className="font-bold text-lg">{profile.email}</p>
-              <p className="text-xs font-medium text-muted-foreground">Vinculado a Telegram: {profile.telegram_chat_id ? '✅ Sí' : '❌ No'}</p>
+            <div className="min-w-0 flex-1">
+              <p className="font-bold text-base truncate">{profile.full_name || profile.email}</p>
+              <p className="text-xs text-muted-foreground truncate mt-0.5">{profile.email}</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                {profile.telegram_chat_id ? (
+                  <CheckCircle className="w-3.5 h-3.5 text-income flex-shrink-0" />
+                ) : (
+                  <XCircle className="w-3.5 h-3.5 text-expense flex-shrink-0" />
+                )}
+                <span className={`text-xs font-semibold ${profile.telegram_chat_id ? 'text-income' : 'text-expense'}`}>
+                  {profile.telegram_chat_id ? 'Telegram vinculado' : 'Telegram no vinculado'}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="bg-foreground/[0.02] border border-foreground/5 p-6 rounded-3xl space-y-5">
-            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-2">Ajustes del Bot y App</h3>
-            
+          {/* Bot Settings */}
+          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Asistente</p>
+
             <div>
-              <label className="flex items-center text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">
-                <Bot className="w-4 h-4 mr-2" /> Nombre del Asistente (Alias)
+              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
+                <Bot className="w-3.5 h-3.5" />
+                Nombre del Asistente
               </label>
-              <input 
-                type="text" 
-                value={profile.bot_alias || ''} 
-                onChange={e => setProfile({...profile, bot_alias: e.target.value})}
-                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <input
+                type="text"
+                value={profile.bot_alias || ''}
+                onChange={e => setProfile({ ...profile, bot_alias: e.target.value })}
+                placeholder="Ej: Luka, Finanzas, MoneyBot…"
+                className="w-full glass border border-border/50 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="flex items-center text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">
-                  <Coins className="w-4 h-4 mr-2" /> Moneda
-                </label>
-                <select 
-                  value={profile.currency || 'COP'} 
-                  onChange={e => setProfile({...profile, currency: e.target.value})}
-                  className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                >
-                  <option value="COP">COP ($)</option>
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="MXN">MXN ($)</option>
-                </select>
-              </div>
-              <div>
-                <label className="flex items-center text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">
-                  <Palette className="w-4 h-4 mr-2" /> Tema
-                </label>
-                <select 
-                  value={profile.theme || 'luxury_gold'} 
-                  onChange={e => {
-                    setProfile({...profile, theme: e.target.value});
-                    setTheme(e.target.value);
-                  }}
-                  className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                >
-                  <option value="luxury_gold">Luxury Gold</option>
-                  <option value="cyberpunk">Cyberpunk</option>
-                  <option value="emerald">Emerald</option>
-                  <option value="soft_pastel">Soft Pastel</option>
-                  <option value="system">Sistema</option>
-                </select>
-              </div>
-            </div>
-
             <div>
-              <label className="flex items-center text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wider">
-                <Wallet className="w-4 h-4 mr-2" /> Presupuesto Mensual
+              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
+                <Wallet className="w-3.5 h-3.5" />
+                Presupuesto Mensual
               </label>
-              <input 
-                type="number" 
-                value={profile.monthly_budget || 0} 
-                onChange={e => setProfile({...profile, monthly_budget: Number(e.target.value)})}
-                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-muted-foreground">$</span>
+                <input
+                  type="number"
+                  value={profile.monthly_budget || 0}
+                  onChange={e => setProfile({ ...profile, monthly_budget: Number(e.target.value) })}
+                  className="w-full glass border border-border/50 rounded-2xl pl-8 pr-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                />
+              </div>
             </div>
-            
-            <button 
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full bg-primary text-primary-foreground font-bold py-3.5 px-4 rounded-xl disabled:opacity-50 hover:bg-blue-700 transition-colors shadow-md mt-4"
-            >
-              {saving ? 'Guardando...' : 'Guardar Cambios'}
-            </button>
           </div>
 
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center space-x-2 bg-red-500/10 text-red-600 font-bold py-4 rounded-3xl hover:bg-red-500/20 transition-colors"
+          {/* Preferences */}
+          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Preferencias</p>
+
+            {/* Currency */}
+            <div>
+              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
+                <Coins className="w-3.5 h-3.5" />
+                Moneda
+              </label>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {CURRENCIES.map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => setProfile({ ...profile, currency: c.value })}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                      profile.currency === c.value
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border/40 text-muted-foreground hover:border-border hover:text-foreground'
+                    }`}
+                  >
+                    <span className="text-base font-black">{c.symbol}</span>
+                    <span className="text-xs font-bold">{c.value}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Theme picker */}
+            <div>
+              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
+                <MessageCircle className="w-3.5 h-3.5" />
+                Tema Visual
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {THEMES.map(t => (
+                  <button
+                    key={t.value}
+                    onClick={() => {
+                      setProfile({ ...profile, theme: t.value })
+                      setTheme(t.value)
+                    }}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                      (profile.theme || theme) === t.value
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border/40 text-muted-foreground hover:border-border hover:text-foreground'
+                    }`}
+                  >
+                    <span
+                      className="w-3.5 h-3.5 rounded-full flex-shrink-0"
+                      style={{ background: t.swatch }}
+                    />
+                    <span className="text-xs font-bold truncate">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Save button */}
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={`w-full flex items-center justify-center gap-2 font-bold py-4 rounded-2xl transition-all shadow-lg ${
+              saved
+                ? 'bg-income text-white'
+                : 'bg-primary text-primary-foreground hover:opacity-90'
+            } disabled:opacity-50`}
           >
-            <LogOut className="w-5 h-5" />
-            <span>Cerrar Sesión Segura</span>
+            {saving ? (
+              <span>Guardando...</span>
+            ) : saved ? (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                <span>¡Cambios guardados!</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Guardar Cambios</span>
+              </>
+            )}
           </button>
-          
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-expense/25 text-expense font-bold hover:bg-expense/10 transition-all"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Cerrar Sesión</span>
+          </button>
+
         </div>
       )}
     </main>
