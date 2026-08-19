@@ -1,132 +1,262 @@
 @import "tailwindcss";
 
-/* =====================
-   LIGHT (default)
-   ===================== */
+/* =========================================
+   BASE: LIGHT
+   ========================================= */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --card-elevated: #f1f5f9;
-  --primary: #6366f1;
+  --background: #f2f2f7;
+  --foreground: #1c1c1e;
+  --card: rgba(255, 255, 255, 0.75);
+  --card-foreground: #1c1c1e;
+  --card-elevated: rgba(255, 255, 255, 0.92);
+  --primary: #007aff;
   --primary-foreground: #ffffff;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --border: #e2e8f0;
-  --income: #059669;
-  --expense: #dc2626;
+  --muted: rgba(116, 116, 128, 0.12);
+  --muted-foreground: #6c6c70;
+  --border: rgba(60, 60, 67, 0.12);
+  --income: #30d158;
+  --expense: #ff3b30;
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --nav-bg: rgba(242, 242, 247, 0.82);
 }
 
-/* =====================
-   DARK
-   ===================== */
+/* =========================================
+   DARK (iOS Dark Mode)
+   ========================================= */
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --card-elevated: #27272a;
-  --primary: #818cf8;
-  --primary-foreground: #1e1b4b;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --border: #3f3f46;
-  --income: #34d399;
-  --expense: #f87171;
+  --background: #000000;
+  --foreground: #f5f5f7;
+  --card: rgba(28, 28, 30, 0.75);
+  --card-foreground: #f5f5f7;
+  --card-elevated: rgba(44, 44, 46, 0.9);
+  --primary: #0a84ff;
+  --primary-foreground: #ffffff;
+  --muted: rgba(255, 255, 255, 0.07);
+  --muted-foreground: #8e8e93;
+  --border: rgba(255, 255, 255, 0.1);
+  --income: #30d158;
+  --expense: #ff453a;
+  --glass-bg: rgba(28, 28, 30, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(18, 18, 18, 0.85);
 }
 
-/* =====================
-   LUXURY GOLD
-   ===================== */
+/* =========================================
+   LUXURY GOLD (Dark opulence)
+   ========================================= */
 .luxury_gold {
-  --background: #080808;
+  --background: #080605;
   --foreground: #fdf6e3;
-  --card: #111111;
+  --card: rgba(20, 15, 5, 0.75);
   --card-foreground: #fdf6e3;
-  --card-elevated: #1a1a1a;
+  --card-elevated: rgba(35, 26, 8, 0.9);
   --primary: #c9a84c;
-  --primary-foreground: #080808;
-  --muted: #1c1c1c;
-  --muted-foreground: #a09060;
-  --border: #2a2218;
+  --primary-foreground: #080605;
+  --muted: rgba(201, 168, 76, 0.08);
+  --muted-foreground: #a08040;
+  --border: rgba(201, 168, 76, 0.18);
   --income: #c9a84c;
-  --expense: #b94040;
+  --expense: #c0392b;
+  --glass-bg: rgba(20, 15, 5, 0.6);
+  --glass-border: rgba(201, 168, 76, 0.2);
+  --nav-bg: rgba(8, 6, 5, 0.88);
 }
 
-/* =====================
-   RETRO PIXEL
-   ===================== */
-.retro_pixel {
-  --background: #14122b;
-  --foreground: #e8e0ff;
-  --card: #1e1a3a;
-  --card-foreground: #e8e0ff;
-  --card-elevated: #2a2550;
-  --primary: #7c3aed;
-  --primary-foreground: #ede9fe;
-  --muted: #252048;
-  --muted-foreground: #9b8fcf;
-  --border: #3730a3;
-  --income: #34d399;
-  --expense: #f472b6;
-  --font-sans: 'Courier New', Courier, monospace;
-}
-
-/* =====================
-   CYBERPUNK
-   ===================== */
-.cyberpunk {
-  --background: #050505;
-  --foreground: #f0f0f0;
-  --card: #0f0f0f;
-  --card-foreground: #f0f0f0;
-  --card-elevated: #1a1a1a;
-  --primary: #f9e11e;
-  --primary-foreground: #050505;
-  --muted: #181818;
-  --muted-foreground: #888888;
-  --border: #00b4d8;
-  --income: #39ff14;
-  --expense: #ff3864;
-}
-
-/* =====================
-   EMERALD
-   ===================== */
+/* =========================================
+   EMERALD (Nature/Money)
+   ========================================= */
 .emerald {
   --background: #011a12;
   --foreground: #ecfdf5;
-  --card: #042f20;
+  --card: rgba(4, 40, 25, 0.75);
   --card-foreground: #ecfdf5;
-  --card-elevated: #065f46;
+  --card-elevated: rgba(6, 62, 40, 0.9);
   --primary: #10b981;
   --primary-foreground: #011a12;
-  --muted: #064e3b;
+  --muted: rgba(16, 185, 129, 0.08);
   --muted-foreground: #6ee7b7;
-  --border: #065f46;
+  --border: rgba(16, 185, 129, 0.18);
   --income: #34d399;
   --expense: #fca5a5;
+  --glass-bg: rgba(4, 40, 25, 0.6);
+  --glass-border: rgba(16, 185, 129, 0.2);
+  --nav-bg: rgba(1, 20, 12, 0.88);
 }
 
-/* =====================
-   SOFT PASTEL
-   ===================== */
+/* =========================================
+   CYBERPUNK (Neon city)
+   ========================================= */
+.cyberpunk {
+  --background: #030303;
+  --foreground: #f0f0f0;
+  --card: rgba(12, 12, 12, 0.75);
+  --card-foreground: #f0f0f0;
+  --card-elevated: rgba(22, 22, 22, 0.9);
+  --primary: #f9e11e;
+  --primary-foreground: #030303;
+  --muted: rgba(249, 225, 30, 0.07);
+  --muted-foreground: #888888;
+  --border: rgba(0, 180, 216, 0.3);
+  --income: #39ff14;
+  --expense: #ff3864;
+  --glass-bg: rgba(10, 10, 10, 0.65);
+  --glass-border: rgba(0, 180, 216, 0.25);
+  --nav-bg: rgba(3, 3, 3, 0.9);
+}
+
+/* =========================================
+   RETRO PIXEL (Synthwave)
+   ========================================= */
+.retro_pixel {
+  --background: #0d0b1e;
+  --foreground: #e8e0ff;
+  --card: rgba(22, 18, 45, 0.75);
+  --card-foreground: #e8e0ff;
+  --card-elevated: rgba(35, 28, 70, 0.9);
+  --primary: #bf5fff;
+  --primary-foreground: #0d0b1e;
+  --muted: rgba(191, 95, 255, 0.08);
+  --muted-foreground: #9b8fcf;
+  --border: rgba(191, 95, 255, 0.2);
+  --income: #00f5d4;
+  --expense: #fe4365;
+  --glass-bg: rgba(22, 18, 45, 0.6);
+  --glass-border: rgba(191, 95, 255, 0.25);
+  --nav-bg: rgba(10, 8, 25, 0.9);
+  --font-sans: 'Courier New', Courier, monospace;
+}
+
+/* =========================================
+   SOFT PASTEL (Warm & feminine)
+   ========================================= */
 .soft_pastel {
-  --background: #fdfcfb;
+  --background: #fdf6f0;
   --foreground: #2d1f1a;
-  --card: #ffffff;
+  --card: rgba(255, 255, 255, 0.78);
   --card-foreground: #2d1f1a;
-  --card-elevated: #fef3f2;
+  --card-elevated: rgba(255, 248, 244, 0.95);
   --primary: #e879a0;
   --primary-foreground: #ffffff;
-  --muted: #fdf2f8;
+  --muted: rgba(232, 121, 160, 0.08);
   --muted-foreground: #9d6b82;
-  --border: #fce7f3;
+  --border: rgba(232, 121, 160, 0.18);
   --income: #059669;
   --expense: #e11d48;
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(232, 121, 160, 0.25);
+  --nav-bg: rgba(253, 246, 240, 0.88);
 }
 
+/* =========================================
+   OCEAN (Deep sea)
+   ========================================= */
+.ocean {
+  --background: #020b18;
+  --foreground: #e0f4ff;
+  --card: rgba(2, 20, 45, 0.75);
+  --card-foreground: #e0f4ff;
+  --card-elevated: rgba(5, 35, 70, 0.9);
+  --primary: #38bdf8;
+  --primary-foreground: #020b18;
+  --muted: rgba(56, 189, 248, 0.08);
+  --muted-foreground: #7ec8e3;
+  --border: rgba(56, 189, 248, 0.2);
+  --income: #22d3ee;
+  --expense: #fb7185;
+  --glass-bg: rgba(2, 20, 45, 0.6);
+  --glass-border: rgba(56, 189, 248, 0.22);
+  --nav-bg: rgba(2, 8, 18, 0.9);
+}
+
+/* =========================================
+   ROSE GOLD (Warm metallic)
+   ========================================= */
+.rose_gold {
+  --background: #100808;
+  --foreground: #ffe8e8;
+  --card: rgba(28, 12, 12, 0.75);
+  --card-foreground: #ffe8e8;
+  --card-elevated: rgba(45, 18, 18, 0.9);
+  --primary: #e8818a;
+  --primary-foreground: #100808;
+  --muted: rgba(232, 129, 138, 0.09);
+  --muted-foreground: #c4848c;
+  --border: rgba(232, 129, 138, 0.2);
+  --income: #e8818a;
+  --expense: #fca5a5;
+  --glass-bg: rgba(28, 12, 12, 0.6);
+  --glass-border: rgba(232, 129, 138, 0.22);
+  --nav-bg: rgba(10, 4, 4, 0.9);
+}
+
+/* =========================================
+   NORD (Arctic cool)
+   ========================================= */
+.nord {
+  --background: #1a1f2e;
+  --foreground: #d8dee9;
+  --card: rgba(30, 36, 52, 0.75);
+  --card-foreground: #d8dee9;
+  --card-elevated: rgba(40, 48, 66, 0.9);
+  --primary: #88c0d0;
+  --primary-foreground: #1a1f2e;
+  --muted: rgba(136, 192, 208, 0.08);
+  --muted-foreground: #7b88a1;
+  --border: rgba(136, 192, 208, 0.18);
+  --income: #a3be8c;
+  --expense: #bf616a;
+  --glass-bg: rgba(30, 36, 52, 0.6);
+  --glass-border: rgba(136, 192, 208, 0.18);
+  --nav-bg: rgba(20, 24, 36, 0.9);
+}
+
+/* =========================================
+   SUNSET (Warm dusk)
+   ========================================= */
+.sunset {
+  --background: #100a05;
+  --foreground: #fff1e6;
+  --card: rgba(28, 16, 8, 0.75);
+  --card-foreground: #fff1e6;
+  --card-elevated: rgba(45, 24, 10, 0.9);
+  --primary: #f97316;
+  --primary-foreground: #100a05;
+  --muted: rgba(249, 115, 22, 0.08);
+  --muted-foreground: #c07030;
+  --border: rgba(249, 115, 22, 0.2);
+  --income: #fbbf24;
+  --expense: #ef4444;
+  --glass-bg: rgba(28, 16, 8, 0.6);
+  --glass-border: rgba(249, 115, 22, 0.22);
+  --nav-bg: rgba(10, 6, 2, 0.9);
+}
+
+/* =========================================
+   MATRIX (Terminal green)
+   ========================================= */
+.matrix {
+  --background: #000000;
+  --foreground: #00ff41;
+  --card: rgba(0, 18, 2, 0.75);
+  --card-foreground: #00ff41;
+  --card-elevated: rgba(0, 28, 4, 0.9);
+  --primary: #00ff41;
+  --primary-foreground: #000000;
+  --muted: rgba(0, 255, 65, 0.06);
+  --muted-foreground: #008f11;
+  --border: rgba(0, 255, 65, 0.18);
+  --income: #00ff41;
+  --expense: #ff0000;
+  --glass-bg: rgba(0, 12, 2, 0.65);
+  --glass-border: rgba(0, 255, 65, 0.2);
+  --nav-bg: rgba(0, 0, 0, 0.92);
+  --font-sans: 'Courier New', Courier, monospace;
+}
+
+/* =========================================
+   THEME ENGINE
+   ========================================= */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -144,25 +274,55 @@
   --font-mono: var(--font-mono);
 }
 
+/* =========================================
+   GLOBAL BODY
+   ========================================= */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans, 'Inter'), Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter'), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.4s ease, color 0.3s ease;
 }
 
-/* Cyberpunk scanline effect subtle */
-.cyberpunk body::before {
+/* =========================================
+   GLASS UTILITY CLASS (iOS Material)
+   ========================================= */
+.glass {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.glass-nav {
+  background: var(--nav-bg);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+}
+
+/* Matrix scanline overlay */
+.matrix body::after {
   content: '';
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 180, 216, 0.015) 2px, rgba(0, 180, 216, 0.015) 4px);
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0, 255, 65, 0.012) 3px, rgba(0, 255, 65, 0.012) 4px
+  );
   pointer-events: none;
   z-index: 9999;
 }
 
-/* Smooth theme icon transitions */
-svg {
-  transition: color 0.2s ease;
+/* Cyberpunk scanline */
+.cyberpunk body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0, 180, 216, 0.01) 3px, rgba(0, 180, 216, 0.01) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
 }

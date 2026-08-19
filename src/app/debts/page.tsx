@@ -83,7 +83,7 @@ export default function DebtsPage() {
 
       {/* Summary banner */}
       {totalTab > 0 && (
-        <div className="mx-6 mb-6 p-4 rounded-2xl bg-expense/10 border border-expense/20 flex items-center gap-3">
+        <div className="mx-6 mb-6 p-4 rounded-2xl glass border border-expense/25 flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-expense flex-shrink-0" />
           <div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -96,11 +96,11 @@ export default function DebtsPage() {
 
       {/* Tabs */}
       <div className="mx-6 mb-6">
-        <div className="flex bg-muted p-1 rounded-2xl">
+        <div className="flex glass border border-border/40 p-1 rounded-2xl">
           <button
             onClick={() => setTab('i_owe')}
             className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${
-              tab === 'i_owe' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+              tab === 'i_owe' ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground'
             }`}
           >
             Lo que debo
@@ -108,7 +108,7 @@ export default function DebtsPage() {
           <button
             onClick={() => setTab('they_owe')}
             className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${
-              tab === 'they_owe' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground'
+              tab === 'they_owe' ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground'
             }`}
           >
             Me deben
@@ -126,8 +126,8 @@ export default function DebtsPage() {
           </div>
         ) : (
           filteredDebts.map(debt => (
-            <div key={debt.id} className={`bg-card border rounded-3xl p-5 relative overflow-hidden transition-all ${
-              debt.status === 'paid' ? 'border-border opacity-60' : 'border-border'
+            <div key={debt.id} className={`glass border rounded-3xl p-5 relative overflow-hidden transition-all ${
+              debt.status === 'paid' ? 'border-border/30 opacity-60' : 'border-border/50'
             }`}>
               {debt.status === 'paid' && (
                 <div className="absolute top-4 right-4">
@@ -180,14 +180,14 @@ export default function DebtsPage() {
 
       {/* Pay Modal */}
       {payModalDebt && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-foreground/20 backdrop-blur-sm">
-          <div className="bg-card border border-border p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-sm shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-foreground/20 backdrop-blur-md">
+          <div className="glass border border-border/50 p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-sm shadow-2xl">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold">Registrar Abono</h2>
                 <p className="text-sm text-muted-foreground mt-1">Para: <span className="font-semibold text-foreground">{payModalDebt.person_name}</span></p>
               </div>
-              <button onClick={() => setPayModalDebt(null)} className="p-2 bg-muted rounded-xl text-muted-foreground hover:text-foreground">
+              <button onClick={() => setPayModalDebt(null)} className="p-2 glass border border-border/40 rounded-xl text-muted-foreground hover:text-foreground">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -199,7 +199,7 @@ export default function DebtsPage() {
                 value={payAmount}
                 onChange={e => setPayAmount(e.target.value)}
                 placeholder={`Máx. $${Number(payModalDebt.balance_remaining).toLocaleString()}`}
-                className="w-full bg-muted border border-border rounded-2xl px-4 py-3.5 text-xl font-black focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full glass border border-border/50 rounded-2xl px-4 py-3.5 text-xl font-black focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <button onClick={handleAbonoSubmit} className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-2xl hover:opacity-90 transition-opacity">

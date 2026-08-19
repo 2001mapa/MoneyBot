@@ -92,13 +92,13 @@ export default function StatsPage() {
         <div className="px-6 space-y-5">
 
           {/* Total summary */}
-          <div className="bg-card border border-border rounded-3xl p-5">
+          <div className="glass border border-border/50 rounded-3xl p-5">
             <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Total gastado (top categorías)</p>
             <p className="text-3xl font-black">${totalGastos.toLocaleString()}</p>
           </div>
 
           {/* Donut Chart */}
-          <div className="bg-card border border-border rounded-3xl p-6">
+          <div className="glass border border-border/50 rounded-3xl p-6">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Distribución de gastos</h3>
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -144,7 +144,7 @@ export default function StatsPage() {
           </div>
 
           {/* Bar Chart */}
-          <div className="bg-card border border-border rounded-3xl p-6">
+          <div className="glass border border-border/50 rounded-3xl p-6">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Comparativa por categoría</h3>
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
