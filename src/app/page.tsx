@@ -1,4 +1,3 @@
-import { ThemeSwitcher } from '@/components/ThemeSwitcher'
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
@@ -52,7 +51,6 @@ export default async function Home() {
           <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-1">Panel Financiero</p>
           <h1 className="text-2xl font-bold tracking-tight">Hola, {profile.full_name?.split(' ')[0] || 'Usuario'} 👋</h1>
         </div>
-        <ThemeSwitcher />
       </header>
 
       {/* Balance Card — glass hero */}
