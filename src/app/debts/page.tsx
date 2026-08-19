@@ -125,7 +125,7 @@ export default function DebtsPage() {
                   <button onClick={() => handleAbono(debt)} className="flex-1 bg-foreground text-background font-bold py-2.5 text-xs rounded-xl shadow-sm hover:opacity-90">
                     Abonar
                   </button>
-                  <button className="flex-1 bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10">
+                  <button onClick={() => alert(debt.description ? `Detalles: ${debt.description}` : 'No hay detalles adicionales para esta deuda.')} className="flex-1 bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10">
                     Detalles
                   </button>
                 </div>

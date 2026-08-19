@@ -164,16 +164,24 @@ export async function POST(req: Request) {
     // Traer deudas para resumen
     const { data: allDebts } = await supabaseAdmin
       .from('debts')
-      .select('debt_type, balance_remaining')
+      .select('person_name, debt_type, balance_remaining')
       .eq('user_id', profile.id)
       .neq('status', 'paid')
 
     let deboTotal = 0;
     let meDebenTotal = 0;
+    const activeDebtsList: string[] = [];
+
     if (allDebts) {
       allDebts.forEach(d => {
-        if (d.debt_type === 'i_owe') deboTotal += Number(d.balance_remaining);
-        if (d.debt_type === 'they_owe') meDebenTotal += Number(d.balance_remaining);
+        if (d.debt_type === 'i_owe') {
+          deboTotal += Number(d.balance_remaining);
+          activeDebtsList.push(`Debo a ${d.person_name}: $${d.balance_remaining}`);
+        }
+        if (d.debt_type === 'they_owe') {
+          meDebenTotal += Number(d.balance_remaining);
+          activeDebtsList.push(`${d.person_name} me debe: $${d.balance_remaining}`);
+        }
       });
     }
 
@@ -201,7 +209,9 @@ REGLA ORO: is_complete = false -> Preguntas. is_complete = true -> Confirmas reg
 CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
 - Liquidez Real en Bolsillo (Saldo Total): $${balanceTotal.toLocaleString('es-CO')} ${profile.currency}. (Éste es el dinero FÍSICO/REAL que tiene el usuario en sus manos ahora mismo).
 - Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible en Presupuesto: $${budgetRemaining.toLocaleString('es-CO')}).
-- Deudas: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
+- Deudas Totales: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
+- Lista de Deudas Activas (¡ÚSALAS PARA INFERIR EL NOMBRE DE LA PERSONA CUANDO HAGAN ABONOS!): 
+  ${activeDebtsList.length > 0 ? activeDebtsList.join('\n  ') : 'Ninguna'}
 - Últimos 3 movimientos:\n${last3Txs.join('\n') || 'Ninguno'}
 
 REGLA SOBRE DINERO DISPONIBLE:
@@ -323,6 +333,9 @@ ${chatHistory}`;
           balance_remaining: newBalance,
           status: newStatus
         }).eq('id', targetDebt.id);
+      } else {
+        // Fallback si Gemini asume que hizo el pago pero la DB no encontró la deuda
+        parsedData.response_to_user = `Lo siento, iba a registrar el abono, pero no encontré ninguna deuda activa a nombre de "${parsedData.person_name}". ¿Puedes decirme el nombre exacto de la persona?`;
       }
     }
 
