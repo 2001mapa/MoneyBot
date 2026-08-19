@@ -13,6 +13,7 @@ const CURRENCIES = [
   { value: 'EUR', label: 'EUR — Euro', symbol: '€' },
   { value: 'MXN', label: 'MXN — Peso Mexicano', symbol: '$' },
   { value: 'ARS', label: 'ARS — Peso Argentino', symbol: '$' },
+  { value: 'VES', label: 'VES — Bolívar Venezolano', symbol: 'Bs.' },
 ]
 
 const THEMES = [
