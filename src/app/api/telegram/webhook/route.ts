@@ -107,7 +107,7 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   try {
     const secretHeader = req.headers.get('x-telegram-bot-api-secret-token')
-    if (!process.env.TELEGRAM_WEBHOOK_SECRET || secretHeader !== process.env.TELEGRAM_WEBHOOK_SECRET) {
+    if (process.env.TELEGRAM_WEBHOOK_SECRET && secretHeader !== process.env.TELEGRAM_WEBHOOK_SECRET) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
