@@ -67,27 +67,27 @@ export default function StatsPage() {
     <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full">
       <header className="flex items-center justify-between mb-8 mt-4">
         <div className="flex items-center">
-          <Link href="/" className="mr-4 p-2 bg-foreground/5 rounded-full hover:bg-foreground/10 transition-colors">
+          <Link href="/" className="mr-4 p-2 bg-card rounded-full hover:bg-muted transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Estadísticas</h1>
-            <p className="text-foreground/60 text-sm mt-1">Análisis de tus gastos</p>
+            <p className="text-muted-foreground text-sm mt-1">Análisis de tus gastos</p>
           </div>
         </div>
-        <button onClick={handleExportCSV} className="text-xs font-bold bg-blue-600 text-white px-3 py-2 rounded-xl shadow-sm hover:bg-blue-500 transition-colors">
+        <button onClick={handleExportCSV} className="text-xs font-bold bg-primary text-primary-foreground px-3 py-2 rounded-xl shadow-sm hover:opacity-90 transition-colors">
           Exportar CSV
         </button>
       </header>
 
       {loading ? (
-        <p className="text-center text-foreground/50 py-10">Cargando datos...</p>
+        <p className="text-center text-muted-foreground py-10">Cargando datos...</p>
       ) : data.length === 0 ? (
-        <p className="text-center text-foreground/50 py-10">No hay datos suficientes para graficar.</p>
+        <p className="text-center text-muted-foreground py-10">No hay datos suficientes para graficar.</p>
       ) : (
         <div className="space-y-8">
           <section className="bg-foreground/[0.02] border border-foreground/5 p-6 rounded-3xl">
-            <h3 className="text-sm font-bold mb-6 text-center text-foreground/70 uppercase tracking-wider">Top Gastos (Doughnut)</h3>
+            <h3 className="text-sm font-bold mb-6 text-center text-muted-foreground uppercase tracking-wider">Top Gastos (Doughnut)</h3>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -124,7 +124,7 @@ export default function StatsPage() {
           </section>
 
           <section className="bg-foreground/[0.02] border border-foreground/5 p-6 rounded-3xl">
-            <h3 className="text-sm font-bold mb-6 text-center text-foreground/70 uppercase tracking-wider">Comparativa</h3>
+            <h3 className="text-sm font-bold mb-6 text-center text-muted-foreground uppercase tracking-wider">Comparativa</h3>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data}>

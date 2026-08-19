@@ -58,13 +58,13 @@ export default async function Home() {
       <header className="flex justify-between items-start mb-8 mt-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Hola, {profile.full_name?.split(' ')[0] || 'Usuario'} 👋</h1>
-          <p className="text-foreground/60 text-sm mt-1">Aquí está tu resumen real</p>
+          <p className="text-muted-foreground text-sm mt-1">Aquí está tu resumen real</p>
         </div>
         <ThemeSwitcher />
       </header>
 
       {/* Balance Card */}
-      <section className="bg-foreground text-background rounded-3xl p-7 mb-8 shadow-xl relative overflow-hidden">
+      <section className="bg-primary text-primary-foreground rounded-3xl p-7 mb-8 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <Wallet className="w-32 h-32" />
         </div>
@@ -79,7 +79,7 @@ export default async function Home() {
             <ArrowDownIcon className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-xs text-foreground/60 font-medium mb-1 uppercase tracking-wider">Ingresos</p>
+            <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wider">Ingresos</p>
             <p className="font-bold text-lg text-emerald-700 dark:text-emerald-400">${ingresosMes.toLocaleString()}</p>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default async function Home() {
             <ArrowUpIcon className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-xs text-foreground/60 font-medium mb-1 uppercase tracking-wider">Gastos</p>
+            <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wider">Gastos</p>
             <p className="font-bold text-lg text-red-700 dark:text-red-400">${gastosMes.toLocaleString()}</p>
           </div>
         </div>
@@ -98,25 +98,25 @@ export default async function Home() {
       <section>
         <div className="flex justify-between items-end mb-5">
           <h3 className="text-lg font-bold">Movimientos Recientes</h3>
-          <button className="text-xs font-semibold text-blue-600 hover:text-blue-500">Ver todos</button>
+          <button className="text-xs font-semibold text-primary hover:text-primary">Ver todos</button>
         </div>
         
         <div className="space-y-3">
           {!transactions || transactions.length === 0 ? (
-            <p className="text-center text-sm text-foreground/50 py-8 border border-dashed border-foreground/20 rounded-2xl">
+            <p className="text-center text-sm text-muted-foreground py-8 border border-dashed border-border rounded-2xl">
               No hay transacciones aún. (O el RLS está bloqueando la vista sin Login).
             </p>
           ) : (
             transactions.map((tx: any) => (
-              <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-foreground/5 transition-colors cursor-pointer">
+              <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-card transition-colors cursor-pointer">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-xl border flex items-center justify-center text-xl shadow-sm bg-foreground/5">
+                  <div className="w-12 h-12 rounded-xl border flex items-center justify-center text-xl shadow-sm bg-card">
                     {/* Placeholder icon hasta tener categorías conectadas */}
                     {tx.type === 'income' ? '💵' : '🛒'}
                   </div>
                   <div>
                     <p className="font-bold text-sm capitalize">{tx.description}</p>
-                    <p className="text-xs font-medium text-foreground/50 mt-0.5">
+                    <p className="text-xs font-medium text-muted-foreground mt-0.5">
                       {tx.payment_method}
                     </p>
                   </div>

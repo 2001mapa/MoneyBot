@@ -2,50 +2,106 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #09090b;
+  --card: #f4f4f5;
+  --card-foreground: #09090b;
+  --primary: #2563eb;
+  --primary-foreground: #f8fafc;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 .luxury_gold {
-  --background: #111111;
-  --foreground: #d4af37;
+  --background: #0a0a0a;
+  --foreground: #f8fafc;
+  --card: #141414;
+  --card-foreground: #f8fafc;
+  --primary: #d4af37;
+  --primary-foreground: #000000;
+  --muted: #1f1f1f;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
 }
 
 .retro_pixel {
-  --background: #0000aa;
-  --foreground: #ffffff;
+  --background: #1e1b4b;
+  --foreground: #e0e7ff;
+  --card: #2e1065;
+  --card-foreground: #e0e7ff;
+  --primary: #4ade80;
+  --primary-foreground: #022c22;
+  --muted: #312e81;
+  --muted-foreground: #818cf8;
+  --border: #4338ca;
   --font-sans: 'Courier New', Courier, monospace;
 }
 
 .cyberpunk {
-  --background: #fcee0a;
-  --foreground: #000000;
+  --background: #000000;
+  --foreground: #f8fafc;
+  --card: #121212;
+  --card-foreground: #f8fafc;
+  --primary: #fcee0a;
+  --primary-foreground: #000000;
+  --muted: #1c1c1c;
+  --muted-foreground: #a1a1aa;
+  --border: #06b6d4;
 }
 
 .emerald {
-  --background: #064e3b;
+  --background: #022c22;
   --foreground: #ecfdf5;
+  --card: #064e3b;
+  --card-foreground: #ecfdf5;
+  --primary: #10b981;
+  --primary-foreground: #022c22;
+  --muted: #065f46;
+  --muted-foreground: #6ee7b7;
+  --border: #047857;
 }
 
 .soft_pastel {
-  --background: #fdfbf7;
-  --foreground: #5c5c5c;
+  --background: #fafaf9;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --primary: #f472b6;
+  --primary-foreground: #fff1f2;
+  --muted: #f5f5f4;
+  --muted-foreground: #78716c;
+  --border: #e7e5e4;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }

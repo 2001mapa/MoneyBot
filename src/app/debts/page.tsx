@@ -85,26 +85,26 @@ export default function DebtsPage() {
   return (
     <main className="flex-1 p-6 pb-28 max-w-lg mx-auto w-full relative">
       <header className="flex items-center mb-6 mt-4">
-        <Link href="/" className="mr-4 p-2 bg-foreground/5 rounded-full hover:bg-foreground/10 transition-colors">
+        <Link href="/" className="mr-4 p-2 bg-card rounded-full hover:bg-muted transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Deudas</h1>
-          <p className="text-foreground/60 text-sm mt-1">Control de préstamos</p>
+          <p className="text-muted-foreground text-sm mt-1">Control de préstamos</p>
         </div>
       </header>
 
       {/* Tabs */}
-      <div className="flex bg-foreground/5 p-1 rounded-2xl mb-6">
+      <div className="flex bg-card p-1 rounded-2xl mb-6">
         <button 
           onClick={() => setTab('i_owe')}
-          className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${tab === 'i_owe' ? 'bg-background shadow-sm text-foreground' : 'text-foreground/50 hover:text-foreground/80'}`}
+          className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${tab === 'i_owe' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}
         >
           Lo que debo
         </button>
         <button 
           onClick={() => setTab('they_owe')}
-          className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${tab === 'they_owe' ? 'bg-background shadow-sm text-foreground' : 'text-foreground/50 hover:text-foreground/80'}`}
+          className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${tab === 'they_owe' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground/80'}`}
         >
           Me deben
         </button>
@@ -112,10 +112,10 @@ export default function DebtsPage() {
 
       <div className="space-y-4">
         {loading ? (
-          <p className="text-center text-foreground/50 py-10">Cargando...</p>
+          <p className="text-center text-muted-foreground py-10">Cargando...</p>
         ) : filteredDebts.length === 0 ? (
-          <div className="text-center py-12 px-4 border border-dashed border-foreground/20 rounded-3xl">
-            <p className="text-foreground/50 text-sm font-medium">No hay deudas registradas aquí.</p>
+          <div className="text-center py-12 px-4 border border-dashed border-border rounded-3xl">
+            <p className="text-muted-foreground text-sm font-medium">No hay deudas registradas aquí.</p>
           </div>
         ) : (
           filteredDebts.map(debt => (
@@ -126,7 +126,7 @@ export default function DebtsPage() {
                 </div>
               )}
               <h3 className="font-bold text-lg">{debt.person_name}</h3>
-              <p className="text-xs text-foreground/60 font-medium mb-4">{debt.description || 'Sin descripción'}</p>
+              <p className="text-xs text-muted-foreground font-medium mb-4">{debt.description || 'Sin descripción'}</p>
               
               <div className="flex justify-between items-end mb-4">
                 <div>
@@ -137,22 +137,22 @@ export default function DebtsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] uppercase tracking-wider font-bold text-foreground/40 mb-1">Total original</p>
-                  <p className="font-semibold text-sm text-foreground/70">${Number(debt.total_amount).toLocaleString()}</p>
+                  <p className="font-semibold text-sm text-muted-foreground">${Number(debt.total_amount).toLocaleString()}</p>
                 </div>
               </div>
 
               {debt.status !== 'paid' && (
                 <div className="flex gap-2">
-                  <button onClick={() => setPayModalDebt(debt)} className="flex-1 bg-foreground text-background font-bold py-2.5 text-xs rounded-xl shadow-sm hover:opacity-90">
+                  <button onClick={() => setPayModalDebt(debt)} className="flex-1 bg-primary text-primary-foreground font-bold py-2.5 text-xs rounded-xl shadow-sm hover:opacity-90">
                     Abonar
                   </button>
-                  <button onClick={() => openDetails(debt)} className="flex-1 bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10">
+                  <button onClick={() => openDetails(debt)} className="flex-1 bg-card text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-muted">
                     Detalles
                   </button>
                 </div>
               )}
               {debt.status === 'paid' && (
-                <button onClick={() => openDetails(debt)} className="w-full bg-foreground/5 text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-foreground/10 mt-2">
+                <button onClick={() => openDetails(debt)} className="w-full bg-card text-foreground font-bold py-2.5 text-xs rounded-xl hover:bg-muted mt-2">
                   Ver Historial
                 </button>
               )}
@@ -164,25 +164,25 @@ export default function DebtsPage() {
       {/* Pay Modal */}
       {payModalDebt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-          <div className="bg-background border border-foreground/10 p-6 rounded-3xl w-full max-w-sm shadow-2xl relative">
-            <button onClick={() => setPayModalDebt(null)} className="absolute top-4 right-4 p-2 bg-foreground/5 rounded-full text-foreground/60 hover:text-foreground">
+          <div className="bg-background border border-border p-6 rounded-3xl w-full max-w-sm shadow-2xl relative">
+            <button onClick={() => setPayModalDebt(null)} className="absolute top-4 right-4 p-2 bg-card rounded-full text-muted-foreground hover:text-foreground">
               <X className="w-4 h-4" />
             </button>
             <h2 className="text-xl font-bold mb-1">Registrar Abono</h2>
-            <p className="text-sm text-foreground/60 mb-6">¿Cuánto vas a abonar a {payModalDebt.person_name}?</p>
+            <p className="text-sm text-muted-foreground mb-6">¿Cuánto vas a abonar a {payModalDebt.person_name}?</p>
             
             <div className="mb-6">
-              <label className="text-xs font-bold uppercase tracking-wider text-foreground/50 mb-2 block">Monto a abonar</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Monto a abonar</label>
               <input 
                 type="number" 
                 value={payAmount}
                 onChange={e => setPayAmount(e.target.value)}
                 placeholder={`Máximo: $${payModalDebt.balance_remaining}`}
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             
-            <button onClick={handleAbonoSubmit} className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-blue-500 transition-colors">
+            <button onClick={handleAbonoSubmit} className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-xl shadow-lg hover:opacity-90 transition-colors">
               Confirmar Abono
             </button>
           </div>
@@ -192,28 +192,28 @@ export default function DebtsPage() {
       {/* Details Modal */}
       {detailsModalDebt && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-sm">
-          <div className="bg-background border-t sm:border border-foreground/10 p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-md shadow-2xl relative max-h-[80vh] flex flex-col">
-            <button onClick={() => setDetailsModalDebt(null)} className="absolute top-4 right-4 p-2 bg-foreground/5 rounded-full text-foreground/60 hover:text-foreground">
+          <div className="bg-background border-t sm:border border-border p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-md shadow-2xl relative max-h-[80vh] flex flex-col">
+            <button onClick={() => setDetailsModalDebt(null)} className="absolute top-4 right-4 p-2 bg-card rounded-full text-muted-foreground hover:text-foreground">
               <X className="w-4 h-4" />
             </button>
             <h2 className="text-xl font-bold mb-1">Detalles de la Deuda</h2>
-            <p className="text-sm text-foreground/60 mb-6">{detailsModalDebt.description || 'Sin descripción'}</p>
+            <p className="text-sm text-muted-foreground mb-6">{detailsModalDebt.description || 'Sin descripción'}</p>
             
-            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground/50 mb-3">Historial de Abonos</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Historial de Abonos</h3>
             <div className="overflow-y-auto flex-1 pr-2">
               {loadingDetails ? (
-                <p className="text-sm text-foreground/50 py-4">Cargando historial...</p>
+                <p className="text-sm text-muted-foreground py-4">Cargando historial...</p>
               ) : debtPayments.length === 0 ? (
-                <p className="text-sm text-foreground/50 py-4 italic">No hay abonos registrados todavía.</p>
+                <p className="text-sm text-muted-foreground py-4 italic">No hay abonos registrados todavía.</p>
               ) : (
                 <div className="space-y-3">
                   {debtPayments.map(payment => (
-                    <div key={payment.id} className="flex justify-between items-center p-3 bg-foreground/5 rounded-xl">
+                    <div key={payment.id} className="flex justify-between items-center p-3 bg-card rounded-xl">
                       <div>
                         <p className="font-bold text-sm">${Number(payment.amount).toLocaleString()}</p>
-                        <p className="text-[10px] text-foreground/50 uppercase">{new Date(payment.created_at).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">{new Date(payment.created_at).toLocaleDateString()}</p>
                       </div>
-                      <span className="text-xs font-medium px-2 py-1 bg-foreground/10 rounded-md">
+                      <span className="text-xs font-medium px-2 py-1 bg-muted rounded-md">
                         {payment.payment_method}
                       </span>
                     </div>
