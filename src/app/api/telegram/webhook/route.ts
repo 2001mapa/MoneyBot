@@ -90,12 +90,12 @@ const actionSchema: Schema = {
       format: "enum",
       enum: ["i_owe", "they_owe", "none"] 
     },
-    response_to_user: { 
-      type: SchemaType.STRING, 
-      description: "Tu respuesta como Luka. Si is_complete es false, pregunta amablemente el dato que falta. Si is_complete es true, confirma que YA se registró con éxito. Sé cálido y natural." 
+    response_to_user: {
+      type: SchemaType.STRING,
+      description: "Tu respuesta cálida en lenguaje natural",
     }
   },
-  required: ["action_type", "is_complete", "amount", "transaction_type", "category_name", "payment_method", "description", "person_name", "debt_type", "response_to_user"]
+  required: ["action_type", "is_complete", "response_to_user"]
 }
 
 export const maxDuration = 60;
@@ -394,7 +394,7 @@ ${chatHistory}`;
         await sendMessage(chatId, parsedData.response_to_user)
       } catch (error) {
         console.error('Error dentro del background task (after):', error)
-        await sendMessage(chatId, "Ups, tuve un pequeño problema analizando tu mensaje o calculando las fechas. ¿Puedes repetírmelo de otra forma por favor?")
+        await sendMessage(chatId, `Ups, tuve un error interno. Detalle técnico para depuración: ${String(error)}`)
       }
     });
 
