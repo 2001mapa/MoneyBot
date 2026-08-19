@@ -118,7 +118,24 @@ export default function DebtsPage() {
 
       <div className="px-6 space-y-3">
         {loading ? (
-          <p className="text-center text-muted-foreground py-10">Cargando...</p>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="rounded-3xl border border-border/30 p-5 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="skeleton w-10 h-10 rounded-2xl flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-4 w-32" />
+                    <div className="skeleton h-3 w-48" />
+                  </div>
+                </div>
+                <div className="skeleton rounded-xl h-16 w-full" />
+                <div className="flex gap-2">
+                  <div className="skeleton flex-1 h-9 rounded-xl" />
+                  <div className="skeleton flex-1 h-9 rounded-xl" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : filteredDebts.length === 0 ? (
           <div className="text-center py-16 border border-dashed border-border rounded-3xl">
             <p className="text-3xl mb-3">🤝</p>

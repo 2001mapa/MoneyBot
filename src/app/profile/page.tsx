@@ -85,8 +85,50 @@ export default function ProfilePage() {
       </header>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <p className="text-muted-foreground text-sm">Cargando perfil...</p>
+        <div className="px-6 space-y-4">
+          {/* User card skeleton */}
+          <div className="rounded-3xl border border-border/30 p-5 flex items-center gap-4">
+            <div className="skeleton w-16 h-16 rounded-2xl flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="skeleton h-4 w-40" />
+              <div className="skeleton h-3 w-52" />
+              <div className="skeleton h-3 w-28 mt-1" />
+            </div>
+          </div>
+          {/* Bot settings skeleton */}
+          <div className="rounded-3xl border border-border/30 p-5 space-y-4">
+            <div className="skeleton h-3 w-24" />
+            <div className="space-y-2">
+              <div className="skeleton h-3 w-36" />
+              <div className="skeleton h-11 w-full rounded-2xl" />
+            </div>
+            <div className="space-y-2">
+              <div className="skeleton h-3 w-36" />
+              <div className="skeleton h-11 w-full rounded-2xl" />
+            </div>
+          </div>
+          {/* Preferences skeleton */}
+          <div className="rounded-3xl border border-border/30 p-5 space-y-4">
+            <div className="skeleton h-3 w-28" />
+            <div className="space-y-2">
+              <div className="skeleton h-3 w-20" />
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="skeleton h-10 rounded-xl" />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="skeleton h-3 w-24" />
+              <div className="grid grid-cols-3 gap-2">
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="skeleton h-9 rounded-xl" />
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="skeleton h-14 w-full rounded-2xl" />
+          <div className="skeleton h-14 w-full rounded-2xl" />
         </div>
       ) : !profile ? (
         <div className="px-6 text-center py-20">

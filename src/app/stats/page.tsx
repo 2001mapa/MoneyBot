@@ -79,8 +79,35 @@ export default function StatsPage() {
       </header>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <p className="text-muted-foreground text-sm">Cargando datos...</p>
+        <div className="px-6 space-y-5">
+          {/* Summary card */}
+          <div className="rounded-3xl border border-border/30 p-5 space-y-2">
+            <div className="skeleton h-3 w-32" />
+            <div className="skeleton h-9 w-48" />
+          </div>
+          {/* Donut chart card */}
+          <div className="rounded-3xl border border-border/30 p-6">
+            <div className="skeleton h-3 w-40 mb-5" />
+            <div className="skeleton rounded-full w-40 h-40 mx-auto mb-6" style={{ borderRadius: '50%' }} />
+            <div className="grid grid-cols-2 gap-2">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2 p-2 rounded-xl">
+                  <div className="skeleton w-2.5 h-2.5 rounded-full flex-shrink-0" />
+                  <div className="skeleton h-2.5 flex-1 rounded-full" />
+                  <div className="skeleton h-2.5 w-8 rounded-full" />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Bar chart card */}
+          <div className="rounded-3xl border border-border/30 p-6">
+            <div className="skeleton h-3 w-44 mb-5" />
+            <div className="flex items-end gap-3 h-44 px-2">
+              {[65, 40, 90, 30, 75, 55].map((h, i) => (
+                <div key={i} className="skeleton flex-1 rounded-t-lg" style={{ height: `${h}%` }} />
+              ))}
+            </div>
+          </div>
         </div>
       ) : data.length === 0 ? (
         <div className="mx-6 text-center py-16 border border-dashed border-border rounded-3xl">
