@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'MoneyBot (Luka)',
-    short_name: 'Luka',
+    name: 'Panel Financiero',
+    short_name: 'Panel Financiero',
     description: 'Asistente financiero personal',
     start_url: '/',
     display: 'standalone',
