@@ -107,7 +107,10 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   try {
     const secretHeader = req.headers.get('x-telegram-bot-api-secret-token')
-    if (process.env.TELEGRAM_WEBHOOK_SECRET && secretHeader !== process.env.TELEGRAM_WEBHOOK_SECRET) {
+    const expectedSecret = process.env.TELEGRAM_SECRET_TOKEN || process.env.TELEGRAM_WEBHOOK_SECRET
+    
+    // Si la variable existe en Vercel, exigimos que el token de Telegram coincida
+    if (expectedSecret && secretHeader !== expectedSecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
