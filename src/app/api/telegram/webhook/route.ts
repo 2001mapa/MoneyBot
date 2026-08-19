@@ -262,7 +262,7 @@ ${chatHistory}`;
     // 4. Llamar a Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-3.5-flash',
+      model: 'gemini-1.5-flash',
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: actionSchema,
@@ -395,7 +395,11 @@ ${chatHistory}`;
       } catch (error) {
         console.error('Error dentro del background task (after):', error)
         const errStr = String(error);
-        await sendMessage(chatId, `DEBUG ERROR: ${errStr}`)
+        if (errStr.includes('429') || errStr.includes('quota') || errStr.includes('Too Many Requests')) {
+          await sendMessage(chatId, "¡Woah, vas muy rápido! 😅 He alcanzado mi límite de mensajes por minuto. Dame un respiro de 60 segundos y vuelve a intentarlo.")
+        } else {
+          await sendMessage(chatId, "Ups, tuve un error interno al procesar tu mensaje. Intenta de nuevo más tarde.")
+        }
       }
     });
 
