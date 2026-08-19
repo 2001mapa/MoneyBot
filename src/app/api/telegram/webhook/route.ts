@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai'
 import { createClient } from '@supabase/supabase-js'
 import { Redis } from '@upstash/redis'
@@ -112,25 +112,28 @@ export async function POST(req: Request) {
 
     if (!isVoice && !isText) return NextResponse.json({ status: 'ignored' })
 
-    // 1. Verificar si el usuario está vinculado
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .eq('telegram_chat_id', chatId)
-      .single()
+    // Delegar el procesamiento pesado en background con `after()`
+    after(async () => {
+      try {
+        // 1. Verificar si el usuario está vinculado
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('*')
+          .eq('telegram_chat_id', chatId)
+          .single()
 
-    if (!profile) {
-      const loginUrl = `https://${req.headers.get('host')}/login?chat_id=${chatId}`
-      await sendMessage(chatId, `¡Hola! Soy Luka 👋.\nPara poder gestionar tus finanzas, necesito que vincules tu cuenta de Telegram con la plataforma web.\n\nPor favor, inicia sesión aquí: ${loginUrl}`)
-      return NextResponse.json({ status: 'unlinked' })
-    }
+        if (!profile) {
+          const loginUrl = `https://${req.headers.get('host')}/login?chat_id=${chatId}`
+          await sendMessage(chatId, `¡Hola! Soy Luka 👋.\nPara poder gestionar tus finanzas, necesito que vincules tu cuenta de Telegram con la plataforma web.\n\nPor favor, inicia sesión aquí: ${loginUrl}`)
+          return
+        }
 
-    // Informar que estamos pensando
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendChatAction`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
-    })
+        // Informar que estamos pensando
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendChatAction`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
+        })
 
     // 2. Extraer Contexto Financiero de Supabase
     // Traer todas las transacciones para calcular balance
@@ -329,10 +332,15 @@ ${chatHistory}`;
     // Mantener solo los últimos 10 mensajes (5 interacciones completas)
     await redis.ltrim(redisKey, -10, -1)
 
-    // 7. Enviar la respuesta amigable generada por Gemini
-    await sendMessage(chatId, parsedData.response_to_user)
+        // 7. Enviar la respuesta amigable generada por Gemini
+        await sendMessage(chatId, parsedData.response_to_user)
+      } catch (error) {
+        console.error('Error dentro del background task (after):', error)
+      }
+    });
 
-    return NextResponse.json({ status: 'success' })
+    // Retornamos HTTP 200 inmediatamente a Telegram para evitar retries infinitos
+    return NextResponse.json({ status: 'success', message: 'Delegated to background task' })
   } catch (error) {
     console.error('Webhook Error CRITICO:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
