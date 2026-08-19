@@ -26,7 +26,7 @@ export default function StatsPage() {
         .select('amount, type, description, transaction_date, categories(name)')
         .eq('user_id', user.id)
         .eq('type', 'expense')
-        .gte('transaction_date', startOfMonthStr)
+        .gte('transaction_date', startOfMonth)
       
       if (txs) {
         const grouped: Record<string, number> = {}
