@@ -6,34 +6,39 @@ export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  let profile = { full_name: 'Usuario', currency: 'COP' }
-  if (user) {
-    const { data: profileData } = await supabase.from('profiles').select('full_name, currency').eq('id', user.id).single()
-    if (profileData) profile = profileData
+  if (!user) {
+    return null;
   }
 
-  const { data: transactions } = await supabase
-    .from('transactions')
-    .select('*, categories(name, icon, color)')
-    .eq('user_id', user?.id || '')
-    .order('transaction_date', { ascending: false })
-    .limit(10)
+  // Ejecutar queries pesadas en paralelo (Performance fix - Arch Agent)
+  const [profileRes, transactionsRes, allTxRes, allDebtsRes] = await Promise.all([
+    supabase.from('profiles').select('full_name, currency').eq('id', user.id).single(),
+    supabase.from('transactions').select('*, categories(name, icon, color)').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(10),
+    supabase.from('transactions').select('amount, type, transaction_date, created_at').eq('user_id', user.id),
+    supabase.from('debts').select('debt_type, balance_remaining, status').eq('user_id', user.id).neq('status', 'paid')
+  ]);
+
+  let profile = { full_name: 'Usuario', currency: 'COP' }
+  if (profileRes.data) profile = profileRes.data
+
+  const transactions = transactionsRes.data || []
 
   let totalBalance = 0
   let ingresosMes = 0
   let gastosMes = 0
 
-  const { data: allTx } = await supabase
-    .from('transactions').select('*, categories(icon)').eq('user_id', user?.id || '')
-  
-  if (allTx) {
+  if (allTxRes.data) {
     const now = new Date()
     const currentMonth = now.getMonth()
     const currentYear = now.getFullYear()
 
-    allTx.forEach(tx => {
-      const txDate = new Date(tx.transaction_date || tx.created_at)
-      const isCurrentMonth = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear
+    allTxRes.data.forEach(tx => {
+      const dateString = (tx.transaction_date || tx.created_at).split('T')[0]
+      const parts = dateString.split('-')
+      const txYear = parseInt(parts[0])
+      const txMonth = parseInt(parts[1]) - 1
+
+      const isCurrentMonth = txYear === currentYear && txMonth === currentMonth
 
       if (tx.type === 'income') { 
         totalBalance += Number(tx.amount)
@@ -45,9 +50,9 @@ export default async function Home() {
     })
   }
 
-  const { data: allDebts } = await supabase.from('debts').select('*').eq('user_id', user?.id || '').neq('status', 'paid')
-  if (allDebts) {
-    allDebts.forEach(debt => {
+  if (allDebtsRes.data) {
+    allDebtsRes.data.forEach(debt => {
+      if (debt.status === 'cancelled') return
       if (debt.debt_type === 'i_owe') totalBalance += Number(debt.balance_remaining)
       else if (debt.debt_type === 'they_owe') totalBalance -= Number(debt.balance_remaining)
     })

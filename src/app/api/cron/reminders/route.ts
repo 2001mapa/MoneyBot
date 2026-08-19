@@ -23,8 +23,11 @@ async function sendMessage(chatId: string | number, text: string) {
 }
 
 export async function GET(req: Request) {
-  // Verificación de seguridad de Vercel Cron
-  if (req.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronSecret = process.env.CRON_SECRET
+  const authHeader = req.headers.get('Authorization')
+  
+  // Verificación de seguridad estricta
+  if (!cronSecret || !authHeader || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

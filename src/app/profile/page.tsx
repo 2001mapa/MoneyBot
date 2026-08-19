@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const router = useRouter()
   const supabase = createClient()
   const { setTheme, theme } = useTheme()
@@ -155,6 +156,15 @@ export default function ProfilePage() {
                   {profile.telegram_chat_id ? 'Telegram vinculado' : 'Telegram no vinculado'}
                 </span>
               </div>
+              {!profile.telegram_chat_id && (
+                <a 
+                  href="https://t.me/PanelFinancieroBot" 
+                  target="_blank"
+                  className="mt-4 block w-full py-2.5 px-4 bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all font-bold text-sm text-center rounded-xl"
+                >
+                  Conectar con Telegram
+                </a>
+              )}
             </div>
           </div>
 
@@ -279,13 +289,44 @@ export default function ProfilePage() {
 
           {/* Logout */}
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutModal(true)}
             className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-expense/25 text-expense font-bold hover:bg-expense/10 transition-all"
           >
             <LogOut className="w-4 h-4" />
             <span>Cerrar Sesión</span>
           </button>
 
+        </div>
+      )}
+
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="w-full max-w-sm glass border border-border/50 rounded-3xl p-6 space-y-5 animate-in fade-in zoom-in duration-200">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-expense/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogOut className="w-6 h-6 text-expense" />
+              </div>
+              <h3 className="text-lg font-black tracking-tight">¿Cerrar Sesión?</h3>
+              <p className="text-sm text-muted-foreground font-medium px-4">
+                Tendrás que volver a iniciar sesión para ver tus finanzas en la web.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleLogout}
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-expense text-white shadow-lg shadow-expense/25 hover:opacity-90 transition-all"
+              >
+                Sí, salir
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </main>

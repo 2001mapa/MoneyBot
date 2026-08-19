@@ -106,6 +106,11 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
+    const secretHeader = req.headers.get('x-telegram-bot-api-secret-token')
+    if (!process.env.TELEGRAM_WEBHOOK_SECRET || secretHeader !== process.env.TELEGRAM_WEBHOOK_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await req.json()
     const message = body.message
     if (!message) return NextResponse.json({ status: 'ignored' })
@@ -127,8 +132,12 @@ export async function POST(req: Request) {
           .single()
 
         if (!profile) {
-          const loginUrl = `https://${req.headers.get('host')}/login?chat_id=${chatId}`
-          await sendMessage(chatId, `¡Hola! Soy Luka 👋.\nPara poder gestionar tus finanzas, necesito que vincules tu cuenta de Telegram con la plataforma web.\n\nPor favor, inicia sesión aquí: ${loginUrl}`)
+          const { randomUUID } = require('crypto')
+          const linkToken = randomUUID()
+          await redis.set(`auth_token_${linkToken}`, chatId, { ex: 300 })
+          
+          const loginUrl = `https://${req.headers.get('host')}/login?token=${linkToken}`
+          await sendMessage(chatId, `¡Hola! Soy Luka 👋.\nPara poder gestionar tus finanzas, necesito que vincules tu cuenta de Telegram con la plataforma web.\n\nPor favor, inicia sesión aquí (enlace válido por 5 minutos): ${loginUrl}`)
           return
         }
 
@@ -157,8 +166,20 @@ export async function POST(req: Request) {
     if (allTxs) {
       for (let i = 0; i < allTxs.length; i++) {
         const tx = allTxs[i];
-        const txDate = new Date(tx.transaction_date || tx.created_at);
-        const isCurrentMonth = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+        const rawDate = tx.transaction_date || tx.created_at;
+        let isCurrentMonth = false;
+        if (rawDate) {
+          const dateStr = String(rawDate).split('T')[0];
+          const parts = dateStr.split('-');
+          if (parts.length === 3) {
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10) - 1;
+            isCurrentMonth = (y === currentYear && m === currentMonth);
+          } else {
+            const d = new Date(rawDate);
+            isCurrentMonth = (d.getFullYear() === currentYear && d.getMonth() === currentMonth);
+          }
+        }
 
         if (tx.type === 'income') balanceTotal += Number(tx.amount);
         if (tx.type === 'expense') {
@@ -174,7 +195,7 @@ export async function POST(req: Request) {
     // Traer deudas para resumen
     const { data: allDebts } = await supabaseAdmin
       .from('debts')
-      .select('person_name, debt_type, balance_remaining')
+      .select('person_name, debt_type, balance_remaining, status')
       .eq('user_id', profile.id)
       .neq('status', 'paid')
 
@@ -184,6 +205,7 @@ export async function POST(req: Request) {
 
     if (allDebts) {
       allDebts.forEach(d => {
+        if (d.status === 'cancelled') return;
         if (d.debt_type === 'i_owe') {
           deboTotal += Number(d.balance_remaining);
           activeDebtsList.push(`Debo a ${d.person_name}: $${d.balance_remaining}`);
@@ -272,7 +294,8 @@ ${chatHistory}`;
     // 4. Llamar a Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-3.6-flash',
+      model: 'gemini-2.0-flash',
+      systemInstruction: { parts: [{ text: systemPrompt }] },
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: actionSchema,
@@ -289,11 +312,11 @@ ${chatHistory}`;
         return NextResponse.json({ status: 'error' })
       }
       result = await model.generateContent([
-        systemPrompt + "\nMensaje de audio del usuario:",
+        "\nMensaje de audio del usuario:",
         { inlineData: { data: audioBase64, mimeType: "audio/ogg" } }
       ])
     } else {
-      result = await model.generateContent(`${systemPrompt}\nNuevo Mensaje del Usuario: "${message.text}"`)
+      result = await model.generateContent(`Nuevo Mensaje del Usuario: "${message.text}"`)
     }
 
     const jsonStr = result.response.text()
@@ -301,10 +324,9 @@ ${chatHistory}`;
 
     // 5. Ruteo y Ejecución en Base de Datos
     
-    // CASO A: Borrado Total
+    // CASO A: Borrado Total (Bloqueado por Seguridad)
     if (parsedData.action_type === 'delete_all' && parsedData.is_complete) {
-      await supabaseAdmin.from('transactions').delete().eq('user_id', profile.id)
-      await supabaseAdmin.from('debts').delete().eq('user_id', profile.id)
+      parsedData.response_to_user = "🛡️ Por seguridad, la eliminación total de la base de datos ha sido desactivada temporalmente. Por favor realiza este proceso desde el panel web.";
     }
     
     // CASO B: Borrado Único (Último)
@@ -342,7 +364,8 @@ ${chatHistory}`;
         payment_method: parsedData.payment_method !== 'none' ? parsedData.payment_method : 'efectivo',
         description: parsedData.description,
         source: isVoice ? 'telegram_voice' : 'telegram_text',
-        raw_input: userMessageText
+        raw_input: userMessageText,
+        transaction_date: currentDate ? new Date().toISOString() : new Date().toISOString()
       })
     }
 
@@ -358,9 +381,8 @@ ${chatHistory}`;
       })
     }
 
-    // CASO E: Abono a Deuda (Aún experimental, requiere buscar la deuda correcta)
+    // CASO E: Abono a Deuda
     else if (parsedData.action_type === 'debt_payment' && parsedData.is_complete) {
-      // Buscar deuda más coincidente por person_name
       const { data: existingDebts } = await supabaseAdmin
         .from('debts').select('*').eq('user_id', profile.id).neq('status', 'paid')
         .ilike('person_name', `%${parsedData.person_name}%`).limit(1)
@@ -382,7 +404,6 @@ ${chatHistory}`;
           status: newStatus
         }).eq('id', targetDebt.id);
       } else {
-        // Fallback si Gemini asume que hizo el pago pero la DB no encontró la deuda
         parsedData.response_to_user = `Lo siento, iba a registrar el abono, pero no encontré ninguna deuda activa a nombre de "${parsedData.person_name}". ¿Puedes decirme el nombre exacto de la persona?`;
       }
     }
@@ -396,19 +417,20 @@ ${chatHistory}`;
 
     // 6. Guardar la conversación en la memoria Redis
     await redis.rpush(redisKey, `Usuario: ${userMessageText}`)
-    await redis.rpush(redisKey, `Luka: ${parsedData.response_to_user}`)
-    // Mantener solo los últimos 10 mensajes (5 interacciones completas)
+    await redis.rpush(redisKey, `${botName}: ${parsedData.response_to_user}`)
+    // Mantener solo los últimos 10 mensajes (5 interacciones completas) y añadir TTL de 7 días
     await redis.ltrim(redisKey, -10, -1)
+    await redis.expire(redisKey, 86400 * 7)
 
         // 7. Enviar la respuesta amigable generada por Gemini
         await sendMessage(chatId, parsedData.response_to_user)
       } catch (error) {
-        console.error('Error dentro del background task (after):', error)
+        console.error('Error procesando el webhook (after):', error)
         const errStr = String(error);
         if (errStr.includes('429') || errStr.includes('quota') || errStr.includes('Too Many Requests')) {
-          await sendMessage(chatId, "¡Woah, vas muy rápido! 😅 He alcanzado mi límite de mensajes por minuto. Dame un respiro de 60 segundos y vuelve a intentarlo.")
+          await sendMessage(chatId, "⚠️ He alcanzado el límite de operaciones de Google Gemini. Por favor intenta en un minuto.")
         } else {
-          await sendMessage(chatId, `DEBUG ERROR: ${errStr}`)
+          await sendMessage(chatId, "⚠️ Ocurrió un error inesperado al procesar tu solicitud. Por favor intenta de nuevo más tarde.")
         }
       }
     });

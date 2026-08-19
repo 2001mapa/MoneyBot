@@ -35,18 +35,19 @@ function TransactionsContent() {
 
       if (timeframe !== 'all') {
         const now = new Date()
-        let start = new Date()
+        let startStr = ''
         
         if (timeframe === 'day') {
-          start.setHours(0, 0, 0, 0)
+          startStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
         } else if (timeframe === 'week') {
+          const start = new Date()
           start.setDate(start.getDate() - 7)
-          start.setHours(0, 0, 0, 0)
+          startStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
         } else if (timeframe === 'month') {
-          start = new Date(now.getFullYear(), now.getMonth(), 1)
+          startStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
         }
         
-        query = query.gte('transaction_date', start.toISOString())
+        query = query.gte('transaction_date', startStr)
       }
 
       const { data } = await query

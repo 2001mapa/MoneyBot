@@ -19,14 +19,14 @@ export default function StatsPage() {
       if (!user) return setLoading(false)
 
       const now = new Date()
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
 
       const { data: txs } = await supabase
         .from('transactions')
         .select('amount, type, description, transaction_date, categories(name)')
         .eq('user_id', user.id)
         .eq('type', 'expense')
-        .gte('transaction_date', startOfMonth)
+        .gte('transaction_date', startOfMonthStr)
       
       if (txs) {
         const grouped: Record<string, number> = {}

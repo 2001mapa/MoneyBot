@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { Redis } from '@upstash/redis'
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+})
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
-  const chatId = searchParams.get('chat_id')
+  const token = searchParams.get('token')
 
   if (code) {
     const cookieStore = await cookies()
@@ -40,9 +46,13 @@ export async function GET(request: Request) {
         updated_at: new Date().toISOString()
       }
       
-      // Si veníamos desde Telegram, vinculamos el chat_id automáticamente
-      if (chatId) {
-        updateData.telegram_chat_id = parseInt(chatId)
+      // Si veníamos desde Telegram con un token válido, vinculamos el chat_id
+      if (token) {
+        const chatId = await redis.get(`auth_token_${token}`)
+        if (chatId) {
+          updateData.telegram_chat_id = parseInt(chatId.toString())
+          await redis.del(`auth_token_${token}`) // Consumir el token
+        }
       }
       
       await supabase.from('profiles').upsert(updateData)
