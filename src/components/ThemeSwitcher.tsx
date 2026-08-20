@@ -12,6 +12,7 @@ const themes = [
   { id: 'teal-coral',          label: 'Coastal',    bg: '#0F766E', accent: '#FF7F50', app: '#F5E6CA' },
   { id: 'plum-lavender',       label: 'Velvet',     bg: '#6D28D9', accent: '#C4B5FD', app: '#FAF7FF' },
   { id: 'terracotta-mustard',  label: 'Desert',     bg: '#C2410C', accent: '#EAB308', app: '#FFF7E6' },
+  { id: 'midnight-slate',      label: 'Slate',      bg: '#020617', accent: '#06B6D4', app: '#0F172A' },
 ]
 
 export function ThemeSwitcher() {

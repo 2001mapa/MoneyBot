@@ -10,6 +10,7 @@ const ALL_THEMES = [
   'teal-coral',
   'plum-lavender',
   'terracotta-mustard',
+  'midnight-slate',
 ]
 
 export function Providers({ children }: { children: React.ReactNode }) {

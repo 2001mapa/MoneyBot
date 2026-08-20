@@ -212,6 +212,35 @@
 }
 
 /* =========================================
+   8. MIDNIGHT SLATE — Dark Mode Premium
+   60% #0F172A · 30% #1E293B + #020617 · 10% #06B6D4
+   Neumorfismo: sombra slate-negra + brillo slate-medio
+   ========================================= */
+[data-theme="midnight-slate"] {
+  --bg-app:       #0F172A;
+  --bg-card:      #1E293B;
+  --bg-card-dark: #020617;
+  --text-main:    #F8FAFC;
+  --text-muted:   #94A3B8;
+  --primary:      #06B6D4;
+  --primary-fg:   #0F172A;
+  --border:       #334155;
+  --income:       #34d399;
+  --expense:      #f87171;
+  /* Neumorfismo oscuro: sombra slate-950 + brillo slate-700 */
+  --neu-light:    rgba(51, 65, 85, 0.55);
+  --neu-dark:     rgba(2, 6, 23, 0.95);
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(51, 65, 85, 0.4);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
+}
+
+/* =========================================
    THEME ENGINE — mapea tokens a Tailwind
    ========================================= */
 @theme inline {
