@@ -160,90 +160,52 @@ export async function POST(req: Request) {
           body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
         })
 
-    // 2. Extraer Contexto Financiero de Supabase
-    // Traer todas las transacciones para calcular balance
-    const { data: allTxs } = await supabaseAdmin
-      .from('transactions')
-      .select('amount, type, description, created_at, transaction_date, payment_method')
-      .eq('user_id', profile.id)
-      .order('created_at', { ascending: false })
+    // 2. Extraer Contexto Financiero vía RPC para evitar OOM (Out Of Memory)
+    const { data: summaryData, error: summaryError } = await supabaseAdmin.rpc('get_financial_summary', {
+      p_user_id: profile.id
+    })
 
     let balanceTotal = 0;
     let bankBalance = 0;
     let cashBalance = 0;
     let gastosMes = 0;
-    const last3Txs: string[] = [];
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+    let deboTotal = 0;
+    let meDebenTotal = 0;
+    let last3Txs: string[] = [];
+    const activeDebtsList: string[] = [];
+    const recentTxList: string[] = [];
 
-    if (allTxs) {
-      for (let i = 0; i < allTxs.length; i++) {
-        const tx = allTxs[i];
-        const rawDate = tx.transaction_date || tx.created_at;
-        let isCurrentMonth = false;
-        if (rawDate) {
-          const dateStr = String(rawDate).split('T')[0];
-          const parts = dateStr.split('-');
-          if (parts.length === 3) {
-            const y = parseInt(parts[0], 10);
-            const m = parseInt(parts[1], 10) - 1;
-            isCurrentMonth = (y === currentYear && m === currentMonth);
-          } else {
-            const d = new Date(rawDate);
-            isCurrentMonth = (d.getFullYear() === currentYear && d.getMonth() === currentMonth);
-          }
-        }
-
-        const method = tx.payment_method || 'efectivo';
-        const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes(method.toLowerCase());
-
-        if (tx.type === 'income') {
-          balanceTotal += Number(tx.amount);
-          if (isBank) bankBalance += Number(tx.amount);
-          else cashBalance += Number(tx.amount);
-        }
-        if (tx.type === 'expense') {
-          balanceTotal -= Number(tx.amount);
-          if (isBank) bankBalance -= Number(tx.amount);
-          else cashBalance -= Number(tx.amount);
-          if (isCurrentMonth) gastosMes += Number(tx.amount);
-        }
-        if (i < 3) {
-          last3Txs.push(`- ${tx.type === 'income' ? '+' : '-'}$${tx.amount} (${tx.description})`);
-        }
+    if (!summaryError && summaryData) {
+      balanceTotal = Number(summaryData.balanceTotal);
+      bankBalance = Number(summaryData.bankBalance);
+      cashBalance = Number(summaryData.cashBalance);
+      gastosMes = Number(summaryData.gastosMes);
+      deboTotal = Number(summaryData.deboTotal);
+      meDebenTotal = Number(summaryData.meDebenTotal);
+      
+      const txs = summaryData.last3Txs || [];
+      for (let tx of txs) {
+        const amt = Number(tx.amount).toLocaleString();
+        const icon = tx.type === 'income' ? '🟢' : '🔴';
+        const methodStr = tx.payment_method ? ` (${tx.payment_method})` : '';
+        last3Txs.push(`${icon} $${amt} - ${tx.description || 'Sin desc'}${methodStr}`);
       }
     }
 
-    // Traer deudas para resumen
+    // Traer deudas para contexto de Luka
     const { data: allDebts } = await supabaseAdmin
       .from('debts')
-      .select('person_name, debt_type, balance_remaining, status, payment_method')
+      .select('person_name, type, balance_remaining, status, payment_method')
       .eq('user_id', profile.id)
       .neq('status', 'paid')
-
-    let deboTotal = 0;
-    let meDebenTotal = 0;
-    const activeDebtsList: string[] = [];
 
     if (allDebts) {
       allDebts.forEach(d => {
         if (d.status === 'cancelled') return;
-        
-        const method = d.payment_method || 'efectivo';
-        const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes(method.toLowerCase());
-        
-        if (d.debt_type === 'i_owe') {
-          deboTotal += Number(d.balance_remaining);
+        if (d.type === 'i_owe') {
           activeDebtsList.push(`Debo a ${d.person_name}: $${d.balance_remaining}`);
-          if (isBank) bankBalance += Number(d.balance_remaining);
-          else cashBalance += Number(d.balance_remaining);
-        }
-        if (d.debt_type === 'they_owe') {
-          meDebenTotal += Number(d.balance_remaining);
+        } else {
           activeDebtsList.push(`${d.person_name} me debe: $${d.balance_remaining}`);
-          if (isBank) bankBalance -= Number(d.balance_remaining);
-          else cashBalance -= Number(d.balance_remaining);
         }
       });
     }
@@ -263,10 +225,10 @@ export async function POST(req: Request) {
       });
     }
 
-    // El balance patrimonial (Total)
-    balanceTotal = balanceTotal + deboTotal - meDebenTotal;
+    // El patrimonio (Asset Value) es la liquidez (balanceTotal) + lo que te deben (activo) - lo que debes (pasivo)
+    const patrimonio = balanceTotal + meDebenTotal - deboTotal;
     
-    // La liquidez disponible (Lo que de verdad puede gastar)
+    // La liquidez disponible (Lo que de verdad puede gastar de su bolsillo)
     const availableLiquidity = balanceTotal - totalSavings;
 
     const budgetLimit = Number(profile.monthly_budget) || 0;
@@ -279,11 +241,16 @@ export async function POST(req: Request) {
       .eq('user_id', profile.id);
     const catList = userCategories ? userCategories.map(c => `- ${c.name} (${c.type})`).join('\n  ') : 'Ninguna';
 
-    // Construir historial de transacciones ampliado (hasta 50)
-    const recentTxList: string[] = [];
-    if (allTxs) {
-      for (let i = 0; i < Math.min(allTxs.length, 50); i++) {
-        const tx = allTxs[i];
+    // Construir historial rápido para Luka (solo 10 recientes para evitar saturar prompt)
+    const { data: recentTxsDB } = await supabaseAdmin
+      .from('transactions')
+      .select('amount, type, description, created_at')
+      .eq('user_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(10);
+      
+    if (recentTxsDB) {
+      for (let tx of recentTxsDB) {
         recentTxList.push(`- ${tx.type === 'income' ? '+' : '-'}$${tx.amount} | ${tx.description} | Fecha: ${new Date(tx.created_at).toLocaleString()}`);
       }
     }
@@ -322,8 +289,8 @@ REGLA ORO: is_complete = false -> Preguntas. is_complete = true -> Confirmas reg
 
 CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
 - Fecha y Hora Actual: ${currentDate}
-- Patrimonio Total (Bancos + Efectivo + Lo que le deben - Lo que debe): $${balanceTotal.toLocaleString('es-CO')}
-- Liquidez Disponible para Gastar (Patrimonio - Ahorros bloqueados en metas): $${availableLiquidity.toLocaleString('es-CO')}
+- Patrimonio Total (Bancos + Efectivo + Lo que le deben - Lo que debe): $${patrimonio.toLocaleString('es-CO')}
+- Liquidez Disponible para Gastar (Patrimonio Neto Líquido - Ahorros bloqueados en metas): $${availableLiquidity.toLocaleString('es-CO')}
 - Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible: $${budgetRemaining.toLocaleString('es-CO')}).
 - Metas de Ahorro Activas (Bolsillos):
   ${savingsList.length > 0 ? savingsList.join('\n  ') : 'Ninguna'}
@@ -462,6 +429,19 @@ ${chatHistory}`;
           balance_remaining: newBalance,
           status: newStatus
         }).eq('id', targetDebt.id);
+
+        // Crear transacción espejo para evitar agujero de caja
+        const paymentType = targetDebt.type === 'i_owe' ? 'expense' : 'income'; // Si debo y pago, es gasto. Si me deben y me pagan, es ingreso.
+        await supabaseAdmin.from('transactions').insert({
+          user_id: profile.id,
+          amount: parsedData.amount,
+          type: paymentType,
+          description: `Abono de deuda: ${targetDebt.person_name}`,
+          category_icon: '💳',
+          payment_method: parsedData.payment_method !== 'none' ? parsedData.payment_method : 'efectivo',
+          transaction_date: new Date().toISOString()
+        });
+
       } else {
         parsedData.response_to_user = `Lo siento, iba a registrar el abono, pero no encontré ninguna deuda activa a nombre de "${parsedData.person_name}". ¿Puedes decirme el nombre exacto de la persona?`;
       }
@@ -500,9 +480,20 @@ ${chatHistory}`;
         await supabaseAdmin.from('savings_goals').update({
           current_amount: newAmount < 0 ? 0 : newAmount
         }).eq('id', goal.id)
+
+        // Crear transacción espejo para evitar agujero de caja (el dinero pasa de disponible a ahorrado, es una "salida" o gasto técnico)
+        const isDeposit = Number(parsedData.amount) > 0;
+        await supabaseAdmin.from('transactions').insert({
+          user_id: profile.id,
+          amount: Math.abs(parsedData.amount),
+          type: isDeposit ? 'expense' : 'income',
+          description: `Ahorro en meta: ${goal.name}`,
+          category_icon: goal.icon || '🎯',
+          payment_method: 'transferencia',
+          transaction_date: new Date().toISOString()
+        });
+
       } else {
-        // If not found, create a new transaction instead or respond? 
-        // We'll let the bot's text response handle the confirmation, but we shouldn't crash.
         console.warn('Meta de ahorro no encontrada para depositar.')
       }
     }

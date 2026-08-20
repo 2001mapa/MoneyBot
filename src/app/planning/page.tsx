@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { GoalCard } from '@/components/GoalCard'
 import { Target, PieChart, Coins } from 'lucide-react'
 
 export default async function PlanningPage() {
@@ -148,47 +149,8 @@ export default async function PlanningPage() {
             <p className="text-xs text-muted-foreground mt-1 opacity-60">Dile a Luka: "Crea una meta para..."</p>
           </div>
         ) : (
-          goals.map(goal => {
-            const goalProgress = getProgress(Number(goal.current_amount), Number(goal.target_amount))
-            return (
-              <div key={goal.id} className="glass p-5 hover:border-blue-500/50 transition-all group">
-                <div className="flex items-center space-x-4 mb-3">
-                  <div className="w-12 h-12 squircle flex items-center justify-center text-2xl bg-blue-500/10 text-blue-500 flex-shrink-0 group-hover:scale-110 transition-transform">
-                    {goal.icon || '🎯'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-base truncate text-foreground">{goal.name}</p>
-                    <p className="text-xs font-semibold text-muted-foreground mt-0.5">
-                      Faltan ${(Number(goal.target_amount) - Number(goal.current_amount)).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-black text-blue-500 text-lg">{goalProgress}%</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3 mt-4">
-                  <button className="w-12 h-12 rounded-full bg-muted text-foreground flex items-center justify-center hover:bg-border transition-colors shrink-0 shadow-sm">
-                    <span className="text-2xl font-black mb-0.5">-</span>
-                  </button>
-                  <div className="flex-1 relative h-5 bg-border/30 rounded-full overflow-hidden shadow-inner">
-                    <div 
-                      className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 shadow-[0_0_12px_rgba(59,130,246,0.5)]" 
-                      style={{ width: `${goalProgress}%` }}
-                    />
-                  </div>
-                  <button className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center hover:opacity-90 transition-opacity shrink-0 shadow-md">
-                    <span className="text-2xl font-black mb-0.5">+</span>
-                  </button>
-                </div>
-
-                <div className="flex justify-between mt-3 px-12 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  <span>${Number(goal.current_amount).toLocaleString()}</span>
-                  <span>${Number(goal.target_amount).toLocaleString()}</span>
-                </div>
-              </div>
-            )
-          })
+            <GoalCard key={goal.id} goal={goal} userId={user.id} />
+          ))
         )}
       </div>
 

@@ -1,7 +1,7 @@
 import { TrendingDown, TrendingUp, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-
+import { DashboardActions } from '@/components/DashboardActions'
 export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -151,24 +151,7 @@ export default async function Home() {
         </div>
 
         {/* Quick Action Buttons (Bento Cells) */}
-        <Link href="/transactions?type=income" className="glass flex items-center p-4 gap-3 hover:bg-muted/50 transition-colors group min-h-[72px]">
-          <div className="w-12 h-12 squircle bg-income/15 text-income flex items-center justify-center group-hover:scale-105 transition-transform">
-            <TrendingUp strokeWidth={2} className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="font-bold text-base leading-tight">Ingreso</p>
-            <p className="text-xs font-bold text-muted-foreground uppercase">Nuevo abono</p>
-          </div>
-        </Link>
-        <Link href="/transactions?type=expense" className="glass flex items-center p-4 gap-3 hover:bg-muted/50 transition-colors group min-h-[72px]">
-          <div className="w-12 h-12 squircle bg-expense/15 text-expense flex items-center justify-center group-hover:scale-105 transition-transform">
-            <TrendingDown strokeWidth={2} className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="font-bold text-base leading-tight">Gasto</p>
-            <p className="text-xs font-bold text-muted-foreground uppercase">Registrar salida</p>
-          </div>
-        </Link>
+        <DashboardActions userId={user.id} />
 
         {/* Bento 2: 50/30/20 Resumido */}
         <div className="md:col-span-2 glass p-5">
@@ -239,7 +222,7 @@ export default async function Home() {
                 const isIncome = tx.type === 'income'
                 
                 return (
-                  <div key={tx.id} className="tx-row flex justify-between items-center p-2 -mx-2 rounded-[20px] transition-colors cursor-pointer">
+                  <Link href="/transactions" key={tx.id} className="tx-row flex justify-between items-center p-2 -mx-2 rounded-[20px] transition-colors cursor-pointer hover:bg-muted/50">
                     <div className="flex items-center space-x-3">
                       <div 
                         className="w-12 h-12 squircle flex items-center justify-center text-xl shrink-0"
@@ -259,7 +242,7 @@ export default async function Home() {
                     <p className={`font-black text-sm tracking-tight shrink-0 ml-2 ${isIncome ? 'text-income' : 'text-foreground'}`}>
                       {isIncome ? '+' : '-'}${Number(tx.amount).toLocaleString()}
                     </p>
-                  </div>
+                  </Link>
                 )
               })}
             </div>

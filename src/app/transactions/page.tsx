@@ -2,9 +2,10 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, FilterX } from 'lucide-react'
+import { ArrowLeft, FilterX, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { NewTransactionModal } from '@/components/NewTransactionModal'
 
 function TransactionsContent() {
   const searchParams = useSearchParams()
@@ -14,6 +15,8 @@ function TransactionsContent() {
   const [timeframe, setTimeframe] = useState('month')
   const [transactions, setTransactions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -21,6 +24,7 @@ function TransactionsContent() {
       setLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return setLoading(false)
+      setUserId(user.id)
 
       let query = supabase
         .from('transactions')
@@ -73,14 +77,30 @@ function TransactionsContent() {
 
   return (
     <main className="flex-1 pb-28 max-w-lg mx-auto w-full">
+      {userId && (
+        <NewTransactionModal 
+          isOpen={modalOpen} 
+          onClose={() => setModalOpen(false)} 
+          defaultType={type === 'income' ? 'income' : 'expense'} 
+          userId={userId} 
+        />
+      )}
       {/* Header */}
-      <header className="flex items-center gap-4 px-6 pt-10 pb-4">
-        <Link href="/" className="p-2 glass border border-border/50 rounded-xl hover:border-border transition-all">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Movimientos</h1>
+      <header className="flex items-center justify-between px-6 pt-10 pb-4">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="w-11 h-11 flex items-center justify-center glass border border-border/50 rounded-full hover:border-border transition-all shadow-sm">
+            <ArrowLeft className="w-6 h-6" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight">Movimientos</h1>
+          </div>
         </div>
+        <button 
+          onClick={() => setModalOpen(true)}
+          className="w-11 h-11 flex items-center justify-center bg-foreground text-background rounded-full hover:opacity-90 transition-opacity shadow-sm"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
       </header>
 
       {/* Filters */}

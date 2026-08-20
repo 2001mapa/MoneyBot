@@ -3,18 +3,21 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, X, AlertCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, X, AlertCircle, Plus } from 'lucide-react'
+import { NewDebtModal } from '@/components/NewDebtModal'
 
 export default function DebtsPage() {
   const [debts, setDebts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'i_owe' | 'they_owe'>('i_owe')
+  const [userId, setUserId] = useState<string | null>(null)
   
   const [payModalDebt, setPayModalDebt] = useState<any>(null)
   const [payAmount, setPayAmount] = useState('')
   const [detailsModalDebt, setDetailsModalDebt] = useState<any>(null)
   const [debtPayments, setDebtPayments] = useState<any[]>([])
   const [loadingDetails, setLoadingDetails] = useState(false)
+  const [newDebtModalOpen, setNewDebtModalOpen] = useState(false)
 
   useEffect(() => { loadDebts() }, [])
 
@@ -22,6 +25,7 @@ export default function DebtsPage() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return setLoading(false)
+    setUserId(user.id)
     const { data } = await supabase
       .from('debts')
       .select('*')
@@ -48,10 +52,28 @@ export default function DebtsPage() {
     const newBalance = payModalDebt.balance_remaining - amount
     const newStatus = newBalance === 0 ? 'paid' : 'pending'
 
-    await supabase.from('debt_payments').insert({
+    const { error: paymentError } = await supabase.from('debt_payments').insert({
       debt_id: payModalDebt.id, user_id: user.id, amount, payment_method: 'efectivo'
     })
+
+    if (paymentError) {
+      alert('Error registrando abono: ' + paymentError.message)
+      return
+    }
+
     await supabase.from('debts').update({ balance_remaining: newBalance, status: newStatus }).eq('id', payModalDebt.id)
+
+    // Crear transacción compensatoria (Doble entrada)
+    const txType = payModalDebt.debt_type === 'i_owe' ? 'expense' : 'income'
+    await supabase.from('transactions').insert({
+      user_id: user.id,
+      amount: amount,
+      type: txType,
+      description: `Abono de deuda: ${payModalDebt.person_name}`,
+      category_icon: '💳',
+      payment_method: 'efectivo',
+      transaction_date: new Date().toISOString()
+    })
 
     setDebts(debts.map(d => d.id === payModalDebt.id ? { ...d, balance_remaining: newBalance, status: newStatus } : d))
     setPayModalDebt(null)
@@ -69,16 +91,31 @@ export default function DebtsPage() {
 
   return (
     <main className="flex-1 pb-28 max-w-lg mx-auto w-full">
+      {userId && (
+        <NewDebtModal
+          isOpen={newDebtModalOpen}
+          onClose={() => setNewDebtModalOpen(false)}
+          userId={userId}
+        />
+      )}
       
       {/* Header */}
-      <header className="flex items-center px-6 pt-8 pb-6 gap-4">
-        <Link href="/" className="p-2 bg-card border border-border rounded-xl hover:bg-muted transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <div>
-          <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-0.5">Control</p>
-          <h1 className="text-2xl font-bold tracking-tight">Deudas</h1>
+      <header className="flex items-center justify-between px-6 pt-8 pb-6 gap-4">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="w-11 h-11 flex items-center justify-center glass border border-border/50 rounded-full hover:border-border transition-all shadow-sm">
+            <ArrowLeft className="w-6 h-6" />
+          </Link>
+          <div>
+            <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-0.5 opacity-60">Control</p>
+            <h1 className="text-2xl font-black tracking-tight">Deudas</h1>
+          </div>
         </div>
+        <button 
+          onClick={() => setNewDebtModalOpen(true)}
+          className="w-11 h-11 flex items-center justify-center bg-foreground text-background rounded-full hover:opacity-90 transition-opacity shadow-sm"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
       </header>
 
       {/* Summary banner */}

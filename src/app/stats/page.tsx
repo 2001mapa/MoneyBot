@@ -12,6 +12,7 @@ export default function StatsPage() {
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState<'month' | 'year'>('month')
+  const [txType, setTxType] = useState<'expense' | 'income'>('expense')
 
   useEffect(() => {
     async function loadStats() {
@@ -29,7 +30,7 @@ export default function StatsPage() {
         .from('transactions')
         .select('amount, type, description, transaction_date, categories(name)')
         .eq('user_id', user.id)
-        .eq('type', 'expense')
+        .eq('type', txType)
         .gte('transaction_date', startDate)
       
       if (txs) {
@@ -49,21 +50,21 @@ export default function StatsPage() {
       setLoading(false)
     }
     loadStats()
-  }, [period])
+  }, [period, txType])
 
   const handleExportCSV = () => {
     if (!data.length) return
-    const csvRows = ['Categoría,Total Gastado']
+    const csvRows = ['Categoría,Total']
     data.forEach(item => csvRows.push(`${item.name},${item.value}`))
     const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `gastos_${period}.csv`
+    a.download = `reporte_${period}.csv`
     a.click()
   }
 
-  const totalGastos = data.reduce((s, d) => s + d.value, 0)
+  const totalAmount = data.reduce((s, d) => s + d.value, 0)
 
   return (
     <main className="flex-1 pb-28 max-w-lg mx-auto w-full pt-safe px-4 sm:px-6">
@@ -88,7 +89,27 @@ export default function StatsPage() {
         </button>
       </header>
 
-      {/* Segmented Control iOS Modern */}
+      {/* Tipo de Transacción Toggle */}
+      <div className="bg-muted/50 p-1.5 rounded-full mb-4 flex relative">
+        <div 
+          className="absolute top-1.5 bottom-1.5 w-1/2 bg-card rounded-full shadow-sm transition-transform duration-300 ease-in-out border border-border/50"
+          style={{ transform: txType === 'expense' ? 'translateX(0)' : 'translateX(calc(100% - 6px))' }}
+        />
+        <button 
+          onClick={() => setTxType('expense')}
+          className={`flex-1 py-3 text-xs font-bold rounded-full relative z-10 transition-colors ${txType === 'expense' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Gastos
+        </button>
+        <button 
+          onClick={() => setTxType('income')}
+          className={`flex-1 py-3 text-xs font-bold rounded-full relative z-10 transition-colors ${txType === 'income' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Ingresos
+        </button>
+      </div>
+
+      {/* Period Segmented Control */}
       <div className="bg-muted/50 p-1.5 rounded-full mb-6 flex relative">
         <div 
           className="absolute top-1.5 bottom-1.5 w-1/2 bg-card rounded-full shadow-sm transition-transform duration-300 ease-in-out border border-border/50"
@@ -121,16 +142,16 @@ export default function StatsPage() {
         <div className="text-center py-16 px-6 glass">
           <p className="text-4xl mb-4">📊</p>
           <p className="text-foreground text-base font-bold">Sin datos en este periodo</p>
-          <p className="text-xs text-muted-foreground mt-2 font-medium">Registra gastos con Luka para ver tus estadísticas</p>
+          <p className="text-xs text-muted-foreground mt-2 font-medium">Registra {txType === 'expense' ? 'gastos' : 'ingresos'} con Luka para ver tus estadísticas</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           {/* Total summary Bento */}
           <div className="glass p-6 md:col-span-2 relative overflow-hidden flex flex-col justify-center">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-expense/10 rounded-full blur-3xl pointer-events-none" />
-            <p className="text-xs font-bold uppercase tracking-widest mb-1 text-muted-foreground">Total Gastado</p>
-            <p className="text-4xl font-black text-foreground relative z-10">${totalGastos.toLocaleString()}</p>
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none ${txType === 'expense' ? 'bg-expense/10' : 'bg-income/10'}`} />
+            <p className="text-xs font-bold uppercase tracking-widest mb-1 text-muted-foreground">Total {txType === 'expense' ? 'Gastado' : 'Ingresado'}</p>
+            <p className="text-4xl font-black text-foreground relative z-10">${totalAmount.toLocaleString()}</p>
           </div>
 
           {/* Donut Chart Bento */}
