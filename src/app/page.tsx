@@ -106,7 +106,7 @@ export default async function Home() {
           </h1>
         </div>
         {/* Avatar Profile Link */}
-        <Link href="/profile" className="w-10 h-10 rounded-full border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <Link href="/profile" className="w-12 h-12 rounded-full border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
           <div className="w-full h-full flex items-center justify-center font-bold text-sm bg-primary/10 text-primary">
             {profile.full_name?.charAt(0).toUpperCase() || 'U'}
           </div>
@@ -121,26 +121,26 @@ export default async function Home() {
           <div className="card-hero relative overflow-hidden flex flex-col justify-between p-6 h-full min-h-[220px]">
             {/* Top row */}
             <div className="flex justify-between items-start z-10">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-white/60">
+              <p className="text-xs font-bold uppercase tracking-widest text-white/70">
                 Liquidez Disponible
               </p>
             </div>
             
             {/* Main Balance */}
             <div className="z-10 mt-2 mb-4">
-              <h2 className="text-5xl font-black text-white tracking-tighter">
+              <h2 className="text-4xl font-black text-white tracking-tighter truncate">
                 {isPositive ? '' : '-'}${Math.abs(availableLiquidity).toLocaleString()}
               </h2>
             </div>
 
             {/* Sub balances as floating pills inside */}
             <div className="flex gap-2 z-10 w-full overflow-x-auto pb-1 scrollbar-hide">
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/10 shrink-0">
-                <span className="text-[10px] text-white/50 uppercase font-bold tracking-wider">Banco</span>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2.5 border border-white/10 shrink-0">
+                <span className="text-xs text-white/60 uppercase font-bold tracking-wider">Banco</span>
                 <span className="text-sm font-bold text-white">${bankBalance.toLocaleString()}</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/10 shrink-0">
-                <span className="text-[10px] text-white/50 uppercase font-bold tracking-wider">Efec</span>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2.5 border border-white/10 shrink-0">
+                <span className="text-xs text-white/60 uppercase font-bold tracking-wider">Efec</span>
                 <span className="text-sm font-bold text-white">${cashBalance.toLocaleString()}</span>
               </div>
             </div>
@@ -151,64 +151,64 @@ export default async function Home() {
         </div>
 
         {/* Quick Action Buttons (Bento Cells) */}
-        <Link href="/transactions?type=income" className="glass flex items-center p-4 gap-3 hover:bg-muted/50 transition-colors group">
+        <Link href="/transactions?type=income" className="glass flex items-center p-4 gap-3 hover:bg-muted/50 transition-colors group min-h-[72px]">
           <div className="w-12 h-12 squircle bg-income/15 text-income flex items-center justify-center group-hover:scale-105 transition-transform">
             <TrendingUp strokeWidth={2} className="w-6 h-6" />
           </div>
           <div>
             <p className="font-bold text-base leading-tight">Ingreso</p>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase">Nuevo abono</p>
+            <p className="text-xs font-bold text-muted-foreground uppercase">Nuevo abono</p>
           </div>
         </Link>
-        <Link href="/transactions?type=expense" className="glass flex items-center p-4 gap-3 hover:bg-muted/50 transition-colors group">
+        <Link href="/transactions?type=expense" className="glass flex items-center p-4 gap-3 hover:bg-muted/50 transition-colors group min-h-[72px]">
           <div className="w-12 h-12 squircle bg-expense/15 text-expense flex items-center justify-center group-hover:scale-105 transition-transform">
             <TrendingDown strokeWidth={2} className="w-6 h-6" />
           </div>
           <div>
             <p className="font-bold text-base leading-tight">Gasto</p>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase">Registrar salida</p>
+            <p className="text-xs font-bold text-muted-foreground uppercase">Registrar salida</p>
           </div>
         </Link>
 
         {/* Bento 2: 50/30/20 Resumido */}
         <div className="md:col-span-2 glass p-5">
-          <div className="flex justify-between items-center mb-4">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Distribución 50/30/20</p>
-            <Link href="/planning" className="text-primary opacity-80 hover:opacity-100 transition-opacity">
-              <ChevronRight className="w-4 h-4" />
+          <div className="flex justify-between items-center mb-4 min-h-[44px]">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Distribución 50/30/20</p>
+            <Link href="/planning" className="p-2 -mr-2 text-primary opacity-80 hover:opacity-100 transition-opacity">
+              <ChevronRight className="w-5 h-5" />
             </Link>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* Needs */}
-            <div className="relative h-4 bg-border/30 rounded-full overflow-hidden shadow-inner">
+            <div className="relative h-5 bg-border/30 rounded-full overflow-hidden shadow-inner">
               <div 
                 className="absolute top-0 left-0 h-full rounded-full bg-primary transition-all duration-1000 shadow-[0_0_8px_var(--primary)]"
                 style={{ width: `${needsProgress}%` }}
               />
-              <div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-black tracking-wider text-foreground mix-blend-difference pointer-events-none">
+              <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-black tracking-wider text-foreground mix-blend-difference pointer-events-none">
                 <span>NECESIDADES</span>
                 <span>{needsProgress}%</span>
               </div>
             </div>
             {/* Wants */}
-            <div className="relative h-4 bg-border/30 rounded-full overflow-hidden shadow-inner">
+            <div className="relative h-5 bg-border/30 rounded-full overflow-hidden shadow-inner">
               <div 
                 className="absolute top-0 left-0 h-full rounded-full bg-expense transition-all duration-1000 shadow-[0_0_8px_var(--expense)]"
                 style={{ width: `${wantsProgress}%` }}
               />
-              <div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-black tracking-wider text-foreground mix-blend-difference pointer-events-none">
+              <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-black tracking-wider text-foreground mix-blend-difference pointer-events-none">
                 <span>DESEOS</span>
                 <span>{wantsProgress}%</span>
               </div>
             </div>
             {/* Savings */}
-            <div className="relative h-4 bg-border/30 rounded-full overflow-hidden shadow-inner">
+            <div className="relative h-5 bg-border/30 rounded-full overflow-hidden shadow-inner">
               <div 
                 className="absolute top-0 left-0 h-full rounded-full bg-yellow-500 transition-all duration-1000 shadow-[0_0_8px_var(--color-yellow-500)]"
                 style={{ width: `${savingsProgress}%` }}
               />
-              <div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-black tracking-wider text-foreground mix-blend-difference pointer-events-none">
+              <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-black tracking-wider text-foreground mix-blend-difference pointer-events-none">
                 <span>AHORROS</span>
                 <span>{savingsProgress}%</span>
               </div>
@@ -218,10 +218,10 @@ export default async function Home() {
 
         {/* Bento 3: Actividad Reciente */}
         <section className="md:col-span-2 glass p-5">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Recientes</h3>
+          <div className="flex justify-between items-center mb-4 min-h-[44px]">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Recientes</h3>
             <Link href="/transactions"
-              className="text-[11px] uppercase tracking-wider font-bold text-primary hover:underline">
+              className="p-2 -mr-2 text-xs uppercase tracking-wider font-bold text-primary hover:underline">
               Ver Todo
             </Link>
           </div>

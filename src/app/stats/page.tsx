@@ -71,20 +71,20 @@ export default function StatsPage() {
       {/* Header */}
       <header className="flex items-center justify-between pt-6 pb-6">
         <div className="flex items-center gap-4">
-          <Link href="/" className="w-10 h-10 flex items-center justify-center bg-card border border-border rounded-full hover:bg-muted transition-colors shadow-sm">
-            <ArrowLeft className="w-5 h-5" />
+          <Link href="/" className="w-11 h-11 flex items-center justify-center bg-card border border-border rounded-full hover:bg-muted transition-colors shadow-sm">
+            <ArrowLeft className="w-6 h-6" />
           </Link>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5 opacity-60">Análisis</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-0.5 opacity-60">Análisis</p>
             <h1 className="text-2xl font-black tracking-tight">Estadísticas</h1>
           </div>
         </div>
         <button
           onClick={handleExportCSV}
-          className="w-10 h-10 flex items-center justify-center bg-card border border-border rounded-full hover:bg-muted transition-colors shadow-sm"
+          className="w-11 h-11 flex items-center justify-center bg-card border border-border rounded-full hover:bg-muted transition-colors shadow-sm"
           title="Exportar CSV"
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-5 h-5" />
         </button>
       </header>
 
@@ -96,13 +96,13 @@ export default function StatsPage() {
         />
         <button 
           onClick={() => setPeriod('month')}
-          className={`flex-1 py-2.5 text-xs font-bold rounded-full relative z-10 transition-colors ${period === 'month' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`flex-1 py-3 text-xs font-bold rounded-full relative z-10 transition-colors ${period === 'month' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
           Mes Actual
         </button>
         <button 
           onClick={() => setPeriod('year')}
-          className={`flex-1 py-2.5 text-xs font-bold rounded-full relative z-10 transition-colors ${period === 'year' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`flex-1 py-3 text-xs font-bold rounded-full relative z-10 transition-colors ${period === 'year' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
           Este Año
         </button>
@@ -129,13 +129,13 @@ export default function StatsPage() {
           {/* Total summary Bento */}
           <div className="glass p-6 md:col-span-2 relative overflow-hidden flex flex-col justify-center">
             <div className="absolute top-0 right-0 w-32 h-32 bg-expense/10 rounded-full blur-3xl pointer-events-none" />
-            <p className="text-[11px] font-bold uppercase tracking-widest mb-1 text-muted-foreground">Total Gastado</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-1 text-muted-foreground">Total Gastado</p>
             <p className="text-4xl font-black text-foreground relative z-10">${totalGastos.toLocaleString()}</p>
           </div>
 
           {/* Donut Chart Bento */}
           <div className="glass p-5 flex flex-col">
-            <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Distribución</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Distribución</h2>
             <div className="h-44 w-full mb-6">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -165,10 +165,10 @@ export default function StatsPage() {
             
             <div className="grid grid-cols-2 gap-2 mt-auto">
               {data.map((item, i) => (
-                <div key={item.name} className="flex items-center gap-2 p-2 rounded-[14px] bg-muted/50 border border-border/20">
-                  <div className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <p className="text-[10px] font-bold truncate flex-1 leading-tight">{item.name}</p>
-                  <p className="text-[10px] font-black shrink-0 text-muted-foreground">${(item.value / 1000).toFixed(0)}k</p>
+                <div key={item.name} className="flex items-center gap-2 p-3 rounded-[14px] bg-muted/50 border border-border/20 min-h-[44px]">
+                  <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                  <p className="text-xs font-bold truncate flex-1 leading-tight">{item.name}</p>
+                  <p className="text-xs font-black shrink-0 text-muted-foreground">${(item.value / 1000).toFixed(0)}k</p>
                 </div>
               ))}
             </div>
@@ -176,7 +176,7 @@ export default function StatsPage() {
 
           {/* Histograma Soft-3D Bento */}
           <div className="glass p-5 flex flex-col">
-            <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-5">Comparativa</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-5">Comparativa</h3>
             <div className="h-64 w-full mt-auto">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data} barSize={20} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>

@@ -199,21 +199,19 @@ export default function DebtsPage() {
       {payModalDebt && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/40 backdrop-blur-md animate-in fade-in duration-300">
           <div className="glass border border-border/50 p-6 rounded-t-[32px] sm:rounded-[32px] w-full max-w-sm shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom-full duration-300">
-            {/* Drag Handle */}
-            <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-6" />
             
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-black tracking-tight">Abonar</h2>
                 <p className="text-sm font-medium text-muted-foreground mt-1">A: <span className="font-bold text-foreground">{payModalDebt.person_name}</span></p>
               </div>
-              <button onClick={() => setPayModalDebt(null)} className="p-2.5 bg-muted rounded-full text-muted-foreground hover:text-foreground hover:bg-border transition-colors">
+              <button onClick={() => setPayModalDebt(null)} className="w-11 h-11 flex items-center justify-center bg-muted rounded-full text-muted-foreground hover:text-foreground hover:bg-border transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             
             <div className="mb-6">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Monto a abonar</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Monto a abonar</label>
               <input
                 type="number"
                 value={payAmount}
@@ -225,9 +223,9 @@ export default function DebtsPage() {
             
             {/* Quick amount pills */}
             <div className="flex gap-2 mb-8">
-              <button onClick={() => setPayAmount('50000')} className="flex-1 py-2 bg-muted rounded-xl text-xs font-bold text-foreground hover:bg-border transition-colors">+$50k</button>
-              <button onClick={() => setPayAmount('100000')} className="flex-1 py-2 bg-muted rounded-xl text-xs font-bold text-foreground hover:bg-border transition-colors">+$100k</button>
-              <button onClick={() => setPayAmount(payModalDebt.balance_remaining.toString())} className="flex-1 py-2 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-colors">MAX</button>
+              <button onClick={() => setPayAmount('50000')} className="flex-1 py-3.5 bg-muted rounded-xl text-sm font-bold text-foreground hover:bg-border transition-colors">+$50k</button>
+              <button onClick={() => setPayAmount('100000')} className="flex-1 py-3.5 bg-muted rounded-xl text-sm font-bold text-foreground hover:bg-border transition-colors">+$100k</button>
+              <button onClick={() => setPayAmount(payModalDebt.balance_remaining.toString())} className="flex-1 py-3.5 bg-primary/10 text-primary rounded-xl text-sm font-bold hover:bg-primary/20 transition-colors">MAX</button>
             </div>
 
             <button onClick={handleAbonoSubmit} className="w-full bg-foreground text-background font-black py-4 rounded-full hover:opacity-90 transition-opacity shadow-lg">
@@ -241,20 +239,18 @@ export default function DebtsPage() {
       {detailsModalDebt && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/40 backdrop-blur-md animate-in fade-in duration-300">
           <div className="glass border border-border/50 p-6 rounded-t-[32px] sm:rounded-[32px] w-full max-w-md shadow-[0_-10px_40px_rgba(0,0,0,0.1)] max-h-[85vh] flex flex-col animate-in slide-in-from-bottom-full duration-300">
-            {/* Drag Handle */}
-            <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-6 shrink-0" />
 
             <div className="flex items-start justify-between mb-6 shrink-0">
               <div>
                 <h2 className="text-2xl font-black tracking-tight">Historial</h2>
                 <p className="text-sm font-medium text-muted-foreground mt-1">{detailsModalDebt.description || detailsModalDebt.person_name}</p>
               </div>
-              <button onClick={() => setDetailsModalDebt(null)} className="p-2.5 bg-muted rounded-full text-muted-foreground hover:text-foreground hover:bg-border transition-colors">
+              <button onClick={() => setDetailsModalDebt(null)} className="w-11 h-11 flex items-center justify-center bg-muted rounded-full text-muted-foreground hover:text-foreground hover:bg-border transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 shrink-0">Abonos realizados</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 shrink-0">Abonos realizados</h3>
             
             <div className="overflow-y-auto flex-1 space-y-2 pb-4 scrollbar-hide">
               {loadingDetails ? (
@@ -270,15 +266,15 @@ export default function DebtsPage() {
                 debtPayments.map(payment => (
                   <div key={payment.id} className="flex justify-between items-center p-4 bg-muted/50 border border-border/20 rounded-2xl">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shadow-sm">
-                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                      <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center shadow-sm">
+                        <CheckCircle2 className="w-6 h-6 text-primary" />
                       </div>
                       <div>
                         <p className="font-black text-base">${Number(payment.amount).toLocaleString()}</p>
-                        <p className="text-[11px] font-bold text-muted-foreground mt-0.5">{new Date(payment.created_at).toLocaleDateString('es-CO')}</p>
+                        <p className="text-xs font-bold text-muted-foreground mt-0.5">{new Date(payment.created_at).toLocaleDateString('es-CO')}</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-background rounded-full">{payment.payment_method}</span>
+                    <span className="text-xs font-bold uppercase tracking-widest px-3 py-1.5 bg-background rounded-full">{payment.payment_method}</span>
                   </div>
                 ))
               )}
