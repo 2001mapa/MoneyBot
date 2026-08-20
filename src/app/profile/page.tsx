@@ -25,7 +25,7 @@ const THEMES = [
   { value: 'teal-coral',         label: 'Coastal',   swatch: '#FF7F50' },
   { value: 'plum-lavender',      label: 'Velvet',    swatch: '#C4B5FD' },
   { value: 'terracotta-mustard', label: 'Desert',    swatch: '#EAB308' },
-  { value: 'midnight-slate',     label: 'Slate',     swatch: '#06B6D4' },
+  { value: 'midnight-slate',     label: 'Midnight Slate', swatch: '#06B6D4' },
 ]
 
 export default function ProfilePage() {
