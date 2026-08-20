@@ -64,7 +64,10 @@ export default function ProfilePage() {
       bot_alias: profile.bot_alias,
       theme: profile.theme,
       currency: profile.currency,
-      monthly_budget: profile.monthly_budget
+      monthly_budget: profile.monthly_budget,
+      needs_percent: profile.needs_percent ?? 50,
+      wants_percent: profile.wants_percent ?? 30,
+      savings_percent: profile.savings_percent ?? 20
     }).eq('id', profile.id)
     setSaving(false)
     setSaved(true)
