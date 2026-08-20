@@ -114,6 +114,7 @@ export default function StatsPage() {
               ))}
             </div>
           </div>
+        </div>
       ) : data.length === 0 ? (
         <div className="mx-6 text-center py-16 px-6 glass">
           <p className="text-3xl mb-3">📊</p>
