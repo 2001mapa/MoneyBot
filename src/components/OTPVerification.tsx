@@ -103,15 +103,15 @@ export function OTPVerification({
               transition={{ delay: 0.2, duration: 0.5 }}
               className="absolute inset-0 flex items-center justify-center pointer-events-none"
             >
-              <svg width="120" height="120" className="absolute">
-                <circle cx="60" cy="60" r="36" stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none" />
-                <circle cx="60" cy="60" r="3" fill="#10b981" />
+              <svg width="140" height="140" className="absolute">
+                <circle cx="70" cy="70" r="48" stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none" />
+                <circle cx="70" cy="70" r="4" fill="#3b82f6" />
               </svg>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Morphing Inputs -> Satellites */}
+        {/* Orbiting Cubes */}
         <div className="relative flex items-center justify-center w-full h-full">
           {otp.map((digit, idx) => {
             const normalX = (idx - 1.5) * 80 // Spread them out: -120, -40, 40, 120
@@ -139,52 +139,53 @@ export function OTPVerification({
                   }
                 }}
               >
-                <motion.input
-                  ref={(el) => { inputRefs.current[idx] = el }}
-                  type="password"
-                  inputMode="numeric"
-                  value={digit}
-                  onChange={(e) => handleChange(idx, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(idx, e)}
-                  onPaste={handlePaste}
-                  disabled={isVerifying}
+                <motion.div
                   animate={
                     isVerifying
-                      ? {
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          backgroundColor: "#10b981",
-                          borderColor: "rgba(16, 185, 129, 0)",
-                          color: "rgba(0,0,0,0)",
-                          x: [0, 0, 36], // Wait for collapse to finish (at center), then move out to radius 36
-                        }
+                      ? { x: [0, 0, 48], scale: 0.5 }
                       : isError
-                        ? {
-                            x: [-10, 10, -10, 10, -5, 5, 0],
-                            borderColor: "#ef4444",
-                            color: "#ef4444"
-                          }
-                        : {
-                            width: 64,
-                            height: 64,
-                            borderRadius: 12,
-                            backgroundColor: "#151A27",
-                            borderColor: "rgba(255,255,255,0.1)",
-                            color: "#ffffff",
-                            x: 0
-                          }
+                        ? { x: [-10, 10, -10, 10, -5, 5, 0], scale: 1 }
+                        : { x: 0, scale: 1 }
                   }
                   transition={{
-                    width: { duration: 0.4, ease: "easeInOut" },
-                    height: { duration: 0.4, ease: "easeInOut" },
-                    backgroundColor: { duration: 0.4 },
-                    x: isVerifying 
-                        ? { times: [0, 0.2, 1], duration: 1, ease: "easeInOut" } 
-                        : { duration: 0.4 },
+                    x: isVerifying ? { times: [0, 0.2, 1], duration: 1, ease: "easeInOut" } : { duration: 0.4 },
+                    scale: { duration: 0.4, ease: "easeInOut" }
                   }}
-                  className="text-center text-3xl font-black focus:outline-none focus:ring-1 focus:border-blue-500 shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
-                />
+                  className="relative w-16 h-16 flex items-center justify-center"
+                >
+                  {/* SVG Border Tracer (Illuminates from start to end) */}
+                  {!isVerifying && !isError && (
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 64 64">
+                      <motion.rect
+                        x="1" y="1" width="62" height="62" rx="11"
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth="2"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: digit ? 1 : 0, opacity: digit ? 1 : 0 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                      />
+                    </svg>
+                  )}
+                  
+                  <input
+                    ref={(el) => { inputRefs.current[idx] = el }}
+                    type="password"
+                    inputMode="numeric"
+                    value={digit}
+                    onChange={(e) => handleChange(idx, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(idx, e)}
+                    onPaste={handlePaste}
+                    disabled={isVerifying}
+                    className={`absolute inset-0 w-full h-full bg-[#151A27] rounded-xl text-center text-3xl font-black focus:outline-none transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.2)] ${
+                      isVerifying 
+                        ? 'text-transparent border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)] border-2' 
+                        : isError 
+                          ? 'border-red-500 text-red-500 border'
+                          : digit ? 'border-transparent text-white' : 'border-white/10 text-white border'
+                    }`}
+                  />
+                </motion.div>
               </motion.div>
             )
           })}
