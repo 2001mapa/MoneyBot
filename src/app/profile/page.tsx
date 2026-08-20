@@ -18,13 +18,13 @@ const CURRENCIES = [
 ]
 
 const THEMES = [
-  { value: 'midnight', label: 'Midnight', swatch: '#3B82F6' },
-  { value: 'carbon',   label: 'Carbon',   swatch: '#A3E635' },
-  { value: 'forest',   label: 'Forest',   swatch: '#A7F3D0' },
-  { value: 'rosewood', label: 'Rosewood', swatch: '#F3D5D8' },
-  { value: 'coastal',  label: 'Coastal',  swatch: '#FF7F50' },
-  { value: 'velvet',   label: 'Velvet',   swatch: '#C4B5FD' },
-  { value: 'desert',   label: 'Desert',   swatch: '#EAB308' },
+  { value: 'navy-saas',          label: 'Midnight',  swatch: '#3B82F6' },
+  { value: 'charcoal-lime',      label: 'Carbon',    swatch: '#A3E635' },
+  { value: 'emerald-mint',       label: 'Forest',    swatch: '#A7F3D0' },
+  { value: 'burgundy-blush',     label: 'Rosewood',  swatch: '#F3D5D8' },
+  { value: 'teal-coral',         label: 'Coastal',   swatch: '#FF7F50' },
+  { value: 'plum-lavender',      label: 'Velvet',    swatch: '#C4B5FD' },
+  { value: 'terracotta-mustard', label: 'Desert',    swatch: '#EAB308' },
 ]
 
 export default function ProfilePage() {

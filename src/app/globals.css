@@ -12,7 +12,7 @@
   background: linear-gradient(
     90deg,
     var(--muted) 25%,
-    color-mix(in srgb, var(--muted-foreground) 15%, var(--muted)) 50%,
+    color-mix(in srgb, var(--text-muted) 15%, var(--muted)) 50%,
     var(--muted) 75%
   );
   background-size: 800px 100%;
@@ -21,281 +21,306 @@
 }
 
 /* =========================================
-   1. MIDNIGHT
-   Navy (#0F172A) · Electric Blue (#3B82F6) · White (#FFFFFF)
-   Neumorfismo: sombra azul-noche + brillo azul eléctrico
+   1. NAVY SAAS  (default)
+   60% #F8FAFC · 30% #FFFFFF + #0F172A · 10% #3B82F6
    ========================================= */
 :root,
-.midnight {
-  --background:       #131d2e;
-  --foreground:       #FFFFFF;
-  --card:             #131d2e;
-  --card-foreground:  #FFFFFF;
-  --card-elevated:    #1a2640;
-  --primary:          #3B82F6;
-  --primary-foreground: #FFFFFF;
-  --muted:            rgba(59, 130, 246, 0.1);
-  --muted-foreground: #94a3b8;
-  --border:           rgba(59, 130, 246, 0.2);
-  --income:           #34d399;
-  --expense:          #f87171;
-  --glass-bg:         rgba(19, 29, 46, 0.85);
-  --glass-border:     rgba(59, 130, 246, 0.2);
-  --nav-bg:           rgba(10, 16, 28, 0.96);
-  --neu-light:        rgba(59, 130, 246, 0.14);
-  --neu-dark:         rgba(4, 6, 12, 0.96);
+[data-theme="navy-saas"] {
+  --bg-app:       #F0F4F8;
+  --bg-card:      #FFFFFF;
+  --bg-card-dark: #0F172A;
+  --text-main:    #0F172A;
+  --text-muted:   #64748B;
+  --primary:      #3B82F6;
+  --primary-fg:   #FFFFFF;
+  --border:       #E2E8F0;
+  --income:       #10b981;
+  --expense:      #ef4444;
+  --neu-light:    rgba(255, 255, 255, 0.95);
+  --neu-dark:     rgba(150, 170, 195, 0.5);
+  /* Aliases para compatibilidad con Tailwind theme tokens */
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(100, 116, 139, 0.1);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
 }
 
 /* =========================================
-   2. CARBON
-   Charcoal (#1F2937) · Lime (#A3E635) · Soft Gray (#F3F4F6)
-   Neumorfismo: sombra charcoal-negro + brillo lime
+   2. CHARCOAL LIME
+   60% #F3F4F6 · 30% #FFFFFF + #1F2937 · 10% #A3E635
    ========================================= */
-.carbon {
-  --background:       #1a2330;
-  --foreground:       #F3F4F6;
-  --card:             #1a2330;
-  --card-foreground:  #F3F4F6;
-  --card-elevated:    #222d3c;
-  --primary:          #A3E635;
-  --primary-foreground: #0d1a0a;
-  --muted:            rgba(163, 230, 53, 0.1);
-  --muted-foreground: #9ca3af;
-  --border:           rgba(163, 230, 53, 0.2);
-  --income:           #A3E635;
-  --expense:          #f87171;
-  --glass-bg:         rgba(26, 35, 48, 0.85);
-  --glass-border:     rgba(163, 230, 53, 0.18);
-  --nav-bg:           rgba(14, 20, 28, 0.96);
-  --neu-light:        rgba(163, 230, 53, 0.12);
-  --neu-dark:         rgba(4, 6, 8, 0.97);
+[data-theme="charcoal-lime"] {
+  --bg-app:       #F3F4F6;
+  --bg-card:      #FFFFFF;
+  --bg-card-dark: #1F2937;
+  --text-main:    #1F2937;
+  --text-muted:   #6B7280;
+  --primary:      #65a30d;
+  --primary-fg:   #FFFFFF;
+  --border:       #E5E7EB;
+  --income:       #16a34a;
+  --expense:      #dc2626;
+  --neu-light:    rgba(255, 255, 255, 0.95);
+  --neu-dark:     rgba(160, 168, 180, 0.5);
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(107, 114, 128, 0.1);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
 }
 
 /* =========================================
-   3. FOREST
-   Emerald (#065F46) · Mint (#A7F3D0) · Cream (#FFF8E7)
-   Neumorfismo: sombra verde-selva + brillo menta
+   3. EMERALD WELLNESS
+   60% #FFF8E7 · 30% #FFFFFF + #065F46 · 10% #A7F3D0
    ========================================= */
-.forest {
-  --background:       #083d2e;
-  --foreground:       #FFF8E7;
-  --card:             #083d2e;
-  --card-foreground:  #FFF8E7;
-  --card-elevated:    #0e5040;
-  --primary:          #A7F3D0;
-  --primary-foreground: #065F46;
-  --muted:            rgba(167, 243, 208, 0.1);
-  --muted-foreground: #6ee7b7;
-  --border:           rgba(167, 243, 208, 0.2);
-  --income:           #A7F3D0;
-  --expense:          #fca5a5;
-  --glass-bg:         rgba(8, 61, 46, 0.85);
-  --glass-border:     rgba(167, 243, 208, 0.2);
-  --nav-bg:           rgba(4, 24, 18, 0.96);
-  --neu-light:        rgba(167, 243, 208, 0.13);
-  --neu-dark:         rgba(0, 4, 2, 0.97);
+[data-theme="emerald-mint"] {
+  --bg-app:       #FFF8E7;
+  --bg-card:      #FFFFFF;
+  --bg-card-dark: #065F46;
+  --text-main:    #065F46;
+  --text-muted:   #047857;
+  --primary:      #059669;
+  --primary-fg:   #FFFFFF;
+  --border:       #D1FAE5;
+  --income:       #10b981;
+  --expense:      #dc2626;
+  --neu-light:    rgba(255, 255, 255, 0.95);
+  --neu-dark:     rgba(170, 155, 100, 0.38);
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(4, 120, 87, 0.1);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
 }
 
 /* =========================================
-   4. ROSEWOOD
-   Burgundy (#7F1D1D) · Blush (#F3D5D8) · Ivory (#FFFDF7)
-   Neumorfismo: sombra vino-negro + brillo blush-rosa
+   4. BURGUNDY LUXURY
+   60% #FFFDF7 · 30% #F3D5D8 + #7F1D1D · 10% #7F1D1D
    ========================================= */
-.rosewood {
-  --background:       #551414;
-  --foreground:       #FFFDF7;
-  --card:             #551414;
-  --card-foreground:  #FFFDF7;
-  --card-elevated:    #6e1a1a;
-  --primary:          #F3D5D8;
-  --primary-foreground: #7F1D1D;
-  --muted:            rgba(243, 213, 216, 0.1);
-  --muted-foreground: #f9a8b0;
-  --border:           rgba(243, 213, 216, 0.2);
-  --income:           #86efac;
-  --expense:          #fca5a5;
-  --glass-bg:         rgba(85, 20, 20, 0.85);
-  --glass-border:     rgba(243, 213, 216, 0.2);
-  --nav-bg:           rgba(36, 6, 6, 0.96);
-  --neu-light:        rgba(243, 213, 216, 0.12);
-  --neu-dark:         rgba(8, 0, 0, 0.97);
+[data-theme="burgundy-blush"] {
+  --bg-app:       #FFFDF7;
+  --bg-card:      #F3D5D8;
+  --bg-card-dark: #7F1D1D;
+  --text-main:    #7F1D1D;
+  --text-muted:   #9f3030;
+  --primary:      #b91c1c;
+  --primary-fg:   #FFFFFF;
+  --border:       #FECDD3;
+  --income:       #16a34a;
+  --expense:      #dc2626;
+  --neu-light:    rgba(255, 253, 250, 0.98);
+  --neu-dark:     rgba(190, 140, 135, 0.42);
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(127, 29, 29, 0.1);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
 }
 
 /* =========================================
-   5. COASTAL
-   Teal (#0F766E) · Coral (#FF7F50) · Sand (#F5E6CA)
-   Neumorfismo: sombra teal-negro + brillo coral-arena
+   5. TEAL TRAVEL
+   60% #F5E6CA · 30% #FFFFFF + #0F766E · 10% #FF7F50
    ========================================= */
-.coastal {
-  --background:       #0a4d47;
-  --foreground:       #F5E6CA;
-  --card:             #0a4d47;
-  --card-foreground:  #F5E6CA;
-  --card-elevated:    #0e6258;
-  --primary:          #FF7F50;
-  --primary-foreground: #0F766E;
-  --muted:            rgba(255, 127, 80, 0.1);
-  --muted-foreground: #99d6d0;
-  --border:           rgba(255, 127, 80, 0.22);
-  --income:           #2dd4bf;
-  --expense:          #ff6b6b;
-  --glass-bg:         rgba(10, 77, 71, 0.85);
-  --glass-border:     rgba(255, 127, 80, 0.22);
-  --nav-bg:           rgba(4, 30, 28, 0.96);
-  --neu-light:        rgba(255, 127, 80, 0.12);
-  --neu-dark:         rgba(0, 4, 3, 0.97);
+[data-theme="teal-coral"] {
+  --bg-app:       #F5E6CA;
+  --bg-card:      #FFF8F0;
+  --bg-card-dark: #0F766E;
+  --text-main:    #134e4a;
+  --text-muted:   #115E59;
+  --primary:      #FF7F50;
+  --primary-fg:   #FFFFFF;
+  --border:       #E5D0AA;
+  --income:       #0d9488;
+  --expense:      #dc2626;
+  --neu-light:    rgba(255, 248, 235, 0.95);
+  --neu-dark:     rgba(170, 140, 80, 0.42);
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(15, 118, 110, 0.1);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
 }
 
 /* =========================================
-   6. VELVET
-   Plum (#6D28D9) · Lavender (#C4B5FD) · Off-White (#FAF7FF)
-   Neumorfismo: sombra violeta-negro + brillo lavanda
+   6. PLUM MODERN
+   60% #FAF7FF · 30% #FFFFFF + #6D28D9 · 10% #C4B5FD
    ========================================= */
-.velvet {
-  --background:       #2d1260;
-  --foreground:       #FAF7FF;
-  --card:             #2d1260;
-  --card-foreground:  #FAF7FF;
-  --card-elevated:    #3a1878;
-  --primary:          #C4B5FD;
-  --primary-foreground: #2d1260;
-  --muted:            rgba(196, 181, 253, 0.1);
-  --muted-foreground: #a78bfa;
-  --border:           rgba(196, 181, 253, 0.22);
-  --income:           #86efac;
-  --expense:          #f87171;
-  --glass-bg:         rgba(45, 18, 96, 0.85);
-  --glass-border:     rgba(196, 181, 253, 0.22);
-  --nav-bg:           rgba(14, 6, 36, 0.96);
-  --neu-light:        rgba(196, 181, 253, 0.14);
-  --neu-dark:         rgba(4, 0, 12, 0.97);
+[data-theme="plum-lavender"] {
+  --bg-app:       #FAF7FF;
+  --bg-card:      #FFFFFF;
+  --bg-card-dark: #6D28D9;
+  --text-main:    #4C1D95;
+  --text-muted:   #7C3AED;
+  --primary:      #7C3AED;
+  --primary-fg:   #FFFFFF;
+  --border:       #EDE9FE;
+  --income:       #10b981;
+  --expense:      #ef4444;
+  --neu-light:    rgba(255, 255, 255, 0.98);
+  --neu-dark:     rgba(172, 148, 220, 0.42);
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(109, 40, 217, 0.08);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
 }
 
 /* =========================================
-   7. DESERT
-   Terracotta (#C2410C) · Mustard (#EAB308) · Cream (#FFF8E7)
-   Neumorfismo: sombra terracota-negro + brillo mostaza
+   7. TERRACOTTA CRAFT
+   60% #FFF7E6 · 30% #FFFFFF + #C2410C · 10% #EAB308
    ========================================= */
-.desert {
-  --background:       #7a260a;
-  --foreground:       #FFF8E7;
-  --card:             #7a260a;
-  --card-foreground:  #FFF8E7;
-  --card-elevated:    #9a300d;
-  --primary:          #EAB308;
-  --primary-foreground: #422006;
-  --muted:            rgba(234, 179, 8, 0.1);
-  --muted-foreground: #fdba74;
-  --border:           rgba(234, 179, 8, 0.22);
-  --income:           #EAB308;
-  --expense:          #fca5a5;
-  --glass-bg:         rgba(122, 38, 10, 0.85);
-  --glass-border:     rgba(234, 179, 8, 0.22);
-  --nav-bg:           rgba(40, 10, 2, 0.96);
-  --neu-light:        rgba(234, 179, 8, 0.12);
-  --neu-dark:         rgba(6, 2, 0, 0.97);
+[data-theme="terracotta-mustard"] {
+  --bg-app:       #FFF7E6;
+  --bg-card:      #FFFFFF;
+  --bg-card-dark: #C2410C;
+  --text-main:    #431407;
+  --text-muted:   #9A3412;
+  --primary:      #D97706;
+  --primary-fg:   #FFFFFF;
+  --border:       #FED7AA;
+  --income:       #16a34a;
+  --expense:      #dc2626;
+  --neu-light:    rgba(255, 255, 255, 0.97);
+  --neu-dark:     rgba(195, 130, 70, 0.42);
+  --background:       var(--bg-app);
+  --foreground:       var(--text-main);
+  --card:             var(--bg-card);
+  --card-foreground:  var(--text-main);
+  --card-elevated:    var(--bg-card);
+  --muted:            rgba(194, 65, 12, 0.1);
+  --muted-foreground: var(--text-muted);
+  --border-color:     var(--border);
 }
 
 /* =========================================
-   THEME ENGINE
+   THEME ENGINE — mapea tokens a Tailwind
    ========================================= */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-card-elevated: var(--card-elevated);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-muted: var(--muted);
+  --color-background:       var(--background);
+  --color-foreground:       var(--foreground);
+  --color-card:             var(--card);
+  --color-card-foreground:  var(--card-foreground);
+  --color-card-elevated:    var(--card-elevated);
+  --color-primary:          var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-muted:            var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-income: var(--income);
-  --color-expense: var(--expense);
+  --color-border:           var(--border-color);
+  --color-income:           var(--income);
+  --color-expense:          var(--expense);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 }
 
 /* =========================================
-   GLOBAL BODY
+   GLOBAL BODY — usa 60% (bg-app)
    ========================================= */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-app);
+  color: var(--text-main);
   font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter'), sans-serif;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.4s ease, color 0.3s ease;
 }
 
 /* =========================================
-   NEUMORPHISM SYSTEM
-   Extruido: tarjeta que sobresale del fondo
-   Hundido: campo activo / presionado
+   COMPONENTES NEUMÓRFICOS
+   Los fondos claros permiten sombras visibles
    ========================================= */
-.glass {
-  background: var(--background);
-  border: none;
+
+/* Tarjeta estándar — 30% bg-card, extruida del fondo */
+.card-neu {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   box-shadow:
-    8px 8px 18px var(--neu-dark),
-    -8px -8px 18px var(--neu-light);
+    6px 6px 14px var(--neu-dark),
+    -6px -6px 14px var(--neu-light);
+  border-radius: 1.5rem;
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
+}
+
+/* Hero/acento — usa el color oscuro del tema (bg-card-dark) */
+.card-hero {
+  background: var(--bg-card-dark);
+  color: #FFFFFF;
+  box-shadow:
+    6px 6px 16px var(--neu-dark),
+    -4px -4px 10px var(--neu-light);
+  border-radius: 1.5rem;
+  border: none;
+}
+
+/* Alias .glass para compatibilidad con código existente */
+.glass {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow:
+    6px 6px 14px var(--neu-dark),
+    -6px -6px 14px var(--neu-light);
   border-radius: 1.5rem;
   transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
 }
 
 .glass:active {
   box-shadow:
-    inset 5px 5px 10px var(--neu-dark),
-    inset -5px -5px 10px var(--neu-light);
+    inset 4px 4px 8px var(--neu-dark),
+    inset -4px -4px 8px var(--neu-light);
   transform: translateY(1px);
 }
 
-/* Versión pequeña para botones e items */
-.glass-sm {
-  background: var(--background);
-  border: none;
-  box-shadow:
-    4px 4px 10px var(--neu-dark),
-    -4px -4px 10px var(--neu-light);
-  border-radius: 1rem;
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-
-/* Versión hundida: inputs, tab activa */
+/* Input hundido (pressed state) */
 .glass-inset {
-  background: var(--background);
-  border: none;
-  box-shadow:
-    inset 4px 4px 10px var(--neu-dark),
-    inset -4px -4px 10px var(--neu-light);
-  border-radius: 1rem;
-}
-
-/* Barra de navegación */
-.glass-nav {
-  background: var(--background);
-  box-shadow:
-    0 -6px 18px var(--neu-dark),
-    0 -1px 4px var(--neu-light);
-  border-top: none;
-}
-
-/* Botón primario con acento de color */
-.glass-btn-primary {
-  background: linear-gradient(145deg,
-    color-mix(in srgb, var(--primary) 85%, white 15%),
-    color-mix(in srgb, var(--primary) 95%, black 5%)
-  );
-  color: var(--primary-foreground);
-  box-shadow:
-    5px 5px 12px var(--neu-dark),
-    -3px -3px 8px var(--neu-light);
-  border: none;
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-}
-.glass-btn-primary:active {
+  background: var(--bg-app);
+  border: 1px solid var(--border);
   box-shadow:
     inset 3px 3px 7px var(--neu-dark),
-    inset -2px -2px 5px var(--neu-light);
+    inset -3px -3px 7px var(--neu-light);
+  border-radius: 1rem;
+}
+
+/* Barra de navegación inferior */
+.glass-nav {
+  background: var(--bg-card);
+  box-shadow:
+    0 -4px 14px var(--neu-dark),
+    0 -1px 4px var(--neu-light);
+  border-top: 1px solid var(--border);
+}
+
+/* Botón CTA */
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-fg);
+  box-shadow:
+    4px 4px 10px var(--neu-dark),
+    -2px -2px 6px var(--neu-light);
+  border: none;
+  border-radius: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-primary:active {
+  box-shadow:
+    inset 3px 3px 6px color-mix(in srgb, var(--primary) 60%, black),
+    inset -2px -2px 4px color-mix(in srgb, var(--primary) 80%, white);
   transform: translateY(1px);
 }

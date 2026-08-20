@@ -3,14 +3,20 @@
 import { ThemeProvider } from 'next-themes'
 
 const ALL_THEMES = [
-  'midnight', 'carbon', 'forest', 'rosewood', 'coastal', 'velvet', 'desert',
+  'navy-saas',
+  'charcoal-lime',
+  'emerald-mint',
+  'burgundy-blush',
+  'teal-coral',
+  'plum-lavender',
+  'terracotta-mustard',
 ]
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
-      attribute="class"
-      defaultTheme="midnight"
+      attribute="data-theme"
+      defaultTheme="navy-saas"
       themes={ALL_THEMES}
       enableSystem={false}
     >
