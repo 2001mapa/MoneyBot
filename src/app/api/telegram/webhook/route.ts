@@ -526,7 +526,6 @@ ${chatHistory}`;
           amount: Math.abs(parsedData.amount),
           type: isDeposit ? 'expense' : 'income',
           description: `Ahorro en meta: ${goal.name}`,
-          category_icon: goal.icon || '🎯',
           payment_method: 'transferencia',
           transaction_date: new Date().toISOString()
         });

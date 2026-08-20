@@ -118,8 +118,8 @@ export default async function PlanningPage() {
               </div>
             </div>
             <div className="text-right leading-tight">
-              <p className="text-sm font-bold text-primary">${needsSpent.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground font-semibold">/ ${needsTarget.toLocaleString()}</p>
+              <p className="text-sm font-bold text-primary">Gastado: ${needsSpent.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground font-semibold">de ${needsTarget.toLocaleString()}</p>
             </div>
           </div>
 
@@ -132,8 +132,8 @@ export default async function PlanningPage() {
               </div>
             </div>
             <div className="text-right leading-tight">
-              <p className="text-sm font-bold text-expense">${wantsSpent.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground font-semibold">/ ${wantsTarget.toLocaleString()}</p>
+              <p className="text-sm font-bold text-expense">Gastado: ${wantsSpent.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground font-semibold">de ${wantsTarget.toLocaleString()}</p>
             </div>
           </div>
 
@@ -146,8 +146,8 @@ export default async function PlanningPage() {
               </div>
             </div>
             <div className="text-right leading-tight">
-              <p className="text-sm font-bold text-yellow-500">${savingsSpent.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground font-semibold">/ ${savingsTarget.toLocaleString()}</p>
+              <p className="text-sm font-bold text-yellow-500">Gastado: ${savingsSpent.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground font-semibold">de ${savingsTarget.toLocaleString()}</p>
             </div>
           </div>
         </div>
