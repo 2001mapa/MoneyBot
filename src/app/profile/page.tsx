@@ -33,6 +33,7 @@ const THEMES = [
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null)
+  const [initialProfile, setInitialProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -41,12 +42,17 @@ export default function ProfilePage() {
   const supabase = createClient()
   const { setTheme, theme } = useTheme()
 
+  const hasChanges = JSON.stringify(profile) !== JSON.stringify(initialProfile)
+
   useEffect(() => {
     async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return setLoading(false)
       const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-      if (data) setProfile(data)
+      if (data) {
+        setProfile(data)
+        setInitialProfile(data)
+      }
       setLoading(false)
     }
     loadProfile()
@@ -71,6 +77,7 @@ export default function ProfilePage() {
     }).eq('id', profile.id)
     setSaving(false)
     setSaved(true)
+    setInitialProfile(profile)
     setTimeout(() => setSaved(false), 2500)
   }
 
@@ -332,12 +339,14 @@ export default function ProfilePage() {
           {/* Save button */}
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || (!hasChanges && !saved)}
             className={`w-full flex items-center justify-center gap-2 font-bold py-4 rounded-2xl transition-all shadow-lg ${
               saved
                 ? 'bg-income text-white'
-                : 'bg-primary text-primary-foreground hover:opacity-90'
-            } disabled:opacity-50`}
+                : hasChanges
+                  ? 'bg-primary text-primary-foreground hover:opacity-90'
+                  : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
+            }`}
           >
             {saving ? (
               <span>Guardando...</span>
