@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { GoalCard } from '@/components/GoalCard'
 import { Target, PieChart, Coins } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PlanningPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

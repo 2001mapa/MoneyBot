@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+import { useRouter } from 'next/navigation'
+
 interface GoalCardProps {
   goal: any;
   userId: string;
@@ -12,6 +14,7 @@ export function GoalCard({ goal: initialGoal, userId }: GoalCardProps) {
   const [goal, setGoal] = useState(initialGoal)
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
+  const router = useRouter()
 
   const getProgress = (current: number, target: number) => {
     if (!target || target === 0) return 0
@@ -52,6 +55,7 @@ export function GoalCard({ goal: initialGoal, userId }: GoalCardProps) {
 
     setGoal({ ...goal, current_amount: newAmount })
     setLoading(false)
+    router.refresh()
   }
 
   const goalProgress = getProgress(Number(goal.current_amount), Number(goal.target_amount))
