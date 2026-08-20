@@ -11,7 +11,7 @@ export default async function Home() {
   const [profileRes, transactionsRes, allTxRes, allDebtsRes, savingsRes] = await Promise.all([
     supabase.from('profiles').select('full_name, currency, monthly_budget, needs_percent, wants_percent, savings_percent').eq('id', user.id).single(),
     supabase.from('transactions').select('*, categories(name, icon, color, bucket)').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(6),
-    supabase.from('transactions').select('amount, type, transaction_date, created_at, payment_method, categories(bucket)').eq('user_id', user.id),
+    supabase.from('transactions').select('amount, type, transaction_date, created_at, payment_method, description, categories(bucket)').eq('user_id', user.id),
     supabase.from('debts').select('debt_type, balance_remaining, status, payment_method').eq('user_id', user.id).neq('status', 'paid'),
     supabase.from('savings_goals').select('current_amount').eq('user_id', user.id)
   ])
@@ -43,15 +43,16 @@ export default async function Home() {
       const parts = dateString.split('-')
       const isCurrentMonth = parseInt(parts[0]) === currentYear && parseInt(parts[1]) - 1 === currentMonth
       const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes((tx.payment_method || '').toLowerCase())
+      const isTransfer = (tx.description || '').toLowerCase().startsWith('transferencia ')
 
       if (tx.type === 'income') {
         totalBalance += Number(tx.amount)
         if (isBank) bankBalance += Number(tx.amount); else cashBalance += Number(tx.amount)
-        if (isCurrentMonth) ingresosMes += Number(tx.amount)
+        if (isCurrentMonth && !isTransfer) ingresosMes += Number(tx.amount)
       } else if (tx.type === 'expense') {
         totalBalance -= Number(tx.amount)
         if (isBank) bankBalance -= Number(tx.amount); else cashBalance -= Number(tx.amount)
-        if (isCurrentMonth) {
+        if (isCurrentMonth && !isTransfer) {
           gastosMes += Number(tx.amount)
           const cat = Array.isArray(tx.categories) ? tx.categories[0] : tx.categories
           const bucket = cat?.bucket || 'needs'

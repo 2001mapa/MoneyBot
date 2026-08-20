@@ -36,6 +36,9 @@ export default function StatsPage() {
       if (txs) {
         const grouped: Record<string, number> = {}
         txs.forEach(t => {
+          const desc = t.description?.toLowerCase() || ''
+          if (desc.startsWith('transferencia ')) return
+          
           const cat = (t as any).categories
           const categoryName = Array.isArray(cat) ? cat[0]?.name : cat?.name
           const finalName = categoryName || 'Otros'
