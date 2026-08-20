@@ -36,11 +36,32 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [showPinSetup, setShowPinSetup] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const router = useRouter()
   const supabase = createClient()
   const { setTheme, theme } = useTheme()
 
   const hasChanges = JSON.stringify(profile) !== JSON.stringify(initialProfile)
+
+  const handleDeleteData = async () => {
+    setDeleting(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    
+    // Delete all related records
+    await Promise.all([
+      supabase.from('transactions').delete().eq('user_id', user.id),
+      supabase.from('debts').delete().eq('user_id', user.id),
+      supabase.from('savings_goals').delete().eq('user_id', user.id),
+      supabase.from('categories').delete().eq('user_id', user.id),
+      supabase.from('debt_payments').delete().eq('user_id', user.id),
+    ])
+    
+    setDeleting(false)
+    setShowDeleteModal(false)
+    router.push('/')
+  }
 
   useEffect(() => {
     async function loadProfile() {
@@ -397,10 +418,19 @@ export default function ProfilePage() {
             )}
           </button>
 
+          {/* Reset Data */}
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-expense/25 text-expense font-bold hover:bg-expense/10 transition-all mb-4"
+          >
+            <XCircle className="w-4 h-4" />
+            <span>Eliminar Todos los Registros</span>
+          </button>
+
           {/* Logout */}
           <button
             onClick={() => setShowLogoutModal(true)}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-expense/25 text-expense font-bold hover:bg-expense/10 transition-all"
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-muted/50 text-foreground font-bold hover:bg-muted transition-all"
           >
             <LogOut className="w-4 h-4" />
             <span>Cerrar Sesión</span>
@@ -438,13 +468,46 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {/* Reset Data Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="w-full max-w-sm glass p-6 space-y-5 animate-in fade-in zoom-in duration-200">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-expense/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <XCircle className="w-6 h-6 text-expense" />
+              </div>
+              <h3 className="text-lg font-black tracking-tight">¿Borrar todo?</h3>
+              <p className="text-sm text-muted-foreground font-medium px-4">
+                Esto eliminará todas tus transacciones, deudas, metas y categorías de forma irreversible.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-all disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteData}
+                disabled={deleting}
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-expense text-white shadow-lg shadow-expense/25 hover:opacity-90 transition-all disabled:opacity-50"
+              >
+                {deleting ? 'Borrando...' : 'Sí, borrar todo'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Logout Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
           <div className="w-full max-w-sm glass p-6 space-y-5 animate-in fade-in zoom-in duration-200">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-expense/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <LogOut className="w-6 h-6 text-expense" />
+              <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogOut className="w-6 h-6 text-foreground" />
               </div>
               <h3 className="text-lg font-black tracking-tight">¿Cerrar Sesión?</h3>
               <p className="text-sm text-muted-foreground font-medium px-4">
@@ -460,7 +523,7 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={handleLogout}
-                className="py-3 px-4 rounded-xl font-bold text-sm bg-expense text-white shadow-lg shadow-expense/25 hover:opacity-90 transition-all"
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-foreground text-background shadow-lg hover:opacity-90 transition-all"
               >
                 Sí, salir
               </button>

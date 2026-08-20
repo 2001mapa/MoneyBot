@@ -358,9 +358,16 @@ ${chatHistory}`;
 
     // 5. Ruteo y Ejecución en Base de Datos
     
-    // CASO A: Borrado Total (Bloqueado por Seguridad)
+    // CASO A: Borrado Total
     if (parsedData.action_type === 'delete_all' && parsedData.is_complete) {
-      parsedData.response_to_user = "🛡️ Por seguridad, la eliminación total de la base de datos ha sido desactivada temporalmente. Por favor realiza este proceso desde el panel web.";
+      await Promise.all([
+        supabaseAdmin.from('transactions').delete().eq('user_id', profile.id),
+        supabaseAdmin.from('debts').delete().eq('user_id', profile.id),
+        supabaseAdmin.from('savings_goals').delete().eq('user_id', profile.id),
+        supabaseAdmin.from('categories').delete().eq('user_id', profile.id),
+        supabaseAdmin.from('debt_payments').delete().eq('user_id', profile.id),
+      ]);
+      parsedData.response_to_user = "✅ Listo. He eliminado todos tus registros (transacciones, metas, deudas y categorías). Tu cuenta ha vuelto a cero.";
     }
     
     // CASO B: Borrado Único (Último)
