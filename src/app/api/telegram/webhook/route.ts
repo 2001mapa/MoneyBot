@@ -50,7 +50,7 @@ const actionSchema: Schema = {
       type: SchemaType.STRING,
       description: "Tipo de intención detectada en el mensaje.",
       format: "enum",
-      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "savings_create", "savings_deposit", "savings_delete", "transfer", "query", "delete_last", "delete_all", "none"]
+      enum: ["transaction", "debt_create", "debt_payment", "debt_delete", "budget_update", "rule_update", "savings_create", "savings_deposit", "savings_delete", "transfer", "query", "delete_last", "delete_all", "none"]
     },
     is_complete: { 
       type: SchemaType.BOOLEAN, 
@@ -64,6 +64,9 @@ const actionSchema: Schema = {
       type: SchemaType.NUMBER, 
       description: "Monto involucrado (transacción, deuda, abono, transferencia o presupuesto). 0 si no aplica." 
     },
+    needs_percent: { type: SchemaType.NUMBER, description: "Porcentaje para necesidades (solo para rule_update)" },
+    wants_percent: { type: SchemaType.NUMBER, description: "Porcentaje para deseos (solo para rule_update)" },
+    savings_percent: { type: SchemaType.NUMBER, description: "Porcentaje para ahorros (solo para rule_update)" },
     transaction_type: { 
       type: SchemaType.STRING, 
       description: "expense o income (solo para action_type=transaction)", 
@@ -485,11 +488,41 @@ ${chatHistory}`;
       }
     }
 
-    // CASO F: Ajuste de Presupuesto
+    // CASO E.2: Eliminar Deuda
+    else if (parsedData.action_type === 'debt_delete' && parsedData.is_complete) {
+      const { data: existingDebts } = await supabaseAdmin
+        .from('debts').select('*').eq('user_id', profile.id)
+        .ilike('person_name', `%${parsedData.person_name}%`).limit(1)
+
+      if (existingDebts && existingDebts.length > 0) {
+        await supabaseAdmin.from('debts').delete().eq('id', existingDebts[0].id)
+      } else {
+        console.warn('Deuda no encontrada para eliminar.')
+      }
+    }
+
+    // CASO F: Ajuste de Presupuesto Mensual
     else if (parsedData.action_type === 'budget_update' && parsedData.is_complete) {
       await supabaseAdmin.from('profiles').update({
         monthly_budget: parsedData.amount
       }).eq('id', profile.id)
+    }
+
+    // CASO F.2: Ajuste de Regla 50/30/20
+    else if (parsedData.action_type === 'rule_update' && parsedData.is_complete) {
+      const needs = parsedData.needs_percent || 50;
+      const wants = parsedData.wants_percent || 30;
+      const savings = parsedData.savings_percent || 20;
+      
+      if (needs + wants + savings === 100) {
+        await supabaseAdmin.from('profiles').update({
+          needs_percent: needs,
+          wants_percent: wants,
+          savings_percent: savings
+        }).eq('id', profile.id)
+      } else {
+        parsedData.response_to_user = `No he podido actualizar tu regla porque los porcentajes que me diste (${needs} + ${wants} + ${savings}) no suman el 100%. Por favor indícame los porcentajes correctos.`;
+      }
     }
 
     // CASO G: Crear Meta de Ahorro
