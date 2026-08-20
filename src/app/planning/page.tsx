@@ -93,7 +93,9 @@ export default async function PlanningPage() {
           {/* Inner text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
             <span className="text-xs font-bold text-muted-foreground uppercase">Ingresos</span>
-            <span className="text-base font-black text-foreground">${(totalIncome / 1000).toFixed(0)}k</span>
+            <span className="text-base font-black text-foreground">
+              ${totalIncome >= 1000000 ? (totalIncome / 1000000).toFixed(1).replace('.0', '') + 'M' : totalIncome >= 1000 ? (totalIncome / 1000).toFixed(0) + 'k' : totalIncome}
+            </span>
           </div>
         </div>
 

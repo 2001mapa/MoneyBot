@@ -155,10 +155,10 @@ export default async function Home() {
         {/* Quick Action Buttons (Bento Cells) */}
         <DashboardActions userId={user.id} />
 
-        {/* Bento 2: 50/30/20 Resumido */}
+        {/* Bento 2: Distribución Resumida */}
         <div className="md:col-span-2 glass p-5">
           <div className="flex justify-between items-center mb-4 min-h-[44px]">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Distribución 50/30/20</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Distribución {profile.needs_percent}/{profile.wants_percent}/{profile.savings_percent}</p>
             <Link href="/planning" className="p-2 -mr-2 text-primary opacity-80 hover:opacity-100 transition-opacity">
               <ChevronRight className="w-5 h-5" />
             </Link>
