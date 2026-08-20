@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageSquare, Lock } from 'lucide-react'
+import { Lock } from 'lucide-react'
 
 interface OTPVerificationProps {
   onSuccess?: () => void
-  onVerify?: (code: string) => Promise<boolean> // New async verify prop
+  onVerify?: (code: string) => Promise<boolean>
   title?: string
   subtitle?: string
   hideToast?: boolean
@@ -24,33 +24,31 @@ export function OTPVerification({
   const [isError, setIsError] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  // Effect to handle state change when OTP is complete
   useEffect(() => {
     async function processCode() {
       if (otp.every(digit => digit !== '') && !isVerifying && !isError) {
         setIsVerifying(true)
-        
         const codeStr = otp.join('')
         
         if (onVerify) {
           const isValid = await onVerify(codeStr)
           if (isValid) {
-            if (onSuccess) onSuccess()
+            // Wait for orbital animation to finish (approx 2s)
+            setTimeout(() => { if (onSuccess) onSuccess() }, 1800)
           } else {
-            // Shake and reset
-            setIsError(true)
-            setIsVerifying(false)
-            setOtp(['', '', '', ''])
+            // Wait a bit, then shake and reset
             setTimeout(() => {
-              setIsError(false)
-              inputRefs.current[0]?.focus()
-            }, 600) // wait for shake animation
+              setIsError(true)
+              setIsVerifying(false)
+              setOtp(['', '', '', ''])
+              setTimeout(() => {
+                setIsError(false)
+                inputRefs.current[0]?.focus()
+              }, 600)
+            }, 1000)
           }
         } else {
-          // Default demo behavior
-          setTimeout(() => {
-            if (onSuccess) onSuccess()
-          }, 2000)
+          setTimeout(() => { if (onSuccess) onSuccess() }, 2000)
         }
       }
     }
@@ -61,14 +59,10 @@ export function OTPVerification({
     setIsError(false)
     const digit = value.slice(-1)
     if (!/^\d*$/.test(digit)) return
-
     const newOtp = [...otp]
     newOtp[index] = digit
     setOtp(newOtp)
-
-    if (digit && index < 3) {
-      inputRefs.current[index + 1]?.focus()
-    }
+    if (digit && index < 3) inputRefs.current[index + 1]?.focus()
   }
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -82,44 +76,70 @@ export function OTPVerification({
     const pastedData = e.clipboardData.getData('text').slice(0, 4).replace(/\D/g, '')
     if (pastedData) {
       const newOtp = [...otp]
-      for (let i = 0; i < pastedData.length; i++) {
-        newOtp[i] = pastedData[i]
-      }
+      for (let i = 0; i < pastedData.length; i++) newOtp[i] = pastedData[i]
       setOtp(newOtp)
       const nextFocus = Math.min(pastedData.length, 3)
       inputRefs.current[nextFocus]?.focus()
     }
   }
 
-  const handleAutoFill = () => {
-    const code = '4719'
-    setOtp(code.split(''))
-  }
-
-  const shakeAnimation = isError ? { x: [-10, 10, -10, 10, -5, 5, 0] } : {}
-
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
       
-      <div className="w-full max-w-sm mb-12 text-center">
+      <div className="w-full max-w-sm mb-12 text-center relative z-10">
         <h1 className="text-3xl font-semibold mb-3">{title}</h1>
         <p className="text-gray-400 text-sm">{subtitle}</p>
       </div>
 
       <div className="w-full max-w-sm h-32 flex items-center justify-center relative">
-        <AnimatePresence mode="wait">
-          {!isVerifying ? (
+        
+        {/* SVG Orbital Ring & Hub */}
+        <AnimatePresence>
+          {isVerifying && (
             <motion.div
-              key="inputs"
-              initial={{ opacity: 0, y: 10 }}
-              animate={isError ? shakeAnimation : { opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: isError ? 0.4 : 0.3 }}
-              className="flex gap-4 w-full justify-center"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
             >
-              {otp.map((digit, idx) => (
-                <input
-                  key={idx}
+              <svg width="120" height="120" className="absolute">
+                <circle cx="60" cy="60" r="36" stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none" />
+                <circle cx="60" cy="60" r="3" fill="#10b981" />
+              </svg>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Morphing Inputs -> Satellites */}
+        <div className="relative flex items-center justify-center w-full h-full">
+          {otp.map((digit, idx) => {
+            const normalX = (idx - 1.5) * 80 // Spread them out: -120, -40, 40, 120
+            const orbitAngle = idx * 90
+
+            return (
+              <motion.div
+                key={idx}
+                className="absolute flex items-center justify-center"
+                initial={false}
+                animate={
+                  isVerifying
+                    ? {
+                        x: 0,
+                        rotate: [0, 0, orbitAngle + 360, orbitAngle + 720, orbitAngle + 1080],
+                      }
+                    : { x: normalX, rotate: 0 }
+                }
+                transition={{
+                  x: { duration: 0.4, ease: "easeInOut" },
+                  rotate: { 
+                    times: [0, 0.2, 0.5, 0.8, 1], 
+                    duration: 2.5, 
+                    ease: [0.4, 0, 0.2, 1] 
+                  }
+                }}
+              >
+                <motion.input
                   ref={(el) => { inputRefs.current[idx] = el }}
                   type="password"
                   inputMode="numeric"
@@ -127,63 +147,57 @@ export function OTPVerification({
                   onChange={(e) => handleChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
                   onPaste={handlePaste}
-                  className={`w-16 h-16 bg-[#151A27] border ${isError ? 'border-red-500 text-red-500' : 'border-white/10 text-white focus:border-blue-500 focus:ring-blue-500'} rounded-xl text-center text-3xl font-black focus:outline-none focus:ring-1 transition-all shadow-[0_4px_24px_rgba(0,0,0,0.2)]`}
+                  disabled={isVerifying}
+                  animate={
+                    isVerifying
+                      ? {
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          backgroundColor: "#10b981",
+                          borderColor: "rgba(16, 185, 129, 0)",
+                          color: "rgba(0,0,0,0)",
+                          x: [0, 0, 36], // Wait for collapse to finish (at center), then move out to radius 36
+                        }
+                      : isError
+                        ? {
+                            x: [-10, 10, -10, 10, -5, 5, 0],
+                            borderColor: "#ef4444",
+                            color: "#ef4444"
+                          }
+                        : {
+                            width: 64,
+                            height: 64,
+                            borderRadius: 12,
+                            backgroundColor: "#151A27",
+                            borderColor: "rgba(255,255,255,0.1)",
+                            color: "#ffffff",
+                            x: 0
+                          }
+                  }
+                  transition={{
+                    width: { duration: 0.4, ease: "easeInOut" },
+                    height: { duration: 0.4, ease: "easeInOut" },
+                    backgroundColor: { duration: 0.4 },
+                    x: isVerifying 
+                        ? { times: [0, 0.2, 1], duration: 1, ease: "easeInOut" } 
+                        : { duration: 0.4 },
+                  }}
+                  className="text-center text-3xl font-black focus:outline-none focus:ring-1 focus:border-blue-500 shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
                 />
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="loader"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="relative flex items-center justify-center w-24 h-24"
-            >
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                className="absolute inset-0 rounded-full border border-dashed border-white/20"
-              />
-              <motion.div 
-                animate={{ rotate: -360 }}
-                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                className="absolute inset-2 rounded-full border border-blue-500/30"
-              >
-                <div className="absolute top-0 left-1/2 w-2 h-2 -ml-1 -mt-1 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]" />
               </motion.div>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 animate-pulse shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )
+          })}
+        </div>
       </div>
 
-      <AnimatePresence>
-        {!isVerifying && !hideToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 300, delay: 0.3 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-[#1A2133]/90 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center justify-between shadow-2xl"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/20 rounded-xl text-blue-400">
-                <MessageSquare className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">MESSAGE · OTP</p>
-                <p className="text-sm font-medium">4719 is your verification code.</p>
-              </div>
-            </div>
-            <button 
-              onClick={handleAutoFill}
-              className="px-4 py-1.5 bg-white text-black font-semibold text-sm rounded-full hover:bg-gray-200 transition-colors active:scale-95"
-            >
-              Fill
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.div 
+        animate={{ y: isVerifying ? -40 : 0, opacity: isVerifying ? 0.5 : 1 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+        className="w-full max-w-sm mt-8 text-center text-sm text-gray-500"
+      >
+        Mantén tu PIN seguro y no lo compartas.
+      </motion.div>
     </div>
   )
 }
