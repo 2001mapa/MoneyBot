@@ -201,7 +201,6 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
-            </div>
           </div>
 
           {/* Regla 50/30/20 */}

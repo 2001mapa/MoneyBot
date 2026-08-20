@@ -247,7 +247,6 @@ export async function POST(req: Request) {
           else cashBalance -= Number(d.balance_remaining);
         }
       });
-      });
     }
 
     // Traer metas de ahorro para proteger liquidez
