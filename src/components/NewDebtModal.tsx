@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X, ArrowRight } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 
 interface NewDebtModalProps {
   isOpen: boolean;
@@ -13,9 +13,10 @@ interface NewDebtModalProps {
 export function NewDebtModal({ isOpen, onClose, userId }: NewDebtModalProps) {
   const [personName, setPersonName] = useState('')
   const [amount, setAmount] = useState('')
-  const [debtType, setDebtType] = useState<'i_owe' | 'they_owe'>('they_owe')
+  const [debtType, setDebtType] = useState<'i_owe' | 'they_owe'>('i_owe')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
+  const supabase = createClient()
 
   if (!isOpen) return null;
 

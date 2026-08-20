@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 
 interface GoalCardProps {
   goal: any;
@@ -11,6 +11,7 @@ interface GoalCardProps {
 export function GoalCard({ goal: initialGoal, userId }: GoalCardProps) {
   const [goal, setGoal] = useState(initialGoal)
   const [loading, setLoading] = useState(false)
+  const supabase = createClient()
 
   const getProgress = (current: number, target: number) => {
     if (!target || target === 0) return 0

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 
 interface NewTransactionModalProps {
   isOpen: boolean;
@@ -18,6 +18,7 @@ export function NewTransactionModal({ isOpen, onClose, defaultType = 'expense', 
   const [method, setMethod] = useState('efectivo')
   const [category, setCategory] = useState('')
   const [loading, setLoading] = useState(false)
+  const supabase = createClient()
 
   if (!isOpen) return null;
 

@@ -13,7 +13,7 @@ export default async function PlanningPage() {
 
   const [profileRes, txRes, goalsRes] = await Promise.all([
     supabase.from('profiles').select('needs_percent, wants_percent, savings_percent, currency').eq('id', user.id).single(),
-    supabase.from('transactions').select('amount, type, categories(bucket)').eq('user_id', user.id).gte('transaction_date', startOfMonth),
+    supabase.from('transactions').select('amount, type, description, categories(bucket)').eq('user_id', user.id).gte('transaction_date', startOfMonth),
     supabase.from('savings_goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
   ])
 
@@ -160,6 +160,7 @@ export default async function PlanningPage() {
             <p className="text-xs text-muted-foreground mt-1 opacity-60">Dile a Luka: "Crea una meta para..."</p>
           </div>
         ) : (
+          goals.map(goal => (
             <GoalCard key={goal.id} goal={goal} userId={user.id} />
           ))
         )}
