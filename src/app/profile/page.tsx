@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, LogOut, User, Coins, Bot, Wallet, MessageCircle, CheckCircle, XCircle, Save, PieChart } from 'lucide-react'
+import { ArrowLeft, LogOut, User, Coins, Bot, Wallet, MessageCircle, CheckCircle, XCircle, Save, PieChart, Lock } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
+import { OTPVerification } from '@/components/OTPVerification'
 
 const CURRENCIES = [
   { value: 'COP', label: 'COP — Peso Colombiano', symbol: '$' },
@@ -38,6 +39,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [showPinSetup, setShowPinSetup] = useState(false)
   const router = useRouter()
   const supabase = createClient()
   const { setTheme, theme } = useTheme()
@@ -336,6 +338,28 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Security */}
+          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Seguridad</p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm">Bloqueo por PIN</p>
+                  <p className="text-xs text-muted-foreground">Protege tu app con código</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowPinSetup(true)}
+                className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-all"
+              >
+                {profile.pin_hash ? 'Cambiar PIN' : 'Configurar'}
+              </button>
+            </div>
+          </div>
+
           {/* Save button */}
           <button
             onClick={handleSave}
@@ -372,6 +396,35 @@ export default function ProfilePage() {
             <span>Cerrar Sesión</span>
           </button>
 
+        </div>
+      )}
+
+      {/* PIN Setup Modal */}
+      {showPinSetup && (
+        <div className="fixed inset-0 z-50 bg-[#0B0F19]">
+          <button 
+            onClick={() => setShowPinSetup(false)}
+            className="absolute top-6 left-6 z-50 p-2 glass border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <OTPVerification
+            title="Nuevo PIN"
+            subtitle="Ingresa 4 dígitos para proteger tu app"
+            hideToast={true}
+            onVerify={async (code) => {
+              const res = await fetch('/api/pin', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'setup', pin: code }),
+                headers: { 'Content-Type': 'application/json' }
+              })
+              return res.ok
+            }}
+            onSuccess={() => {
+              setShowPinSetup(false)
+              setProfile({ ...profile, pin_hash: 'set' }) // just to update UI state locally
+            }}
+          />
         </div>
       )}
 

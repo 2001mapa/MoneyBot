@@ -31,7 +31,7 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isProtected = ['/', '/stats', '/debts', '/profile'].includes(request.nextUrl.pathname)
+  const isProtected = ['/', '/stats', '/debts', '/planning', '/profile'].includes(request.nextUrl.pathname)
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone()
@@ -43,6 +43,32 @@ export async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
+  }
+
+  // App Lock PIN Logic
+  if (user && isProtected) {
+    const pinEnabled = request.cookies.get('pin_enabled')?.value === 'true'
+    const appUnlocked = request.cookies.get('app_unlocked')?.value === 'true'
+
+    if (pinEnabled && !appUnlocked) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/lock'
+      // Pass the original URL they wanted to visit
+      url.searchParams.set('redirect', request.nextUrl.pathname)
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // Prevent accessing lock screen if unlocked or no pin
+  if (user && request.nextUrl.pathname === '/lock') {
+    const pinEnabled = request.cookies.get('pin_enabled')?.value === 'true'
+    const appUnlocked = request.cookies.get('app_unlocked')?.value === 'true'
+    
+    if (!pinEnabled || appUnlocked) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

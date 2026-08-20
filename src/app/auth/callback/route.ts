@@ -65,7 +65,18 @@ export async function GET(request: Request) {
       
       await supabase.from('profiles').upsert(updateData)
 
-      return NextResponse.redirect(`${origin}${next}`)
+      // Fetch profile to see if they have a PIN set
+      const { data: profile } = await supabase.from('profiles').select('pin_hash').eq('id', user.id).single()
+      
+      const res = NextResponse.redirect(`${origin}${next}`)
+      
+      if (profile?.pin_hash) {
+        res.cookies.set('pin_enabled', 'true', { path: '/', maxAge: 60 * 60 * 24 * 365 * 10 })
+        // If they just logged in, they proved identity, so unlock the app for a session
+        res.cookies.set('app_unlocked', 'true', { path: '/', maxAge: 60 * 60 })
+      }
+
+      return res
     }
   }
 
