@@ -134,7 +134,7 @@ function TransactionsContent() {
             </div>
           ))
         ) : transactions.length === 0 ? (
-          <div className="text-center py-16 glass border border-border/50 rounded-3xl">
+          <div className="text-center py-16 glass">
             <FilterX className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-sm font-bold">No hay movimientos</p>
             <p className="text-xs text-muted-foreground mt-1 px-8">Intenta cambiando los filtros de fecha o tipo para ver más resultados.</p>

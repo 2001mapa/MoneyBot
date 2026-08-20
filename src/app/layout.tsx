@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Asistente financiero personal",
 };
 
+import { PageTransition } from '@/components/PageTransition'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,7 +35,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Providers>
           <div className="flex-1 flex flex-col relative min-h-screen">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
             <BottomNav />
           </div>
         </Providers>

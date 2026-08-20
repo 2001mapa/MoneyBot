@@ -83,8 +83,8 @@ export default function DebtsPage() {
 
       {/* Summary banner */}
       {totalTab > 0 && (
-        <div className="mx-6 mb-6 p-4 rounded-2xl glass border border-expense/25 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-expense flex-shrink-0" />
+        <div className="mx-6 mb-6 p-4 glass flex items-center gap-3">
+          <AlertCircle strokeWidth={1.5} className="w-5 h-5 text-expense flex-shrink-0" />
           <div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {tab === 'i_owe' ? 'Total que debes' : 'Total que te deben'}
@@ -96,10 +96,10 @@ export default function DebtsPage() {
 
       {/* Tabs */}
       <div className="mx-6 mb-6">
-        <div className="flex glass border border-border/40 p-1 rounded-2xl">
+        <div className="flex glass p-1">
           <button
             onClick={() => setTab('i_owe')}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${
+            className={`flex-1 min-h-[44px] text-sm font-bold rounded-xl transition-all ${
               tab === 'i_owe' ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground'
             }`}
           >
@@ -107,7 +107,7 @@ export default function DebtsPage() {
           </button>
           <button
             onClick={() => setTab('they_owe')}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${
+            className={`flex-1 min-h-[44px] text-sm font-bold rounded-xl transition-all ${
               tab === 'they_owe' ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground'
             }`}
           >
@@ -120,7 +120,7 @@ export default function DebtsPage() {
         {loading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="rounded-3xl border border-border/30 p-5 space-y-4">
+              <div key={i} className="glass p-5 space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="skeleton w-10 h-10 rounded-2xl flex-shrink-0" />
                   <div className="flex-1 space-y-2">
@@ -137,13 +137,13 @@ export default function DebtsPage() {
             ))}
           </div>
         ) : filteredDebts.length === 0 ? (
-          <div className="text-center py-16 border border-dashed border-border rounded-3xl">
+          <div className="text-center py-16 glass">
             <p className="text-3xl mb-3">🤝</p>
             <p className="text-muted-foreground text-sm font-medium">No hay deudas registradas aquí</p>
           </div>
         ) : (
           filteredDebts.map(debt => (
-            <div key={debt.id} className={`glass border rounded-3xl p-5 relative overflow-hidden transition-all ${
+            <div key={debt.id} className={`glass p-5 relative overflow-hidden transition-all ${
               debt.status === 'paid' ? 'border-border/30 opacity-60' : 'border-border/50'
             }`}>
               {debt.status === 'paid' && (
@@ -216,7 +216,7 @@ export default function DebtsPage() {
                 value={payAmount}
                 onChange={e => setPayAmount(e.target.value)}
                 placeholder={`Máx. $${Number(payModalDebt.balance_remaining).toLocaleString()}`}
-                className="w-full glass border border-border/50 rounded-2xl px-4 py-3.5 text-xl font-black focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full glass px-4 py-3.5 text-xl font-black focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <button onClick={handleAbonoSubmit} className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-2xl hover:opacity-90 transition-opacity">

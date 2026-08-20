@@ -151,7 +151,7 @@ export default function ProfilePage() {
         <div className="px-6 space-y-4">
 
           {/* User Card */}
-          <div className="glass border border-border/50 rounded-3xl p-5 flex items-center gap-4">
+          <div className="glass p-5 flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center flex-shrink-0">
               <User className="w-7 h-7 text-primary" />
             </div>
@@ -181,7 +181,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Bot Settings */}
-          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+          <div className="glass p-5 space-y-5">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Asistente</p>
 
             <div>
@@ -216,7 +216,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Regla 50/30/20 */}
-          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+          <div className="glass p-5 space-y-5">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Inteligencia Financiera</p>
             
             <div>
@@ -280,7 +280,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Preferences */}
-          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+          <div className="glass p-5 space-y-5">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Preferencias</p>
 
             {/* Currency */}
@@ -339,7 +339,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Security */}
-          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+          <div className="glass p-5 space-y-5">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Seguridad</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -445,7 +445,7 @@ export default function ProfilePage() {
       {/* Logout Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-          <div className="w-full max-w-sm glass border border-border/50 rounded-3xl p-6 space-y-5 animate-in fade-in zoom-in duration-200">
+          <div className="w-full max-w-sm glass p-6 space-y-5 animate-in fade-in zoom-in duration-200">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 bg-expense/15 rounded-full flex items-center justify-center mx-auto mb-4">
                 <LogOut className="w-6 h-6 text-expense" />

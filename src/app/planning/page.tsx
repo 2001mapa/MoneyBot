@@ -60,11 +60,11 @@ export default async function PlanningPage() {
       </header>
 
       {/* 50/30/20 Card */}
-      <div className="glass border border-border/50 rounded-3xl p-6 space-y-6 mb-8 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/5 blur-2xl" />
+      <div className="glass space-y-6 mb-8 relative overflow-hidden">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/10 blur-3xl" />
         
         <div className="relative z-10">
-          <p className="text-xs font-bold text-muted-foreground mb-1">Ingresos del Mes</p>
+          <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-widest">Ingresos del Mes</p>
           <p className="text-3xl font-black text-foreground mb-6">${totalIncome.toLocaleString()}</p>
 
           <div className="space-y-5">
@@ -73,7 +73,7 @@ export default async function PlanningPage() {
               <div className="flex justify-between items-end mb-2">
                 <div>
                   <p className="text-sm font-bold flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-primary"></span>
+                    <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]"></span>
                     Necesidades ({profile.needs_percent ?? 50}%)
                   </p>
                   <p className="text-xs text-muted-foreground font-medium mt-0.5">
@@ -84,9 +84,9 @@ export default async function PlanningPage() {
                   {needsProgress}%
                 </span>
               </div>
-              <div className="h-3 w-full bg-border/40 rounded-full overflow-hidden">
+              <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
                 <div 
-                  className={`h-full rounded-full transition-all duration-1000 ${needsProgress >= 100 ? 'bg-expense' : 'bg-primary'}`} 
+                  className={`h-full rounded-full transition-all duration-1000 ${needsProgress >= 100 ? 'bg-expense shadow-[0_0_10px_var(--expense)]' : 'bg-primary shadow-[0_0_10px_var(--primary)]'}`} 
                   style={{ width: `${needsProgress}%` }}
                 />
               </div>
@@ -97,7 +97,7 @@ export default async function PlanningPage() {
               <div className="flex justify-between items-end mb-2">
                 <div>
                   <p className="text-sm font-bold flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-expense"></span>
+                    <span className="w-2 h-2 rounded-full bg-expense shadow-[0_0_8px_var(--expense)]"></span>
                     Deseos ({profile.wants_percent ?? 30}%)
                   </p>
                   <p className="text-xs text-muted-foreground font-medium mt-0.5">
@@ -108,9 +108,9 @@ export default async function PlanningPage() {
                   {wantsProgress}%
                 </span>
               </div>
-              <div className="h-3 w-full bg-border/40 rounded-full overflow-hidden">
+              <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
                 <div 
-                  className="h-full rounded-full transition-all duration-1000 bg-expense" 
+                  className="h-full rounded-full transition-all duration-1000 bg-expense shadow-[0_0_10px_var(--expense)]" 
                   style={{ width: `${wantsProgress}%` }}
                 />
               </div>
@@ -121,20 +121,20 @@ export default async function PlanningPage() {
               <div className="flex justify-between items-end mb-2">
                 <div>
                   <p className="text-sm font-bold flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-income"></span>
+                    <span className="w-2 h-2 rounded-full bg-gold shadow-[0_0_8px_var(--gold)]"></span>
                     Ahorro ({profile.savings_percent ?? 20}%)
                   </p>
                   <p className="text-xs text-muted-foreground font-medium mt-0.5">
                     ${savingsSpent.toLocaleString()} / ${savingsTarget.toLocaleString()}
                   </p>
                 </div>
-                <span className={`text-xs font-black text-income`}>
+                <span className={`text-xs font-black text-gold`}>
                   {savingsProgress}%
                 </span>
               </div>
-              <div className="h-3 w-full bg-border/40 rounded-full overflow-hidden">
+              <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
                 <div 
-                  className="h-full rounded-full transition-all duration-1000 bg-income" 
+                  className="h-full rounded-full transition-all duration-1000 bg-gold shadow-[0_0_10px_var(--gold)]" 
                   style={{ width: `${savingsProgress}%` }}
                 />
               </div>
@@ -149,12 +149,12 @@ export default async function PlanningPage() {
           <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-1">Bolsillos</p>
           <h2 className="text-xl font-bold tracking-tight">Metas de Ahorro</h2>
         </div>
-        <Target className="w-5 h-5 text-muted-foreground" />
+        <Target strokeWidth={1.5} className="w-5 h-5 text-muted-foreground" />
       </header>
 
       <div className="grid grid-cols-1 gap-4">
         {goals.length === 0 ? (
-          <div className="text-center py-10 glass border border-border/50 rounded-3xl">
+          <div className="text-center py-10 glass">
             <p className="text-3xl mb-2">🎯</p>
             <p className="text-sm text-muted-foreground font-medium">Sin metas activas</p>
             <p className="text-xs text-muted-foreground mt-1 opacity-60">Dile a Luka: "Crea una meta para..."</p>
@@ -163,25 +163,25 @@ export default async function PlanningPage() {
           goals.map(goal => {
             const goalProgress = getProgress(Number(goal.current_amount), Number(goal.target_amount))
             return (
-              <div key={goal.id} className="glass border border-border/50 rounded-2xl p-5 hover:border-income/50 transition-all group">
+              <div key={goal.id} className="glass p-5 hover:border-gold/50 transition-all group">
                 <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl bg-income/10 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl bg-gold/10 flex-shrink-0 group-hover:scale-110 transition-transform">
                     {goal.icon || '🎯'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-base truncate">{goal.name}</p>
+                    <p className="font-bold text-base truncate text-slate-200">{goal.name}</p>
                     <p className="text-xs font-semibold text-muted-foreground mt-0.5">
                       Faltan ${(Number(goal.target_amount) - Number(goal.current_amount)).toLocaleString()}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black text-income text-lg">{goalProgress}%</p>
+                    <p className="font-black text-gold text-lg">{goalProgress}%</p>
                   </div>
                 </div>
                 
                 <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
                   <div 
-                    className="h-full rounded-full transition-all duration-1000 bg-income" 
+                    className="h-full rounded-full transition-all duration-1000 bg-gold shadow-[0_0_8px_var(--gold)]" 
                     style={{ width: `${goalProgress}%` }}
                   />
                 </div>

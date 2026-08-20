@@ -36,7 +36,7 @@ export function BottomNav() {
                   {isActive && (
                     <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-primary" />
                   )}
-                  <Icon className={`w-5 h-5 transition-all duration-200 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+                  <Icon strokeWidth={1.5} className={`w-5 h-5 transition-all duration-200`} />
                   <span className={`text-[10px] font-semibold uppercase tracking-wide transition-all ${isActive ? 'opacity-100' : 'opacity-60'}`}>
                     {label}
                   </span>

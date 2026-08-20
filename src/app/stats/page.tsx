@@ -87,12 +87,12 @@ export default function StatsPage() {
       {loading ? (
         <div className="px-6 space-y-5">
           {/* Summary card */}
-          <div className="rounded-3xl border border-border/30 p-5 space-y-2">
+          <div className="glass p-5 space-y-2">
             <div className="skeleton h-3 w-32" />
             <div className="skeleton h-9 w-48" />
           </div>
           {/* Donut chart card */}
-          <div className="rounded-3xl border border-border/30 p-6">
+          <div className="glass p-6">
             <div className="skeleton h-3 w-40 mb-5" />
             <div className="skeleton rounded-full w-40 h-40 mx-auto mb-6" style={{ borderRadius: '50%' }} />
             <div className="grid grid-cols-2 gap-2">
@@ -106,7 +106,7 @@ export default function StatsPage() {
             </div>
           </div>
           {/* Bar chart card */}
-          <div className="rounded-3xl border border-border/30 p-6">
+          <div className="glass p-6">
             <div className="skeleton h-3 w-44 mb-5" />
             <div className="flex items-end gap-3 h-44 px-2">
               {[65, 40, 90, 30, 75, 55].map((h, i) => (
@@ -116,7 +116,7 @@ export default function StatsPage() {
           </div>
         </div>
       ) : data.length === 0 ? (
-        <div className="mx-6 text-center py-16 border border-dashed border-border rounded-3xl">
+        <div className="mx-6 text-center py-16 glass">
           <p className="text-3xl mb-3">📊</p>
           <p className="text-muted-foreground text-sm font-medium">Sin datos suficientes aún</p>
           <p className="text-xs text-muted-foreground mt-1">Registra gastos con Luka para ver tus estadísticas</p>
@@ -125,41 +125,36 @@ export default function StatsPage() {
         <div className="px-6 space-y-5">
 
           {/* Total summary */}
-          <div className="glass border border-border/50 rounded-3xl p-5">
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Total gastado (top categorías)</p>
-            <p className="text-3xl font-black">${totalGastos.toLocaleString()}</p>
+          <div className="glass p-5">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 text-slate-400">Total gastado (top categorías)</p>
+            <p className="text-3xl font-black text-slate-200">${totalGastos.toLocaleString()}</p>
           </div>
 
-          {/* Donut Chart */}
-          <div className="glass border border-border/50 rounded-3xl p-6">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Distribución de gastos</h3>
-            <div className="h-56 w-full">
+          {/* Donut Chart - Gastos */}
+          <div className="glass p-5">
+            <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-4">Distribución Mensual</h2>
+            
+            <div className="h-44 w-full mb-4">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={data}
                     cx="50%"
                     cy="50%"
-                    innerRadius={56}
+                    innerRadius={60}
                     outerRadius={80}
-                    paddingAngle={4}
+                    paddingAngle={5}
                     dataKey="value"
-                    strokeWidth={0}
+                    stroke="none"
                   >
-                    {data.map((_, index) => (
+                    {data.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Gasto']}
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: '1px solid var(--border)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                      backgroundColor: 'var(--card)',
-                      color: 'var(--foreground)',
-                      fontSize: '12px'
-                    }}
+                  <Tooltip 
+                    formatter={(value: any) => `$${Number(value).toLocaleString()}`}
+                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderRadius: '12px', border: 'none', color: '#f1f5f9', fontWeight: 'bold' }}
+                    itemStyle={{ color: '#f1f5f9' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -177,7 +172,7 @@ export default function StatsPage() {
           </div>
 
           {/* Bar Chart */}
-          <div className="glass border border-border/50 rounded-3xl p-6">
+          <div className="glass p-6">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Comparativa por categoría</h3>
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
