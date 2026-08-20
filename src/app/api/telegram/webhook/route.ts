@@ -50,7 +50,7 @@ const actionSchema: Schema = {
       type: SchemaType.STRING,
       description: "Tipo de intención detectada en el mensaje.",
       format: "enum",
-      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "savings_create", "savings_deposit", "transfer", "query", "delete_last", "delete_all", "none"]
+      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "savings_create", "savings_deposit", "savings_delete", "transfer", "query", "delete_last", "delete_all", "none"]
     },
     is_complete: { 
       type: SchemaType.BOOLEAN, 
@@ -58,7 +58,7 @@ const actionSchema: Schema = {
     },
     goal_name: {
       type: SchemaType.STRING,
-      description: "Nombre de la meta de ahorro (solo para savings_create o savings_deposit)."
+      description: "Nombre de la meta de ahorro (solo para savings_create, savings_deposit o savings_delete)."
     },
     amount: { 
       type: SchemaType.NUMBER, 
@@ -532,6 +532,37 @@ ${chatHistory}`;
 
       } else {
         console.warn('Meta de ahorro no encontrada para depositar.')
+      }
+    }
+
+    // CASO I: Eliminar Meta de Ahorro
+    else if (parsedData.action_type === 'savings_delete' && parsedData.is_complete) {
+      const { data: searchGoals } = await supabaseAdmin
+        .from('savings_goals')
+        .select('*')
+        .eq('user_id', profile.id)
+        .ilike('name', `%${parsedData.goal_name || ''}%`)
+        .limit(1)
+
+      if (searchGoals && searchGoals.length > 0) {
+        const goal = searchGoals[0]
+        
+        // 1. Eliminar la meta
+        await supabaseAdmin.from('savings_goals').delete().eq('id', goal.id)
+
+        // 2. Si tenía dinero, devolverlo a la liquidez creando un ingreso espejo
+        if (Number(goal.current_amount) > 0) {
+          await supabaseAdmin.from('transactions').insert({
+            user_id: profile.id,
+            amount: Number(goal.current_amount),
+            type: 'income',
+            description: `Retorno por meta eliminada: ${goal.name}`,
+            payment_method: 'transferencia',
+            transaction_date: new Date().toISOString()
+          })
+        }
+      } else {
+        console.warn('Meta de ahorro no encontrada para eliminar.')
       }
     }
 
