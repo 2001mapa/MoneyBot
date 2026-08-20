@@ -32,7 +32,18 @@ export default async function PlanningPage() {
       totalIncome += Number(tx.amount)
     } else if (tx.type === 'expense') {
       const cat = Array.isArray(tx.categories) ? tx.categories[0] : tx.categories
-      const bucket = cat?.bucket || 'needs'
+      let bucket = cat?.bucket
+      
+      // Inferir bucket para transacciones espejo (que no tienen category_id)
+      if (!bucket) {
+        const desc = tx.description?.toLowerCase() || ''
+        if (desc.includes('ahorro en meta') || desc.includes('préstamo')) {
+          bucket = 'savings' // Ahorros y préstamos son del 20%
+        } else {
+          bucket = 'needs' // Abono a deudas o gastos sin categoría son del 50%
+        }
+      }
+
       if (bucket === 'needs') needsSpent += Number(tx.amount)
       else if (bucket === 'wants') wantsSpent += Number(tx.amount)
       else if (bucket === 'savings') savingsSpent += Number(tx.amount)

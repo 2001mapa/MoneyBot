@@ -225,11 +225,14 @@ export async function POST(req: Request) {
       });
     }
 
-    // El patrimonio (Asset Value) es la liquidez (balanceTotal) + lo que te deben (activo) - lo que debes (pasivo)
-    const patrimonio = balanceTotal + meDebenTotal - deboTotal;
+    // El patrimonio (Asset Value) es la suma de: 
+    // Liquidez (balanceTotal) + Ahorros guardados (totalSavings) + Lo que te deben (meDebenTotal) - Lo que debes (deboTotal)
+    // Nota: Las metas de ahorro y préstamos se restaron de balanceTotal vía transacciones espejo, así que debemos sumarlas aquí para no desaparecerlas del patrimonio.
+    const patrimonio = balanceTotal + totalSavings + meDebenTotal - deboTotal;
     
     // La liquidez disponible (Lo que de verdad puede gastar de su bolsillo)
-    const availableLiquidity = balanceTotal - totalSavings;
+    // Como los ahorros ya son una "transacción de gasto", el balanceTotal ES la liquidez real.
+    const availableLiquidity = balanceTotal;
 
     const budgetLimit = Number(profile.monthly_budget) || 0;
     const budgetRemaining = budgetLimit > 0 ? budgetLimit - gastosMes : 0;
