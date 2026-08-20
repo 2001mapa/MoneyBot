@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, LogOut, User, Coins, Bot, Wallet, MessageCircle, CheckCircle, XCircle, Save } from 'lucide-react'
+import { ArrowLeft, LogOut, User, Coins, Bot, Wallet, MessageCircle, CheckCircle, XCircle, Save, PieChart } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
@@ -199,6 +199,71 @@ export default function ProfilePage() {
                   onChange={e => setProfile({ ...profile, monthly_budget: Number(e.target.value) })}
                   className="w-full glass border border-border/50 rounded-2xl pl-8 pr-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
+              </div>
+            </div>
+            </div>
+          </div>
+
+          {/* Regla 50/30/20 */}
+          <div className="glass border border-border/50 rounded-3xl p-5 space-y-5">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Inteligencia Financiera</p>
+            
+            <div>
+              <label className="flex justify-between items-center text-xs font-semibold text-muted-foreground mb-4">
+                <span className="flex items-center gap-2">
+                  <PieChart className="w-3.5 h-3.5" />
+                  Regla de Distribución
+                </span>
+                <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                  (profile.needs_percent ?? 50) + (profile.wants_percent ?? 30) + (profile.savings_percent ?? 20) === 100 
+                  ? 'bg-income/20 text-income' : 'bg-expense/20 text-expense'
+                }`}>
+                  Total: {(profile.needs_percent ?? 50) + (profile.wants_percent ?? 30) + (profile.savings_percent ?? 20)}%
+                </span>
+              </label>
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs mb-1 font-medium">
+                    <span>Necesidades</span>
+                    <span className="font-bold">{profile.needs_percent ?? 50}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0" max="100"
+                    value={profile.needs_percent ?? 50}
+                    onChange={e => setProfile({ ...profile, needs_percent: Number(e.target.value) })}
+                    className="w-full accent-primary"
+                  />
+                </div>
+                
+                <div>
+                  <div className="flex justify-between text-xs mb-1 font-medium">
+                    <span>Deseos</span>
+                    <span className="font-bold">{profile.wants_percent ?? 30}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0" max="100"
+                    value={profile.wants_percent ?? 30}
+                    onChange={e => setProfile({ ...profile, wants_percent: Number(e.target.value) })}
+                    className="w-full accent-expense"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs mb-1 font-medium">
+                    <span>Ahorro / Metas</span>
+                    <span className="font-bold">{profile.savings_percent ?? 20}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0" max="100"
+                    value={profile.savings_percent ?? 20}
+                    onChange={e => setProfile({ ...profile, savings_percent: Number(e.target.value) })}
+                    className="w-full accent-income"
+                  />
+                </div>
               </div>
             </div>
           </div>

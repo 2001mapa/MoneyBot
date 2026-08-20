@@ -11,11 +11,12 @@ export default async function Home() {
   }
 
   // Ejecutar queries pesadas en paralelo (Performance fix - Arch Agent)
-  const [profileRes, transactionsRes, allTxRes, allDebtsRes] = await Promise.all([
+  const [profileRes, transactionsRes, allTxRes, allDebtsRes, savingsRes] = await Promise.all([
     supabase.from('profiles').select('full_name, currency').eq('id', user.id).single(),
     supabase.from('transactions').select('*, categories(name, icon, color)').eq('user_id', user.id).order('transaction_date', { ascending: false }).limit(10),
     supabase.from('transactions').select('amount, type, transaction_date, created_at, payment_method').eq('user_id', user.id),
-    supabase.from('debts').select('debt_type, balance_remaining, status, payment_method').eq('user_id', user.id).neq('status', 'paid')
+    supabase.from('debts').select('debt_type, balance_remaining, status, payment_method').eq('user_id', user.id).neq('status', 'paid'),
+    supabase.from('savings_goals').select('current_amount').eq('user_id', user.id)
   ]);
 
   let profile = { full_name: 'Usuario', currency: 'COP' }
@@ -80,7 +81,15 @@ export default async function Home() {
     })
   }
 
-  const isPositive = totalBalance >= 0
+  let totalSavings = 0
+  if (savingsRes.data) {
+    savingsRes.data.forEach(goal => {
+      totalSavings += Number(goal.current_amount)
+    })
+  }
+
+  const availableLiquidity = totalBalance - totalSavings
+  const isPositive = availableLiquidity >= 0
 
   return (
     <main className="flex-1 pb-28 max-w-lg mx-auto w-full">
@@ -103,9 +112,15 @@ export default async function Home() {
             <Wallet className="w-28 h-28 text-primary-foreground" />
           </div>
           <div className="relative z-10">
-            <p className="text-primary-foreground/60 font-semibold text-xs uppercase tracking-widest mb-3">Balance Total</p>
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-primary-foreground/70 font-semibold text-xs uppercase tracking-widest">Liquidez Disponible</p>
+              <div className="text-right">
+                <p className="text-primary-foreground/50 text-[10px] font-bold uppercase tracking-widest">Patrimonio Total</p>
+                <p className="text-primary-foreground/80 font-bold text-xs">${totalBalance.toLocaleString()}</p>
+              </div>
+            </div>
             <p className="text-4xl font-black tracking-tight leading-none text-primary-foreground">
-              {isPositive ? '+' : ''}<span className="text-5xl">${Math.abs(totalBalance).toLocaleString()}</span>
+              {isPositive ? '+' : ''}<span className="text-5xl">${Math.abs(availableLiquidity).toLocaleString()}</span>
             </p>
             
             {/* Breakdown */}

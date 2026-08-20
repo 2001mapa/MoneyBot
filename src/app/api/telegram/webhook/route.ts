@@ -50,11 +50,15 @@ const actionSchema: Schema = {
       type: SchemaType.STRING,
       description: "Tipo de intención detectada en el mensaje.",
       format: "enum",
-      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "query", "delete_last", "delete_all", "none"]
+      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "savings_create", "savings_deposit", "query", "delete_last", "delete_all", "none"]
     },
     is_complete: { 
       type: SchemaType.BOOLEAN, 
       description: "CRÍTICO: True SOLO si tienes TODOS los datos (monto, tipo, método de pago, descripción) y vas a registrarlo YA. False si te falta algún dato y vas a preguntarlo en response_to_user. NUNCA pongas True si vas a preguntar o pedir confirmación de algo." 
+    },
+    goal_name: {
+      type: SchemaType.STRING,
+      description: "Nombre de la meta de ahorro (solo para savings_create o savings_deposit)."
     },
     amount: { 
       type: SchemaType.NUMBER, 
@@ -69,6 +73,12 @@ const actionSchema: Schema = {
     category_name: { 
       type: SchemaType.STRING, 
       description: "Nombre de la categoría (ej. Comida, Transporte, Salario). Usa las categorías existentes si aplican." 
+    },
+    category_bucket: {
+      type: SchemaType.STRING,
+      description: "Si estás infiriendo una NUEVA categoría, asigna a qué grupo de la regla 50/30/20 pertenece: 'needs' (Necesidades: Arriendo, Comida, Transporte), 'wants' (Deseos: Cine, Salidas, Lujos), o 'savings' (Ahorro/Inversiones). Por defecto 'needs'.",
+      format: "enum",
+      enum: ["needs", "wants", "savings"]
     },
     category_icon: {
       type: SchemaType.STRING,
@@ -237,10 +247,29 @@ export async function POST(req: Request) {
           else cashBalance -= Number(d.balance_remaining);
         }
       });
+      });
     }
 
-    // El balance real en el bolsillo es: lo que me ingresó - lo que gasté + lo que me prestaron - lo que presté
+    // Traer metas de ahorro para proteger liquidez
+    const { data: allSavings } = await supabaseAdmin
+      .from('savings_goals')
+      .select('name, current_amount, target_amount')
+      .eq('user_id', profile.id)
+
+    let totalSavings = 0;
+    const savingsList: string[] = [];
+    if (allSavings) {
+      allSavings.forEach(s => {
+        totalSavings += Number(s.current_amount);
+        savingsList.push(`- ${s.name}: $${s.current_amount} / $${s.target_amount}`);
+      });
+    }
+
+    // El balance patrimonial (Total)
     balanceTotal = balanceTotal + deboTotal - meDebenTotal;
+    
+    // La liquidez disponible (Lo que de verdad puede gastar)
+    const availableLiquidity = balanceTotal - totalSavings;
 
     const budgetLimit = Number(profile.monthly_budget) || 0;
     const budgetRemaining = budgetLimit > 0 ? budgetLimit - gastosMes : 0;
@@ -295,24 +324,29 @@ REGLA ORO: is_complete = false -> Preguntas. is_complete = true -> Confirmas reg
 
 CONTEXTO FINANCIERO ACTUAL DEL USUARIO:
 - Fecha y Hora Actual: ${currentDate}
-- Liquidez Real en Bolsillo (Saldo Total): $${balanceTotal.toLocaleString('es-CO')} ${profile.currency}. (Éste es el dinero FÍSICO/REAL que tiene el usuario en sus manos ahora mismo).
-- Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible en Presupuesto: $${budgetRemaining.toLocaleString('es-CO')}).
-- Deudas Totales: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
-- Lista de Deudas Activas (¡ÚSALAS PARA INFERIR EL NOMBRE DE LA PERSONA CUANDO HAGAN ABONOS!): 
-  ${activeDebtsList.length > 0 ? activeDebtsList.join('\n  ') : 'Ninguna'}
-- Categorías Existentes (Si aplica, usa una de estas en lugar de inventar nuevas):
+- Patrimonio Total (Bancos + Efectivo + Lo que le deben - Lo que debe): $${balanceTotal.toLocaleString('es-CO')}
+- Liquidez Disponible para Gastar (Patrimonio - Ahorros bloqueados en metas): $${availableLiquidity.toLocaleString('es-CO')}
+- Presupuesto mensual: $${budgetLimit.toLocaleString('es-CO')} (Gastado: $${gastosMes.toLocaleString('es-CO')}, Disponible: $${budgetRemaining.toLocaleString('es-CO')}).
+- Metas de Ahorro Activas (Bolsillos):
+  ${savingsList.length > 0 ? savingsList.join('\n  ') : 'Ninguna'}
+- Deudas Activas: Debes $${deboTotal.toLocaleString('es-CO')}. Te deben $${meDebenTotal.toLocaleString('es-CO')}.
+  ${activeDebtsList.length > 0 ? activeDebtsList.join('\n  ') : 'Ninguna deuda activa'}
+- Categorías Existentes:
   ${catList}
 
-HISTORIAL DE MOVIMIENTOS RECIENTES (Úsalo para responder consultas precisas sobre en qué gastó, fechas, o últimos abonos):
+HISTORIAL DE MOVIMIENTOS RECIENTES:
 ${recentTxList.join('\n') || 'Ninguno'}
 
-REGLA SOBRE DINERO DISPONIBLE Y MÉTODOS DE PAGO:
-Si el usuario pregunta "¿Cuánto tengo?", "¿Cuál es mi saldo?", "¿Cuánto dinero tengo en bancos?" o similar, debes responder con su "Liquidez Real Total" ($${balanceTotal.toLocaleString('es-CO')}).
-Desglósalo SIEMPRE de la siguiente manera:
-- 🏦 En Banco (Tarjetas y transferencias): $${bankBalance.toLocaleString('es-CO')}
-- 💵 En Efectivo (Billetes físicos): $${cashBalance.toLocaleString('es-CO')}
+REGLA SOBRE DINERO Y METAS DE AHORRO:
+- "Liquidez Disponible" es el dinero real que el usuario puede gastar ($${availableLiquidity.toLocaleString('es-CO')}). Nunca incluyas el dinero bloqueado en "Metas de Ahorro".
+- Si el usuario pregunta "¿Cuánto tengo?", responde con la Liquidez Disponible, pero recuérdale que tiene $${totalSavings.toLocaleString('es-CO')} protegidos en sus metas.
+Desglósalo de la siguiente manera:
+- 🏦 En Banco: $${bankBalance.toLocaleString('es-CO')}
+- 💵 En Efectivo: $${cashBalance.toLocaleString('es-CO')}
+- 🎯 Protegido en Metas: $${totalSavings.toLocaleString('es-CO')}
 
-Si el "Disponible en Presupuesto" es MAYOR a la "Liquidez Real Total", ADVIÉRTELE: "Tu presupuesto te permite gastar $${budgetRemaining.toLocaleString('es-CO')}, PERO ten cuidado, tu liquidez real sumando cuentas y efectivo es solo $${balanceTotal.toLocaleString('es-CO')}".
+Si pide "crear una meta", action_type="savings_create" (ej. "Quiero ahorrar para un carro, meta 50000").
+Si pide "apartar/depositar dinero a una meta" o "sacar dinero de una meta", action_type="savings_deposit" (ej. "Mete 50 al carro". Usa amount negativo para retirar: "Saca 20 del carro").
 
 HISTORIAL DE CHAT RECIENTE:
 ${chatHistory}`;
@@ -376,7 +410,7 @@ ${chatHistory}`;
           categoryId = cat.id
         } else {
           const { data: newCat } = await supabaseAdmin.from('categories').insert({
-            user_id: profile.id, name: parsedData.category_name, type: parsedData.transaction_type, icon: parsedData.category_icon || '🏷️'
+            user_id: profile.id, name: parsedData.category_name, type: parsedData.transaction_type, icon: parsedData.category_icon || '🏷️', bucket: parsedData.category_bucket || 'needs'
           }).select('id').single()
           if (newCat) categoryId = newCat.id
         }
@@ -440,6 +474,39 @@ ${chatHistory}`;
       await supabaseAdmin.from('profiles').update({
         monthly_budget: parsedData.amount
       }).eq('id', profile.id)
+    }
+
+    // CASO G: Crear Meta de Ahorro
+    else if (parsedData.action_type === 'savings_create' && parsedData.is_complete) {
+      await supabaseAdmin.from('savings_goals').insert({
+        user_id: profile.id,
+        name: parsedData.goal_name || 'Nueva Meta',
+        target_amount: parsedData.amount,
+        icon: parsedData.category_icon || '🎯'
+      })
+    }
+
+    // CASO H: Depositar o Retirar de Meta
+    else if (parsedData.action_type === 'savings_deposit' && parsedData.is_complete) {
+      // Find the specific goal by name (case insensitive, partial match)
+      const { data: searchGoals } = await supabaseAdmin
+        .from('savings_goals')
+        .select('*')
+        .eq('user_id', profile.id)
+        .ilike('name', `%${parsedData.goal_name || ''}%`)
+        .limit(1)
+
+      if (searchGoals && searchGoals.length > 0) {
+        const goal = searchGoals[0]
+        const newAmount = Number(goal.current_amount) + Number(parsedData.amount)
+        await supabaseAdmin.from('savings_goals').update({
+          current_amount: newAmount < 0 ? 0 : newAmount
+        }).eq('id', goal.id)
+      } else {
+        // If not found, create a new transaction instead or respond? 
+        // We'll let the bot's text response handle the confirmation, but we shouldn't crash.
+        console.warn('Meta de ahorro no encontrada para depositar.')
+      }
     }
 
     // 6. Guardar la conversación en la memoria Redis
