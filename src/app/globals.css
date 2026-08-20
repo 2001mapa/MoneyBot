@@ -269,6 +269,49 @@ body {
   font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter'), sans-serif;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.4s ease, color 0.3s ease;
+  position: relative;
+}
+
+/* Subtle Animated Gradient Background using Theme Colors */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  width: 75vw;
+  height: 75vw;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* Organic morphing shape */
+  filter: blur(90px);
+  z-index: -1;
+  pointer-events: none;
+  animation: floatBlobs 25s infinite alternate ease-in-out;
+  opacity: 0.15;
+}
+
+body::before {
+  background: var(--primary);
+  top: -20%;
+  left: -20%;
+}
+
+body::after {
+  background: var(--bg-card-dark);
+  bottom: -20%;
+  right: -20%;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation-duration: 30s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes floatBlobs {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33% { transform: translate(25vw, 15vh) scale(1.1) rotate(90deg); }
+  66% { transform: translate(-15vw, 30vh) scale(0.9) rotate(180deg); }
+  100% { transform: translate(10vw, -5vh) scale(1.2) rotate(270deg); }
+}
+
+@media (prefers-color-scheme: dark) {
+  body::before, body::after {
+    opacity: 0.08; /* Softer to avoid washing out deep dark modes */
+  }
 }
 
 /* =========================================

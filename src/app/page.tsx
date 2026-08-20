@@ -17,7 +17,7 @@ export default async function Home() {
   ])
 
   let profile = { 
-    full_name: 'Usuario', 
+    full_name: '', 
     currency: 'COP', 
     monthly_budget: 0, 
     needs_percent: 50, 
@@ -25,6 +25,8 @@ export default async function Home() {
     savings_percent: 20 
   }
   if (profileRes.data) profile = { ...profile, ...profileRes.data }
+
+  const fallbackName = profile.full_name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario'
 
   const transactions = transactionsRes.data || []
 
@@ -102,13 +104,13 @@ export default async function Home() {
             Panel Financiero
           </p>
           <h1 className="text-2xl font-black tracking-tight">
-            Hola, {profile.full_name?.split(' ')[0] || 'Usuario'} 👋
+            Hola, {fallbackName.split(' ')[0]} 👋
           </h1>
         </div>
         {/* Avatar Profile Link */}
         <Link href="/profile" className="w-12 h-12 rounded-full border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
           <div className="w-full h-full flex items-center justify-center font-bold text-sm bg-primary/10 text-primary">
-            {profile.full_name?.charAt(0).toUpperCase() || 'U'}
+            {fallbackName.charAt(0).toUpperCase()}
           </div>
         </Link>
       </header>
