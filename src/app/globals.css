@@ -24,6 +24,8 @@
    BASE: LIGHT
    ========================================= */
 :root {
+  --neu-light: rgba(255, 255, 255, 0.9);
+  --neu-dark: rgba(163, 177, 198, 0.4);
   --background: #f2f2f7;
   --foreground: #1c1c1e;
   --card: rgba(255, 255, 255, 0.75);
@@ -45,6 +47,8 @@
    DARK (iOS Dark Mode)
    ========================================= */
 .dark {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #000000;
   --foreground: #f5f5f7;
   --card: rgba(28, 28, 30, 0.75);
@@ -66,6 +70,8 @@
    LUXURY GOLD (Dark opulence)
    ========================================= */
 .luxury_gold {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #080605;
   --foreground: #fdf6e3;
   --card: rgba(20, 15, 5, 0.75);
@@ -87,6 +93,8 @@
    EMERALD (Nature/Money)
    ========================================= */
 .emerald {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #011a12;
   --foreground: #ecfdf5;
   --card: rgba(4, 40, 25, 0.75);
@@ -108,6 +116,8 @@
    CYBERPUNK (Neon city)
    ========================================= */
 .cyberpunk {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #030303;
   --foreground: #f0f0f0;
   --card: rgba(12, 12, 12, 0.75);
@@ -129,6 +139,8 @@
    RETRO PIXEL (Synthwave)
    ========================================= */
 .retro_pixel {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #0d0b1e;
   --foreground: #e8e0ff;
   --card: rgba(22, 18, 45, 0.75);
@@ -151,6 +163,8 @@
    SOFT PASTEL (Warm & feminine)
    ========================================= */
 .soft_pastel {
+  --neu-light: rgba(255, 255, 255, 0.9);
+  --neu-dark: rgba(163, 177, 198, 0.4);
   --background: #fdf6f0;
   --foreground: #2d1f1a;
   --card: rgba(255, 255, 255, 0.78);
@@ -172,6 +186,8 @@
    OCEAN (Deep sea)
    ========================================= */
 .ocean {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #020b18;
   --foreground: #e0f4ff;
   --card: rgba(2, 20, 45, 0.75);
@@ -193,6 +209,8 @@
    ROSE GOLD (Warm metallic)
    ========================================= */
 .rose_gold {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #100808;
   --foreground: #ffe8e8;
   --card: rgba(28, 12, 12, 0.75);
@@ -214,6 +232,8 @@
    NORD (Arctic cool)
    ========================================= */
 .nord {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #1a1f2e;
   --foreground: #d8dee9;
   --card: rgba(30, 36, 52, 0.75);
@@ -235,6 +255,8 @@
    SUNSET (Warm dusk)
    ========================================= */
 .sunset {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #100a05;
   --foreground: #fff1e6;
   --card: rgba(28, 16, 8, 0.75);
@@ -256,6 +278,8 @@
    MATRIX (Terminal green)
    ========================================= */
 .matrix {
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.8);
   --background: #000000;
   --foreground: #00ff41;
   --card: rgba(0, 18, 2, 0.75);
@@ -306,22 +330,25 @@ body {
 }
 
 /* =========================================
-   GLASS UTILITY CLASS (iOS Material)
+   NEUMORPHISM UTILITY CLASS (Soft UI)
    ========================================= */
 .glass {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 1.5rem; /* rounded-3xl approx */
-  transition: all 0.3s ease;
+  background: var(--background);
+  border: none;
+  box-shadow: 6px 6px 14px var(--neu-dark), -6px -6px 14px var(--neu-light);
+  border-radius: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass:active {
+  box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
+  transform: translateY(1px);
 }
 
 .glass-nav {
-  background: var(--nav-bg);
-  border-top: 1px solid var(--glass-border);
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  background: var(--background);
+  box-shadow: 0 -8px 20px var(--neu-dark), 0 -2px 6px var(--neu-light);
+  border-top: none;
 }
 
 /* Matrix scanline overlay */
