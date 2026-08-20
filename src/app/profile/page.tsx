@@ -351,12 +351,26 @@ export default function ProfilePage() {
                   <p className="text-xs text-muted-foreground">Protege tu app con código</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setShowPinSetup(true)}
-                className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-all"
-              >
-                {profile.pin_hash ? 'Cambiar PIN' : 'Configurar'}
-              </button>
+              <div className="flex gap-2">
+                {profile.pin_hash && (
+                  <button 
+                    onClick={async () => {
+                      await fetch('/api/pin/lock', { method: 'POST' })
+                      router.push('/lock')
+                      router.refresh()
+                    }}
+                    className="px-4 py-2 border border-border/50 text-muted-foreground text-xs font-bold rounded-lg hover:bg-white/5 transition-all"
+                  >
+                    Bloquear Ahora
+                  </button>
+                )}
+                <button 
+                  onClick={() => setShowPinSetup(true)}
+                  className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-all"
+                >
+                  {profile.pin_hash ? 'Cambiar PIN' : 'Configurar'}
+                </button>
+              </div>
             </div>
           </div>
 
