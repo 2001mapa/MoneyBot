@@ -18,18 +18,13 @@ const CURRENCIES = [
 ]
 
 const THEMES = [
-  { value: 'dark',        label: 'Dark',      swatch: '#0a84ff' },
-  { value: 'light',       label: 'Light',     swatch: '#007aff' },
-  { value: 'luxury_gold', label: 'Gold',      swatch: '#c9a84c' },
-  { value: 'emerald',     label: 'Emerald',   swatch: '#10b981' },
-  { value: 'cyberpunk',   label: 'Cyberpunk', swatch: '#f9e11e' },
-  { value: 'retro_pixel', label: 'Synthwave', swatch: '#bf5fff' },
-  { value: 'soft_pastel', label: 'Pastel',    swatch: '#e879a0' },
-  { value: 'ocean',       label: 'Ocean',     swatch: '#38bdf8' },
-  { value: 'rose_gold',   label: 'Rose Gold', swatch: '#e8818a' },
-  { value: 'nord',        label: 'Nord',      swatch: '#88c0d0' },
-  { value: 'sunset',      label: 'Sunset',    swatch: '#f97316' },
-  { value: 'matrix',      label: 'Matrix',    swatch: '#00ff41' },
+  { value: 'midnight', label: 'Midnight', swatch: '#3B82F6' },
+  { value: 'carbon',   label: 'Carbon',   swatch: '#A3E635' },
+  { value: 'forest',   label: 'Forest',   swatch: '#A7F3D0' },
+  { value: 'rosewood', label: 'Rosewood', swatch: '#F3D5D8' },
+  { value: 'coastal',  label: 'Coastal',  swatch: '#FF7F50' },
+  { value: 'velvet',   label: 'Velvet',   swatch: '#C4B5FD' },
+  { value: 'desert',   label: 'Desert',   swatch: '#EAB308' },
 ]
 
 export default function ProfilePage() {

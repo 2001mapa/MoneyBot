@@ -21,317 +21,179 @@
 }
 
 /* =========================================
-   BASE: LIGHT (iOS)
-   Paleta: Azul Apple + Gris perla
-   Neumorfismo: Sombra gris-azulada + luz blanca
+   1. MIDNIGHT
+   Navy (#0F172A) · Electric Blue (#3B82F6) · White (#FFFFFF)
+   Neumorfismo: sombra azul-noche + brillo azul eléctrico
    ========================================= */
-:root {
-  --background: #e8ecf0;
-  --foreground: #1c1c1e;
-  --card: #e8ecf0;
-  --card-foreground: #1c1c1e;
-  --card-elevated: #f0f3f7;
-  --primary: #007aff;
-  --primary-foreground: #ffffff;
-  --muted: rgba(116, 116, 128, 0.12);
-  --muted-foreground: #6c6c70;
-  --border: rgba(60, 60, 67, 0.12);
-  --income: #30d158;
-  --expense: #ff3b30;
-  --glass-bg: rgba(232, 236, 240, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.9);
-  --nav-bg: rgba(232, 236, 240, 0.9);
-  /* Neumorfismo: sombra azul-gris, luz blanca pura */
-  --neu-light: rgba(255, 255, 255, 0.95);
-  --neu-dark:  rgba(166, 180, 200, 0.6);
+:root,
+.midnight {
+  --background:       #131d2e;
+  --foreground:       #FFFFFF;
+  --card:             #131d2e;
+  --card-foreground:  #FFFFFF;
+  --card-elevated:    #1a2640;
+  --primary:          #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --muted:            rgba(59, 130, 246, 0.1);
+  --muted-foreground: #94a3b8;
+  --border:           rgba(59, 130, 246, 0.2);
+  --income:           #34d399;
+  --expense:          #f87171;
+  --glass-bg:         rgba(19, 29, 46, 0.85);
+  --glass-border:     rgba(59, 130, 246, 0.2);
+  --nav-bg:           rgba(10, 16, 28, 0.96);
+  --neu-light:        rgba(59, 130, 246, 0.14);
+  --neu-dark:         rgba(4, 6, 12, 0.96);
 }
 
 /* =========================================
-   DARK (iOS Dark Mode)
-   Paleta: Gris carbón + Azul eléctrico
-   Neumorfismo: Sombra negra + brillo gris-azulado
+   2. CARBON
+   Charcoal (#1F2937) · Lime (#A3E635) · Soft Gray (#F3F4F6)
+   Neumorfismo: sombra charcoal-negro + brillo lime
    ========================================= */
-.dark {
-  --background: #1c1c24;
-  --foreground: #f5f5f7;
-  --card: #1c1c24;
-  --card-foreground: #f5f5f7;
-  --card-elevated: #24242e;
-  --primary: #0a84ff;
-  --primary-foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.06);
-  --muted-foreground: #8e8e93;
-  --border: rgba(255, 255, 255, 0.08);
-  --income: #30d158;
-  --expense: #ff453a;
-  --glass-bg: rgba(28, 28, 36, 0.8);
-  --glass-border: rgba(100, 100, 130, 0.15);
-  --nav-bg: rgba(18, 18, 22, 0.92);
-  /* Neumorfismo: sombra azul-noche profunda, brillo azul-gris sutil */
-  --neu-light: rgba(55, 55, 80, 0.55);
-  --neu-dark:  rgba(8, 8, 12, 0.9);
+.carbon {
+  --background:       #1a2330;
+  --foreground:       #F3F4F6;
+  --card:             #1a2330;
+  --card-foreground:  #F3F4F6;
+  --card-elevated:    #222d3c;
+  --primary:          #A3E635;
+  --primary-foreground: #0d1a0a;
+  --muted:            rgba(163, 230, 53, 0.1);
+  --muted-foreground: #9ca3af;
+  --border:           rgba(163, 230, 53, 0.2);
+  --income:           #A3E635;
+  --expense:          #f87171;
+  --glass-bg:         rgba(26, 35, 48, 0.85);
+  --glass-border:     rgba(163, 230, 53, 0.18);
+  --nav-bg:           rgba(14, 20, 28, 0.96);
+  --neu-light:        rgba(163, 230, 53, 0.12);
+  --neu-dark:         rgba(4, 6, 8, 0.97);
 }
 
 /* =========================================
-   LUXURY GOLD (Dark opulence)
-   Paleta: Negro ónice + Dorado champagne + Ámbar cálido
-   Neumorfismo: Sombra sepia-oscura + brillo dorado
+   3. FOREST
+   Emerald (#065F46) · Mint (#A7F3D0) · Cream (#FFF8E7)
+   Neumorfismo: sombra verde-selva + brillo menta
    ========================================= */
-.luxury_gold {
-  --background: #16110a;
-  --foreground: #fdf6e3;
-  --card: #16110a;
-  --card-foreground: #fdf6e3;
-  --card-elevated: #1e1810;
-  --primary: #c9a84c;
-  --primary-foreground: #16110a;
-  --muted: rgba(201, 168, 76, 0.1);
-  --muted-foreground: #b8923a;
-  --border: rgba(201, 168, 76, 0.2);
-  --income: #d4af37;
-  --expense: #c0392b;
-  --glass-bg: rgba(22, 17, 10, 0.85);
-  --glass-border: rgba(201, 168, 76, 0.25);
-  --nav-bg: rgba(10, 8, 4, 0.95);
-  /* Neumorfismo: sombra marrón-negro vintage + brillo dorado cálido */
-  --neu-light: rgba(201, 168, 76, 0.12);
-  --neu-dark:  rgba(5, 3, 0, 0.95);
+.forest {
+  --background:       #083d2e;
+  --foreground:       #FFF8E7;
+  --card:             #083d2e;
+  --card-foreground:  #FFF8E7;
+  --card-elevated:    #0e5040;
+  --primary:          #A7F3D0;
+  --primary-foreground: #065F46;
+  --muted:            rgba(167, 243, 208, 0.1);
+  --muted-foreground: #6ee7b7;
+  --border:           rgba(167, 243, 208, 0.2);
+  --income:           #A7F3D0;
+  --expense:          #fca5a5;
+  --glass-bg:         rgba(8, 61, 46, 0.85);
+  --glass-border:     rgba(167, 243, 208, 0.2);
+  --nav-bg:           rgba(4, 24, 18, 0.96);
+  --neu-light:        rgba(167, 243, 208, 0.13);
+  --neu-dark:         rgba(0, 4, 2, 0.97);
 }
 
 /* =========================================
-   EMERALD (Nature / Money)
-   Paleta: Verde bosque profundo + Esmeralda brillante + Lima
-   Neumorfismo: Sombra verde-negra + brillo esmeralda
+   4. ROSEWOOD
+   Burgundy (#7F1D1D) · Blush (#F3D5D8) · Ivory (#FFFDF7)
+   Neumorfismo: sombra vino-negro + brillo blush-rosa
    ========================================= */
-.emerald {
-  --background: #081a0f;
-  --foreground: #dcfce7;
-  --card: #081a0f;
-  --card-foreground: #dcfce7;
-  --card-elevated: #0e2518;
-  --primary: #10b981;
-  --primary-foreground: #081a0f;
-  --muted: rgba(16, 185, 129, 0.09);
-  --muted-foreground: #4ade80;
-  --border: rgba(16, 185, 129, 0.2);
-  --income: #34d399;
-  --expense: #fb7185;
-  --glass-bg: rgba(8, 26, 15, 0.85);
-  --glass-border: rgba(16, 185, 129, 0.2);
-  --nav-bg: rgba(4, 12, 8, 0.95);
-  /* Neumorfismo: sombra verde-negra + brillo esmeralda-lima */
-  --neu-light: rgba(16, 185, 129, 0.12);
-  --neu-dark:  rgba(0, 5, 2, 0.95);
+.rosewood {
+  --background:       #551414;
+  --foreground:       #FFFDF7;
+  --card:             #551414;
+  --card-foreground:  #FFFDF7;
+  --card-elevated:    #6e1a1a;
+  --primary:          #F3D5D8;
+  --primary-foreground: #7F1D1D;
+  --muted:            rgba(243, 213, 216, 0.1);
+  --muted-foreground: #f9a8b0;
+  --border:           rgba(243, 213, 216, 0.2);
+  --income:           #86efac;
+  --expense:          #fca5a5;
+  --glass-bg:         rgba(85, 20, 20, 0.85);
+  --glass-border:     rgba(243, 213, 216, 0.2);
+  --nav-bg:           rgba(36, 6, 6, 0.96);
+  --neu-light:        rgba(243, 213, 216, 0.12);
+  --neu-dark:         rgba(8, 0, 0, 0.97);
 }
 
 /* =========================================
-   CYBERPUNK (Neon city)
-   Paleta: Negro carbono + Amarillo neón + Cyan eléctrico + Magenta
-   Neumorfismo: Sombra negro-azul neon + brillo cyan
+   5. COASTAL
+   Teal (#0F766E) · Coral (#FF7F50) · Sand (#F5E6CA)
+   Neumorfismo: sombra teal-negro + brillo coral-arena
    ========================================= */
-.cyberpunk {
-  --background: #0a0a12;
-  --foreground: #f0f0f0;
-  --card: #0a0a12;
-  --card-foreground: #f0f0f0;
-  --card-elevated: #12121e;
-  --primary: #f9e11e;
-  --primary-foreground: #0a0a12;
-  --muted: rgba(0, 180, 216, 0.08);
-  --muted-foreground: #00b4d8;
-  --border: rgba(0, 180, 216, 0.35);
-  --income: #39ff14;
-  --expense: #ff3864;
-  --glass-bg: rgba(10, 10, 18, 0.85);
-  --glass-border: rgba(0, 180, 216, 0.3);
-  --nav-bg: rgba(4, 4, 10, 0.96);
-  /* Neumorfismo: sombra azul-negro ultra oscuro + brillo cyan neón */
-  --neu-light: rgba(0, 180, 216, 0.12);
-  --neu-dark:  rgba(0, 0, 4, 0.98);
+.coastal {
+  --background:       #0a4d47;
+  --foreground:       #F5E6CA;
+  --card:             #0a4d47;
+  --card-foreground:  #F5E6CA;
+  --card-elevated:    #0e6258;
+  --primary:          #FF7F50;
+  --primary-foreground: #0F766E;
+  --muted:            rgba(255, 127, 80, 0.1);
+  --muted-foreground: #99d6d0;
+  --border:           rgba(255, 127, 80, 0.22);
+  --income:           #2dd4bf;
+  --expense:          #ff6b6b;
+  --glass-bg:         rgba(10, 77, 71, 0.85);
+  --glass-border:     rgba(255, 127, 80, 0.22);
+  --nav-bg:           rgba(4, 30, 28, 0.96);
+  --neu-light:        rgba(255, 127, 80, 0.12);
+  --neu-dark:         rgba(0, 4, 3, 0.97);
 }
 
 /* =========================================
-   RETRO PIXEL (Synthwave)
-   Paleta: Índigo oscuro + Violeta neón + Turquesa + Magenta
-   Neumorfismo: Sombra índigo-negro + brillo violeta
+   6. VELVET
+   Plum (#6D28D9) · Lavender (#C4B5FD) · Off-White (#FAF7FF)
+   Neumorfismo: sombra violeta-negro + brillo lavanda
    ========================================= */
-.retro_pixel {
-  --background: #0f0d20;
-  --foreground: #e8e0ff;
-  --card: #0f0d20;
-  --card-foreground: #e8e0ff;
-  --card-elevated: #18152e;
-  --primary: #bf5fff;
-  --primary-foreground: #0f0d20;
-  --muted: rgba(191, 95, 255, 0.09);
+.velvet {
+  --background:       #2d1260;
+  --foreground:       #FAF7FF;
+  --card:             #2d1260;
+  --card-foreground:  #FAF7FF;
+  --card-elevated:    #3a1878;
+  --primary:          #C4B5FD;
+  --primary-foreground: #2d1260;
+  --muted:            rgba(196, 181, 253, 0.1);
   --muted-foreground: #a78bfa;
-  --border: rgba(191, 95, 255, 0.22);
-  --income: #00f5d4;
-  --expense: #fe4365;
-  --glass-bg: rgba(15, 13, 32, 0.85);
-  --glass-border: rgba(191, 95, 255, 0.25);
-  --nav-bg: rgba(8, 6, 18, 0.96);
-  --font-sans: 'Courier New', Courier, monospace;
-  /* Neumorfismo: sombra violeta-negro + brillo morado-rosa */
-  --neu-light: rgba(191, 95, 255, 0.1);
-  --neu-dark:  rgba(2, 0, 8, 0.98);
+  --border:           rgba(196, 181, 253, 0.22);
+  --income:           #86efac;
+  --expense:          #f87171;
+  --glass-bg:         rgba(45, 18, 96, 0.85);
+  --glass-border:     rgba(196, 181, 253, 0.22);
+  --nav-bg:           rgba(14, 6, 36, 0.96);
+  --neu-light:        rgba(196, 181, 253, 0.14);
+  --neu-dark:         rgba(4, 0, 12, 0.97);
 }
 
 /* =========================================
-   SOFT PASTEL (Warm & feminine)
-   Paleta: Crema melocotón + Rosa chicle + Lila suave + Menta
-   Neumorfismo: Sombra rosa-beige + luz crema brillante
+   7. DESERT
+   Terracotta (#C2410C) · Mustard (#EAB308) · Cream (#FFF8E7)
+   Neumorfismo: sombra terracota-negro + brillo mostaza
    ========================================= */
-.soft_pastel {
-  --background: #f5eee8;
-  --foreground: #2d1f1a;
-  --card: #f5eee8;
-  --card-foreground: #2d1f1a;
-  --card-elevated: #fdf6f0;
-  --primary: #e879a0;
-  --primary-foreground: #ffffff;
-  --muted: rgba(232, 121, 160, 0.1);
-  --muted-foreground: #9d6b82;
-  --border: rgba(232, 121, 160, 0.2);
-  --income: #059669;
-  --expense: #e11d48;
-  --glass-bg: rgba(245, 238, 232, 0.85);
-  --glass-border: rgba(232, 121, 160, 0.3);
-  --nav-bg: rgba(245, 238, 232, 0.95);
-  /* Neumorfismo: sombra rosa-palo + luz blanca-melocotón */
-  --neu-light: rgba(255, 248, 244, 0.98);
-  --neu-dark:  rgba(180, 140, 140, 0.45);
-}
-
-/* =========================================
-   OCEAN (Deep sea)
-   Paleta: Azul abismo + Aguamarina + Cyan cielo + Coral
-   Neumorfismo: Sombra azul-negro + brillo aguamarina
-   ========================================= */
-.ocean {
-  --background: #040e1c;
-  --foreground: #cff4fc;
-  --card: #040e1c;
-  --card-foreground: #cff4fc;
-  --card-elevated: #091828;
-  --primary: #38bdf8;
-  --primary-foreground: #040e1c;
-  --muted: rgba(56, 189, 248, 0.09);
-  --muted-foreground: #67e8f9;
-  --border: rgba(56, 189, 248, 0.22);
-  --income: #22d3ee;
-  --expense: #fb7185;
-  --glass-bg: rgba(4, 14, 28, 0.85);
-  --glass-border: rgba(56, 189, 248, 0.22);
-  --nav-bg: rgba(2, 6, 14, 0.96);
-  /* Neumorfismo: sombra azul-marino + brillo aguamarina */
-  --neu-light: rgba(56, 189, 248, 0.1);
-  --neu-dark:  rgba(0, 2, 6, 0.98);
-}
-
-/* =========================================
-   ROSE GOLD (Warm metallic)
-   Paleta: Burdeos oscuro + Oro rosa + Salmón + Blanco perla
-   Neumorfismo: Sombra vino-negro + brillo oro-rosa
-   ========================================= */
-.rose_gold {
-  --background: #1a0c0c;
-  --foreground: #ffe8e8;
-  --card: #1a0c0c;
-  --card-foreground: #ffe8e8;
-  --card-elevated: #241212;
-  --primary: #e8818a;
-  --primary-foreground: #1a0c0c;
-  --muted: rgba(232, 129, 138, 0.1);
-  --muted-foreground: #e8818a;
-  --border: rgba(232, 129, 138, 0.22);
-  --income: #e8818a;
-  --expense: #fca5a5;
-  --glass-bg: rgba(26, 12, 12, 0.85);
-  --glass-border: rgba(232, 129, 138, 0.25);
-  --nav-bg: rgba(10, 4, 4, 0.96);
-  /* Neumorfismo: sombra carmesí-negro + brillo rosa-pálido */
-  --neu-light: rgba(232, 129, 138, 0.1);
-  --neu-dark:  rgba(4, 0, 0, 0.98);
-}
-
-/* =========================================
-   NORD (Arctic cool)
-   Paleta: Azul ártico + Gris pizarra + Verde polar + Rojo borrascoso
-   Neumorfismo: Sombra azul-medianoche + brillo hielo
-   ========================================= */
-.nord {
-  --background: #1e2433;
-  --foreground: #d8dee9;
-  --card: #1e2433;
-  --card-foreground: #d8dee9;
-  --card-elevated: #262e40;
-  --primary: #88c0d0;
-  --primary-foreground: #1e2433;
-  --muted: rgba(136, 192, 208, 0.09);
-  --muted-foreground: #81a1c1;
-  --border: rgba(136, 192, 208, 0.2);
-  --income: #a3be8c;
-  --expense: #bf616a;
-  --glass-bg: rgba(30, 36, 51, 0.85);
-  --glass-border: rgba(136, 192, 208, 0.18);
-  --nav-bg: rgba(14, 18, 28, 0.96);
-  /* Neumorfismo: sombra azul-ártico + brillo hielo-celeste */
-  --neu-light: rgba(136, 192, 208, 0.12);
-  --neu-dark:  rgba(6, 8, 14, 0.95);
-}
-
-/* =========================================
-   SUNSET (Warm dusk)
-   Paleta: Marrón cacao + Naranja fuego + Ámbar miel + Rojo magma
-   Neumorfismo: Sombra cacao-negro + brillo naranja-ámbar
-   ========================================= */
-.sunset {
-  --background: #180e06;
-  --foreground: #fff1e6;
-  --card: #180e06;
-  --card-foreground: #fff1e6;
-  --card-elevated: #22150a;
-  --primary: #f97316;
-  --primary-foreground: #180e06;
-  --muted: rgba(249, 115, 22, 0.09);
-  --muted-foreground: #fb923c;
-  --border: rgba(249, 115, 22, 0.22);
-  --income: #fbbf24;
-  --expense: #ef4444;
-  --glass-bg: rgba(24, 14, 6, 0.85);
-  --glass-border: rgba(249, 115, 22, 0.25);
-  --nav-bg: rgba(10, 6, 2, 0.96);
-  /* Neumorfismo: sombra cacao-negro + brillo naranja-miel */
-  --neu-light: rgba(249, 115, 22, 0.1);
-  --neu-dark:  rgba(4, 2, 0, 0.98);
-}
-
-/* =========================================
-   MATRIX (Terminal green)
-   Paleta: Negro puro + Verde terminal + Verde lima digital
-   Neumorfismo: Sombra negro absoluto + brillo verde fosfórico
-   ========================================= */
-.matrix {
-  --background: #020802;
-  --foreground: #00ff41;
-  --card: #020802;
-  --card-foreground: #00ff41;
-  --card-elevated: #071207;
-  --primary: #00ff41;
-  --primary-foreground: #000000;
-  --muted: rgba(0, 255, 65, 0.07);
-  --muted-foreground: #00cc33;
-  --border: rgba(0, 255, 65, 0.2);
-  --income: #39ff14;
-  --expense: #ff1744;
-  --glass-bg: rgba(2, 8, 2, 0.88);
-  --glass-border: rgba(0, 255, 65, 0.2);
-  --nav-bg: rgba(0, 3, 0, 0.96);
-  --font-sans: 'Courier New', Courier, monospace;
-  /* Neumorfismo: sombra negro absoluto + brillo verde neón */
-  --neu-light: rgba(0, 255, 65, 0.08);
-  --neu-dark:  rgba(0, 0, 0, 1);
+.desert {
+  --background:       #7a260a;
+  --foreground:       #FFF8E7;
+  --card:             #7a260a;
+  --card-foreground:  #FFF8E7;
+  --card-elevated:    #9a300d;
+  --primary:          #EAB308;
+  --primary-foreground: #422006;
+  --muted:            rgba(234, 179, 8, 0.1);
+  --muted-foreground: #fdba74;
+  --border:           rgba(234, 179, 8, 0.22);
+  --income:           #EAB308;
+  --expense:          #fca5a5;
+  --glass-bg:         rgba(122, 38, 10, 0.85);
+  --glass-border:     rgba(234, 179, 8, 0.22);
+  --nav-bg:           rgba(40, 10, 2, 0.96);
+  --neu-light:        rgba(234, 179, 8, 0.12);
+  --neu-dark:         rgba(6, 2, 0, 0.97);
 }
 
 /* =========================================
@@ -366,52 +228,52 @@ body {
 }
 
 /* =========================================
-   NEUMORPHISM SYSTEM (Soft UI)
-   Cada tarjeta aparece extruida del fondo
+   NEUMORPHISM SYSTEM
+   Extruido: tarjeta que sobresale del fondo
+   Hundido: campo activo / presionado
    ========================================= */
 .glass {
   background: var(--background);
   border: none;
-  box-shadow: 
+  box-shadow:
     8px 8px 18px var(--neu-dark),
     -8px -8px 18px var(--neu-light);
   border-radius: 1.5rem;
   transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
 }
 
-/* Estado interactivo: se hunde al presionar */
 .glass:active {
-  box-shadow: 
+  box-shadow:
     inset 5px 5px 10px var(--neu-dark),
     inset -5px -5px 10px var(--neu-light);
   transform: translateY(1px);
 }
 
-/* Versión pequeña para botones e items de lista */
+/* Versión pequeña para botones e items */
 .glass-sm {
   background: var(--background);
   border: none;
-  box-shadow: 
+  box-shadow:
     4px 4px 10px var(--neu-dark),
     -4px -4px 10px var(--neu-light);
   border-radius: 1rem;
   transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-/* Versión hundida: inputs, toggle activo, tab seleccionada */
+/* Versión hundida: inputs, tab activa */
 .glass-inset {
   background: var(--background);
   border: none;
-  box-shadow: 
+  box-shadow:
     inset 4px 4px 10px var(--neu-dark),
     inset -4px -4px 10px var(--neu-light);
   border-radius: 1rem;
 }
 
-/* Barra de navegación neumórfica */
+/* Barra de navegación */
 .glass-nav {
   background: var(--background);
-  box-shadow: 
+  box-shadow:
     0 -6px 18px var(--neu-dark),
     0 -1px 4px var(--neu-light);
   border-top: none;
@@ -424,7 +286,7 @@ body {
     color-mix(in srgb, var(--primary) 95%, black 5%)
   );
   color: var(--primary-foreground);
-  box-shadow: 
+  box-shadow:
     5px 5px 12px var(--neu-dark),
     -3px -3px 8px var(--neu-light);
   border: none;
@@ -432,34 +294,8 @@ body {
   transition: all 0.2s ease;
 }
 .glass-btn-primary:active {
-  box-shadow: 
+  box-shadow:
     inset 3px 3px 7px var(--neu-dark),
     inset -2px -2px 5px var(--neu-light);
   transform: translateY(1px);
-}
-
-/* Matrix scanline overlay */
-.matrix body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 3px,
-    rgba(0, 255, 65, 0.012) 3px, rgba(0, 255, 65, 0.012) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* Cyberpunk scanline */
-.cyberpunk body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 3px,
-    rgba(0, 180, 216, 0.01) 3px, rgba(0, 180, 216, 0.01) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
 }
