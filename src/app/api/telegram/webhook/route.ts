@@ -197,7 +197,7 @@ export async function POST(req: Request) {
         const amt = Number(tx.amount).toLocaleString();
         const icon = tx.type === 'income' ? '🟢' : '🔴';
         const methodStr = tx.payment_method ? ` (${tx.payment_method})` : '';
-        last3Txs.push(`${icon} $${amt} - ${tx.description || 'Sin desc'}${methodStr}`);
+        recentTxList.push(`${icon} $${amt} - ${tx.description || 'Sin desc'}${methodStr}`);
       }
     }
 
@@ -331,7 +331,7 @@ ${chatHistory}`;
     // 4. Llamar a Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-3.6-flash',
+      model: 'gemini-1.5-flash',
       systemInstruction: systemPrompt,
       generationConfig: {
         responseMimeType: "application/json",
