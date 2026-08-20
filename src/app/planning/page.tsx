@@ -59,85 +59,73 @@ export default async function PlanningPage() {
         <h1 className="text-2xl font-bold tracking-tight">Regla de Distribución</h1>
       </header>
 
-      {/* 50/30/20 Card */}
-      <div className="glass p-6 space-y-6 mb-8 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/10 blur-3xl" />
+      {/* Bento 1: 50/30/20 Activity Rings */}
+      <div className="glass p-6 mb-6 relative overflow-hidden flex flex-col md:flex-row items-center gap-8">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
         
-        <div className="relative z-10">
-          <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-widest">Ingresos del Mes</p>
-          <p className="text-3xl font-black text-foreground mb-6">${totalIncome.toLocaleString()}</p>
+        {/* Anillos SVG (iOS Activity Rings Style) */}
+        <div className="relative z-10 flex shrink-0 justify-center">
+          <svg width="180" height="180" viewBox="0 0 120 120" className="-rotate-90 filter drop-shadow-md">
+            {/* Needs Ring */}
+            <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="8" className="text-primary/10" />
+            <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 50} strokeDashoffset={(2 * Math.PI * 50) * (1 - Math.min(1, needsSpent / (needsTarget || 1)))} className="text-primary transition-all duration-1000" />
+            
+            {/* Wants Ring */}
+            <circle cx="60" cy="60" r="38" fill="none" stroke="currentColor" strokeWidth="8" className="text-expense/10" />
+            <circle cx="60" cy="60" r="38" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 38} strokeDashoffset={(2 * Math.PI * 38) * (1 - Math.min(1, wantsSpent / (wantsTarget || 1)))} className="text-expense transition-all duration-1000" />
+            
+            {/* Savings Ring */}
+            <circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" strokeWidth="8" className="text-yellow-500/10" />
+            <circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 26} strokeDashoffset={(2 * Math.PI * 26) * (1 - Math.min(1, savingsSpent / (savingsTarget || 1)))} className="text-yellow-500 transition-all duration-1000" />
+          </svg>
+          {/* Inner text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase">Ingresos</span>
+            <span className="text-sm font-black text-foreground">${(totalIncome / 1000).toFixed(0)}k</span>
+          </div>
+        </div>
 
-          <div className="space-y-5">
-            {/* Needs */}
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <div>
-                  <p className="text-sm font-bold flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]"></span>
-                    Necesidades ({profile.needs_percent ?? 50}%)
-                  </p>
-                  <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                    ${needsSpent.toLocaleString()} / ${needsTarget.toLocaleString()}
-                  </p>
-                </div>
-                <span className={`text-xs font-black ${needsProgress >= 100 ? 'text-expense' : 'text-primary'}`}>
-                  {needsProgress}%
-                </span>
-              </div>
-              <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full transition-all duration-1000 ${needsProgress >= 100 ? 'bg-expense shadow-[0_0_10px_var(--expense)]' : 'bg-primary shadow-[0_0_10px_var(--primary)]'}`} 
-                  style={{ width: `${needsProgress}%` }}
-                />
+        {/* Legend */}
+        <div className="w-full space-y-4 z-10">
+          <div className="flex justify-between items-center bg-muted/20 px-3 py-2 rounded-2xl">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
+              <div className="leading-tight">
+                <p className="text-xs font-bold">Necesidades</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">{profile.needs_percent}% del total</p>
               </div>
             </div>
+            <div className="text-right leading-tight">
+              <p className="text-xs font-bold text-primary">${needsSpent.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground font-semibold">/ ${needsTarget.toLocaleString()}</p>
+            </div>
+          </div>
 
-            {/* Wants */}
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <div>
-                  <p className="text-sm font-bold flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-expense shadow-[0_0_8px_var(--expense)]"></span>
-                    Deseos ({profile.wants_percent ?? 30}%)
-                  </p>
-                  <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                    ${wantsSpent.toLocaleString()} / ${wantsTarget.toLocaleString()}
-                  </p>
-                </div>
-                <span className={`text-xs font-black text-expense`}>
-                  {wantsProgress}%
-                </span>
-              </div>
-              <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
-                <div 
-                  className="h-full rounded-full transition-all duration-1000 bg-expense shadow-[0_0_10px_var(--expense)]" 
-                  style={{ width: `${wantsProgress}%` }}
-                />
+          <div className="flex justify-between items-center bg-muted/20 px-3 py-2 rounded-2xl">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-expense shadow-[0_0_8px_var(--expense)]" />
+              <div className="leading-tight">
+                <p className="text-xs font-bold">Deseos</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">{profile.wants_percent}% del total</p>
               </div>
             </div>
+            <div className="text-right leading-tight">
+              <p className="text-xs font-bold text-expense">${wantsSpent.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground font-semibold">/ ${wantsTarget.toLocaleString()}</p>
+            </div>
+          </div>
 
-            {/* Savings */}
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <div>
-                  <p className="text-sm font-bold flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-gold shadow-[0_0_8px_var(--gold)]"></span>
-                    Ahorro ({profile.savings_percent ?? 20}%)
-                  </p>
-                  <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                    ${savingsSpent.toLocaleString()} / ${savingsTarget.toLocaleString()}
-                  </p>
-                </div>
-                <span className={`text-xs font-black text-gold`}>
-                  {savingsProgress}%
-                </span>
+          <div className="flex justify-between items-center bg-muted/20 px-3 py-2 rounded-2xl">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-yellow-500 shadow-[0_0_8px_var(--color-yellow-500)]" />
+              <div className="leading-tight">
+                <p className="text-xs font-bold">Ahorros</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">{profile.savings_percent}% del total</p>
               </div>
-              <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
-                <div 
-                  className="h-full rounded-full transition-all duration-1000 bg-gold shadow-[0_0_10px_var(--gold)]" 
-                  style={{ width: `${savingsProgress}%` }}
-                />
-              </div>
+            </div>
+            <div className="text-right leading-tight">
+              <p className="text-xs font-bold text-yellow-500">${savingsSpent.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground font-semibold">/ ${savingsTarget.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -163,29 +151,38 @@ export default async function PlanningPage() {
           goals.map(goal => {
             const goalProgress = getProgress(Number(goal.current_amount), Number(goal.target_amount))
             return (
-              <div key={goal.id} className="glass p-5 hover:border-gold/50 transition-all group">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl bg-gold/10 flex-shrink-0 group-hover:scale-110 transition-transform">
+              <div key={goal.id} className="glass p-5 hover:border-blue-500/50 transition-all group">
+                <div className="flex items-center space-x-4 mb-3">
+                  <div className="w-12 h-12 squircle flex items-center justify-center text-2xl bg-blue-500/10 text-blue-500 flex-shrink-0 group-hover:scale-110 transition-transform">
                     {goal.icon || '🎯'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-base truncate text-slate-200">{goal.name}</p>
+                    <p className="font-bold text-base truncate text-foreground">{goal.name}</p>
                     <p className="text-xs font-semibold text-muted-foreground mt-0.5">
                       Faltan ${(Number(goal.target_amount) - Number(goal.current_amount)).toLocaleString()}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-black text-gold text-lg">{goalProgress}%</p>
+                    <p className="font-black text-blue-500 text-lg">{goalProgress}%</p>
                   </div>
                 </div>
                 
-                <div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full rounded-full transition-all duration-1000 bg-gold shadow-[0_0_8px_var(--gold)]" 
-                    style={{ width: `${goalProgress}%` }}
-                  />
+                <div className="flex items-center gap-3 mt-4">
+                  <button className="w-10 h-10 rounded-full bg-muted text-foreground flex items-center justify-center hover:bg-border transition-colors shrink-0 shadow-sm">
+                    <span className="text-xl font-black mb-0.5">-</span>
+                  </button>
+                  <div className="flex-1 relative h-4 bg-border/30 rounded-full overflow-hidden shadow-inner">
+                    <div 
+                      className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 shadow-[0_0_12px_rgba(59,130,246,0.5)]" 
+                      style={{ width: `${goalProgress}%` }}
+                    />
+                  </div>
+                  <button className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:opacity-90 transition-opacity shrink-0 shadow-md">
+                    <span className="text-xl font-black mb-0.5">+</span>
+                  </button>
                 </div>
-                <div className="flex justify-between mt-2 px-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+
+                <div className="flex justify-between mt-3 px-12 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                   <span>${Number(goal.current_amount).toLocaleString()}</span>
                   <span>${Number(goal.target_amount).toLocaleString()}</span>
                 </div>

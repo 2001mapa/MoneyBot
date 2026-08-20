@@ -195,68 +195,90 @@ export default function DebtsPage() {
         )}
       </div>
 
-      {/* Pay Modal */}
+      {/* Pay Modal (iOS Bottom-Sheet) */}
       {payModalDebt && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-foreground/20 backdrop-blur-md">
-          <div className="glass border border-border/50 p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-sm shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass border border-border/50 p-6 rounded-t-[32px] sm:rounded-[32px] w-full max-w-sm shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom-full duration-300">
+            {/* Drag Handle */}
+            <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-6" />
+            
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h2 className="text-xl font-bold">Registrar Abono</h2>
-                <p className="text-sm text-muted-foreground mt-1">Para: <span className="font-semibold text-foreground">{payModalDebt.person_name}</span></p>
+                <h2 className="text-2xl font-black tracking-tight">Abonar</h2>
+                <p className="text-sm font-medium text-muted-foreground mt-1">A: <span className="font-bold text-foreground">{payModalDebt.person_name}</span></p>
               </div>
-              <button onClick={() => setPayModalDebt(null)} className="p-2 glass border border-border/40 rounded-xl text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4" />
+              <button onClick={() => setPayModalDebt(null)} className="p-2.5 bg-muted rounded-full text-muted-foreground hover:text-foreground hover:bg-border transition-colors">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
             <div className="mb-6">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Monto a abonar</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Monto a abonar</label>
               <input
                 type="number"
                 value={payAmount}
                 onChange={e => setPayAmount(e.target.value)}
                 placeholder={`Máx. $${Number(payModalDebt.balance_remaining).toLocaleString()}`}
-                className="w-full glass px-4 py-3.5 text-xl font-black focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full bg-muted/50 border border-border/50 rounded-2xl px-5 py-4 text-3xl font-black focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
               />
             </div>
-            <button onClick={handleAbonoSubmit} className="w-full bg-primary text-primary-foreground font-bold py-3.5 rounded-2xl hover:opacity-90 transition-opacity">
+            
+            {/* Quick amount pills */}
+            <div className="flex gap-2 mb-8">
+              <button onClick={() => setPayAmount('50000')} className="flex-1 py-2 bg-muted rounded-xl text-xs font-bold text-foreground hover:bg-border transition-colors">+$50k</button>
+              <button onClick={() => setPayAmount('100000')} className="flex-1 py-2 bg-muted rounded-xl text-xs font-bold text-foreground hover:bg-border transition-colors">+$100k</button>
+              <button onClick={() => setPayAmount(payModalDebt.balance_remaining.toString())} className="flex-1 py-2 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-colors">MAX</button>
+            </div>
+
+            <button onClick={handleAbonoSubmit} className="w-full bg-foreground text-background font-black py-4 rounded-full hover:opacity-90 transition-opacity shadow-lg">
               Confirmar Abono
             </button>
           </div>
         </div>
       )}
 
-      {/* Details Modal */}
+      {/* Details Modal (iOS Bottom-Sheet) */}
       {detailsModalDebt && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 bg-foreground/20 backdrop-blur-sm">
-          <div className="bg-card border-t sm:border border-border p-6 rounded-t-3xl sm:rounded-3xl w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-start justify-between mb-6">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass border border-border/50 p-6 rounded-t-[32px] sm:rounded-[32px] w-full max-w-md shadow-[0_-10px_40px_rgba(0,0,0,0.1)] max-h-[85vh] flex flex-col animate-in slide-in-from-bottom-full duration-300">
+            {/* Drag Handle */}
+            <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-6 shrink-0" />
+
+            <div className="flex items-start justify-between mb-6 shrink-0">
               <div>
-                <h2 className="text-xl font-bold">Historial</h2>
-                <p className="text-sm text-muted-foreground mt-1">{detailsModalDebt.description || detailsModalDebt.person_name}</p>
+                <h2 className="text-2xl font-black tracking-tight">Historial</h2>
+                <p className="text-sm font-medium text-muted-foreground mt-1">{detailsModalDebt.description || detailsModalDebt.person_name}</p>
               </div>
-              <button onClick={() => setDetailsModalDebt(null)} className="p-2 bg-muted rounded-xl text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4" />
+              <button onClick={() => setDetailsModalDebt(null)} className="p-2.5 bg-muted rounded-full text-muted-foreground hover:text-foreground hover:bg-border transition-colors">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Abonos realizados</h3>
-            <div className="overflow-y-auto flex-1 space-y-2">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 shrink-0">Abonos realizados</h3>
+            
+            <div className="overflow-y-auto flex-1 space-y-2 pb-4 scrollbar-hide">
               {loadingDetails ? (
-                <p className="text-sm text-muted-foreground py-4">Cargando historial...</p>
+                <div className="animate-pulse space-y-2">
+                  <div className="h-16 bg-muted rounded-2xl w-full" />
+                  <div className="h-16 bg-muted rounded-2xl w-full" />
+                </div>
               ) : debtPayments.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 italic">No hay abonos registrados.</p>
+                <div className="text-center py-10 bg-muted/30 rounded-2xl">
+                  <p className="text-sm text-muted-foreground font-bold italic">No hay abonos registrados</p>
+                </div>
               ) : (
                 debtPayments.map(payment => (
-                  <div key={payment.id} className="flex justify-between items-center p-3.5 bg-muted rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-income flex-shrink-0" />
+                  <div key={payment.id} className="flex justify-between items-center p-4 bg-muted/50 border border-border/20 rounded-2xl">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shadow-sm">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                      </div>
                       <div>
-                        <p className="font-bold text-sm">${Number(payment.amount).toLocaleString()}</p>
-                        <p className="text-[10px] text-muted-foreground">{new Date(payment.created_at).toLocaleDateString('es-CO')}</p>
+                        <p className="font-black text-base">${Number(payment.amount).toLocaleString()}</p>
+                        <p className="text-[11px] font-bold text-muted-foreground mt-0.5">{new Date(payment.created_at).toLocaleDateString('es-CO')}</p>
                       </div>
                     </div>
-                    <span className="text-xs font-medium px-2.5 py-1 bg-card rounded-lg capitalize">{payment.payment_method}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-background rounded-full">{payment.payment_method}</span>
                   </div>
                 ))
               )}

@@ -11,22 +11,26 @@ const COLORS = ['#818cf8', '#10b981', '#f59e0b', '#f472b6', '#60a5fa', '#a78bfa'
 export default function StatsPage() {
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [period, setPeriod] = useState<'month' | 'year'>('month')
 
   useEffect(() => {
     async function loadStats() {
+      setLoading(true)
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return setLoading(false)
 
       const now = new Date()
       const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+      const startOfYear = `${now.getFullYear()}-01-01`
+      const startDate = period === 'month' ? startOfMonth : startOfYear
 
       const { data: txs } = await supabase
         .from('transactions')
         .select('amount, type, description, transaction_date, categories(name)')
         .eq('user_id', user.id)
         .eq('type', 'expense')
-        .gte('transaction_date', startOfMonth)
+        .gte('transaction_date', startDate)
       
       if (txs) {
         const grouped: Record<string, number> = {}
@@ -45,7 +49,7 @@ export default function StatsPage() {
       setLoading(false)
     }
     loadStats()
-  }, [])
+  }, [period])
 
   const handleExportCSV = () => {
     if (!data.length) return
@@ -55,86 +59,84 @@ export default function StatsPage() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'gastos_panel_financiero.csv'
+    a.download = `gastos_${period}.csv`
     a.click()
   }
 
   const totalGastos = data.reduce((s, d) => s + d.value, 0)
 
   return (
-    <main className="flex-1 pb-28 max-w-lg mx-auto w-full">
+    <main className="flex-1 pb-28 max-w-lg mx-auto w-full pt-safe px-4 sm:px-6">
 
       {/* Header */}
-      <header className="flex items-center justify-between px-6 pt-8 pb-6">
+      <header className="flex items-center justify-between pt-6 pb-6">
         <div className="flex items-center gap-4">
-          <Link href="/" className="p-2 bg-card border border-border rounded-xl hover:bg-muted transition-colors">
+          <Link href="/" className="w-10 h-10 flex items-center justify-center bg-card border border-border rounded-full hover:bg-muted transition-colors shadow-sm">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-0.5">Análisis</p>
-            <h1 className="text-2xl font-bold tracking-tight">Estadísticas</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-0.5 opacity-60">Análisis</p>
+            <h1 className="text-2xl font-black tracking-tight">Estadísticas</h1>
           </div>
         </div>
         <button
           onClick={handleExportCSV}
-          className="p-2.5 bg-card border border-border rounded-xl hover:bg-muted transition-colors"
+          className="w-10 h-10 flex items-center justify-center bg-card border border-border rounded-full hover:bg-muted transition-colors shadow-sm"
           title="Exportar CSV"
         >
           <Download className="w-4 h-4" />
         </button>
       </header>
 
+      {/* Segmented Control iOS Modern */}
+      <div className="bg-muted/50 p-1.5 rounded-full mb-6 flex relative">
+        <div 
+          className="absolute top-1.5 bottom-1.5 w-1/2 bg-card rounded-full shadow-sm transition-transform duration-300 ease-in-out border border-border/50"
+          style={{ transform: period === 'month' ? 'translateX(0)' : 'translateX(calc(100% - 6px))' }}
+        />
+        <button 
+          onClick={() => setPeriod('month')}
+          className={`flex-1 py-2.5 text-xs font-bold rounded-full relative z-10 transition-colors ${period === 'month' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Mes Actual
+        </button>
+        <button 
+          onClick={() => setPeriod('year')}
+          className={`flex-1 py-2.5 text-xs font-bold rounded-full relative z-10 transition-colors ${period === 'year' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Este Año
+        </button>
+      </div>
+
       {loading ? (
-        <div className="px-6 space-y-5">
-          {/* Summary card */}
-          <div className="glass p-5 space-y-2">
-            <div className="skeleton h-3 w-32" />
-            <div className="skeleton h-9 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
+          <div className="glass p-6 md:col-span-2">
+            <div className="h-3 w-32 bg-muted rounded-full mb-3" />
+            <div className="h-10 w-48 bg-muted rounded-full" />
           </div>
-          {/* Donut chart card */}
-          <div className="glass p-6">
-            <div className="skeleton h-3 w-40 mb-5" />
-            <div className="skeleton rounded-full w-40 h-40 mx-auto mb-6" style={{ borderRadius: '50%' }} />
-            <div className="grid grid-cols-2 gap-2">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex items-center gap-2 p-2 rounded-xl">
-                  <div className="skeleton w-2.5 h-2.5 rounded-full flex-shrink-0" />
-                  <div className="skeleton h-2.5 flex-1 rounded-full" />
-                  <div className="skeleton h-2.5 w-8 rounded-full" />
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Bar chart card */}
-          <div className="glass p-6">
-            <div className="skeleton h-3 w-44 mb-5" />
-            <div className="flex items-end gap-3 h-44 px-2">
-              {[65, 40, 90, 30, 75, 55].map((h, i) => (
-                <div key={i} className="skeleton flex-1 rounded-t-lg" style={{ height: `${h}%` }} />
-              ))}
-            </div>
-          </div>
+          <div className="glass p-6 h-64" />
+          <div className="glass p-6 h-64" />
         </div>
       ) : data.length === 0 ? (
-        <div className="mx-6 text-center py-16 px-6 glass">
-          <p className="text-3xl mb-3">📊</p>
-          <p className="text-muted-foreground text-sm font-medium">Sin datos suficientes aún</p>
-          <p className="text-xs text-muted-foreground mt-1">Registra gastos con Luka para ver tus estadísticas</p>
+        <div className="text-center py-16 px-6 glass">
+          <p className="text-4xl mb-4">📊</p>
+          <p className="text-foreground text-base font-bold">Sin datos en este periodo</p>
+          <p className="text-xs text-muted-foreground mt-2 font-medium">Registra gastos con Luka para ver tus estadísticas</p>
         </div>
       ) : (
-        <div className="px-6 space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          {/* Total summary */}
-          <div className="glass p-5">
-            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 text-slate-400">Total gastado (top categorías)</p>
-            <p className="text-3xl font-black text-slate-200">${totalGastos.toLocaleString()}</p>
+          {/* Total summary Bento */}
+          <div className="glass p-6 md:col-span-2 relative overflow-hidden flex flex-col justify-center">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-expense/10 rounded-full blur-3xl pointer-events-none" />
+            <p className="text-[11px] font-bold uppercase tracking-widest mb-1 text-muted-foreground">Total Gastado</p>
+            <p className="text-4xl font-black text-foreground relative z-10">${totalGastos.toLocaleString()}</p>
           </div>
 
-          {/* Donut Chart - Gastos */}
-          <div className="glass p-5">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-4">Distribución Mensual</h2>
-            
-            <div className="h-44 w-full mb-4">
+          {/* Donut Chart Bento */}
+          <div className="glass p-5 flex flex-col">
+            <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Distribución</h2>
+            <div className="h-44 w-full mb-6">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -146,6 +148,7 @@ export default function StatsPage() {
                     paddingAngle={5}
                     dataKey="value"
                     stroke="none"
+                    cornerRadius={10}
                   >
                     {data.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -153,64 +156,72 @@ export default function StatsPage() {
                   </Pie>
                   <Tooltip 
                     formatter={(value: any) => `$${Number(value).toLocaleString()}`}
-                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderRadius: '12px', border: 'none', color: '#f1f5f9', fontWeight: 'bold' }}
-                    itemStyle={{ color: '#f1f5f9' }}
+                    contentStyle={{ backgroundColor: 'var(--card)', borderRadius: '16px', border: '1px solid var(--border)', color: 'var(--foreground)', fontWeight: 'bold', boxShadow: '0 10px 25px var(--neu-dark)' }}
+                    itemStyle={{ color: 'var(--foreground)' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
             
-            <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="grid grid-cols-2 gap-2 mt-auto">
               {data.map((item, i) => (
-                <div key={item.name} className="flex items-center gap-2 p-2 rounded-xl bg-muted">
-                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <p className="text-xs font-medium truncate flex-1">{item.name}</p>
-                  <p className="text-xs font-bold flex-shrink-0">${(item.value / 1000).toFixed(0)}k</p>
+                <div key={item.name} className="flex items-center gap-2 p-2 rounded-[14px] bg-muted/50 border border-border/20">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                  <p className="text-[10px] font-bold truncate flex-1 leading-tight">{item.name}</p>
+                  <p className="text-[10px] font-black shrink-0 text-muted-foreground">${(item.value / 1000).toFixed(0)}k</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Bar Chart */}
-          <div className="glass p-6">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Comparativa por categoría</h3>
-            <div className="h-56 w-full">
+          {/* Histograma Soft-3D Bento */}
+          <div className="glass p-5 flex flex-col">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-5">Comparativa</h3>
+            <div className="h-64 w-full mt-auto">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} barSize={28}>
+                <BarChart data={data} barSize={20} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                   <XAxis
                     dataKey="name"
-                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
+                    tick={{ fontSize: 9, fill: 'var(--muted-foreground)', fontWeight: 'bold' }}
                     interval={0}
-                    angle={-30}
+                    angle={-35}
                     textAnchor="end"
-                    height={50}
+                    height={40}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
                     tickFormatter={(val) => `$${val / 1000}k`}
-                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
-                    width={42}
+                    tick={{ fontSize: 9, fill: 'var(--muted-foreground)', fontWeight: 'bold' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
-                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Gasto']}
-                    cursor={{ fill: 'var(--muted)', radius: 8 }}
+                    cursor={{ fill: 'var(--muted)', radius: 10 }}
                     contentStyle={{
-                      borderRadius: '12px',
+                      borderRadius: '16px',
                       border: '1px solid var(--border)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                      boxShadow: '0 10px 25px var(--neu-dark)',
                       backgroundColor: 'var(--card)',
                       color: 'var(--foreground)',
-                      fontSize: '12px'
+                      fontSize: '12px',
+                      fontWeight: 'bold'
                     }}
+                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Gasto']}
                   />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                  <Bar dataKey="value" radius={[10, 10, 10, 10]}>
                     {data.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={`url(#colorGradient${index})`} className="hover:filter hover:drop-shadow-[0_0_8px_rgba(129,140,248,0.5)] transition-all" />
                     ))}
                   </Bar>
+                  <defs>
+                    {data.map((_, index) => (
+                      <linearGradient id={`colorGradient${index}`} x1="0" y1="0" x2="0" y2="1" key={index}>
+                        <stop offset="0%" stopColor={COLORS[index % COLORS.length]} />
+                        <stop offset="100%" stopColor={COLORS[index % COLORS.length]} stopOpacity={0.7} />
+                      </linearGradient>
+                    ))}
+                  </defs>
                 </BarChart>
               </ResponsiveContainer>
             </div>
