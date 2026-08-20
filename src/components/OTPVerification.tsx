@@ -101,12 +101,7 @@ export function OTPVerification({
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
       
-      <div className="w-full max-w-sm mb-12">
-        <div className="flex items-center gap-3 text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-8">
-          <span className="px-2 py-1 bg-white/5 rounded-md border border-white/10 flex items-center gap-2"><Lock className="w-3 h-3" /> Security</span>
-          <span>App Lock</span>
-        </div>
-        
+      <div className="w-full max-w-sm mb-12 text-center">
         <h1 className="text-3xl font-semibold mb-3">{title}</h1>
         <p className="text-gray-400 text-sm">{subtitle}</p>
       </div>
