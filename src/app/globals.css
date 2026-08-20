@@ -324,3 +324,8 @@ body {
     inset -2px -2px 4px color-mix(in srgb, var(--primary) 80%, white);
   transform: translateY(1px);
 }
+
+/* Hover state para filas de transacciones (sin JS) */
+.tx-row:hover {
+  background: var(--muted) !important;
+}

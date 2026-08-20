@@ -173,10 +173,7 @@ export default async function Home() {
             <div className="space-y-1">
               {transactions.map((tx: any) => (
                 <div key={tx.id}
-                  className="flex justify-between items-center p-3 rounded-xl transition-colors cursor-pointer"
-                  style={{ background: 'transparent' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--muted)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  className="tx-row flex justify-between items-center p-3 rounded-xl transition-colors cursor-pointer"
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
