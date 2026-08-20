@@ -1,4 +1,4 @@
-import { NextResponse, after } from 'next/server'
+import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai'
 import { createClient } from '@supabase/supabase-js'
 import { Redis } from '@upstash/redis'
@@ -134,11 +134,10 @@ export async function POST(req: Request) {
 
     if (!isVoice && !isText) return NextResponse.json({ status: 'ignored' })
 
-    // Delegar el procesamiento pesado en background con `after()`
-    after(async () => {
-      try {
-        // 1. Verificar si el usuario está vinculado
-        const { data: profile } = await supabaseAdmin
+    // Delegar el procesamiento pesado
+    try {
+      // 1. Verificar si el usuario está vinculado
+      const { data: profile } = await supabaseAdmin
           .from('profiles')
           .select('*')
           .eq('telegram_chat_id', chatId)
@@ -526,10 +525,9 @@ ${chatHistory}`;
           await sendMessage(chatId, "⚠️ Ocurrió un error inesperado al procesar tu solicitud. Por favor intenta de nuevo más tarde.")
         }
       }
-    });
 
-    // Retornamos HTTP 200 inmediatamente a Telegram para evitar retries infinitos
-    return NextResponse.json({ status: 'success', message: 'Delegated to background task' })
+    // Retornamos HTTP 200 a Telegram
+    return NextResponse.json({ status: 'success' })
   } catch (error) {
     console.error('Webhook Error CRITICO:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
