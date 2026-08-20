@@ -21,20 +21,25 @@ export function OTPVerification({
 }: OTPVerificationProps) {
   const [otp, setOtp] = useState(['', '', '', ''])
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isVerified, setIsVerified] = useState(false)
   const [isError, setIsError] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
     async function processCode() {
-      if (otp.every(digit => digit !== '') && !isVerifying && !isError) {
+      if (otp.every(digit => digit !== '') && !isVerifying && !isError && !isVerified) {
         setIsVerifying(true)
         const codeStr = otp.join('')
         
         if (onVerify) {
           const isValid = await onVerify(codeStr)
           if (isValid) {
-            // Wait for orbital animation to finish (approx 2s)
-            setTimeout(() => { if (onSuccess) onSuccess() }, 1800)
+            // After 1.5s in orbit, trigger the final collapse
+            setTimeout(() => {
+              setIsVerified(true)
+              // Wait 0.5s for collapse animation, then route
+              setTimeout(() => { if (onSuccess) onSuccess() }, 500)
+            }, 1500)
           } else {
             // Wait a bit, then shake and reset
             setTimeout(() => {
@@ -48,12 +53,15 @@ export function OTPVerification({
             }, 1000)
           }
         } else {
-          setTimeout(() => { if (onSuccess) onSuccess() }, 2000)
+          setTimeout(() => {
+            setIsVerified(true)
+            setTimeout(() => { if (onSuccess) onSuccess() }, 500)
+          }, 1500)
         }
       }
     }
     processCode()
-  }, [otp, isVerifying, isError, onSuccess, onVerify])
+  }, [otp, isVerifying, isError, isVerified, onSuccess, onVerify])
 
   const handleChange = (index: number, value: string) => {
     setIsError(false)
@@ -95,12 +103,12 @@ export function OTPVerification({
         
         {/* SVG Orbital Ring & Hub */}
         <AnimatePresence>
-          {isVerifying && (
+          {isVerifying && !isVerified && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              exit={{ opacity: 0, scale: 0 }}
+              transition={{ delay: 0.2, duration: 0.5, exit: { duration: 0.5, ease: "easeInOut" } }}
               className="absolute inset-0 flex items-center justify-center pointer-events-none"
             >
               <svg width="140" height="140" className="absolute">
@@ -123,32 +131,37 @@ export function OTPVerification({
                 className="absolute flex items-center justify-center"
                 initial={false}
                 animate={
-                  isVerifying
+                  isVerified
                     ? {
                         x: 0,
-                        rotate: [0, 0, orbitAngle + 360, orbitAngle + 720, orbitAngle + 1080],
+                        rotate: orbitAngle + 1080 // Keep rotating or freeze
                       }
-                    : { x: normalX, rotate: 0 }
+                    : isVerifying
+                      ? {
+                          x: 0,
+                          rotate: [0, 0, orbitAngle + 360, orbitAngle + 720, orbitAngle + 1080],
+                        }
+                      : { x: normalX, rotate: 0 }
                 }
                 transition={{
                   x: { duration: 0.4, ease: "easeInOut" },
-                  rotate: { 
-                    times: [0, 0.2, 0.5, 0.8, 1], 
-                    duration: 2.5, 
-                    ease: [0.4, 0, 0.2, 1] 
-                  }
+                  rotate: isVerified 
+                    ? { duration: 0.5 }
+                    : { times: [0, 0.2, 0.5, 0.8, 1], duration: 2.5, ease: [0.4, 0, 0.2, 1] }
                 }}
               >
                 <motion.div
                   animate={
-                    isVerifying
-                      ? { x: [0, 0, 48], scale: 0.5 }
-                      : isError
-                        ? { x: [-10, 10, -10, 10, -5, 5, 0], scale: 1 }
-                        : { x: 0, scale: 1 }
+                    isVerified
+                      ? { x: 0, scale: 0 }
+                      : isVerifying
+                        ? { x: [0, 0, 48], scale: 0.5 }
+                        : isError
+                          ? { x: [-10, 10, -10, 10, -5, 5, 0], scale: 1 }
+                          : { x: 0, scale: 1 }
                   }
                   transition={{
-                    x: isVerifying ? { times: [0, 0.2, 1], duration: 1, ease: "easeInOut" } : { duration: 0.4 },
+                    x: isVerifying && !isVerified ? { times: [0, 0.2, 1], duration: 1, ease: "easeInOut" } : { duration: 0.4 },
                     scale: { duration: 0.4, ease: "easeInOut" }
                   }}
                   className="relative w-16 h-16 flex items-center justify-center"

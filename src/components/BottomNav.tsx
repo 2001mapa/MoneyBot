@@ -14,7 +14,7 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname()
-  if (pathname === '/login') return null
+  if (pathname === '/login' || pathname === '/lock') return null
 
   return (
     <div className="fixed bottom-0 left-0 w-full z-40">
