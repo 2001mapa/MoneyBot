@@ -340,13 +340,21 @@ body::after {
 
 /* Hero/acento — usa el color oscuro del tema (bg-card-dark) */
 .card-hero {
-  background: var(--bg-card-dark);
+  background: linear-gradient(135deg, var(--bg-card-dark) 0%, color-mix(in srgb, var(--primary) 80%, black) 50%, var(--bg-card-dark) 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 12s ease infinite;
   color: #FFFFFF;
   box-shadow:
     6px 6px 16px var(--neu-dark),
     -4px -4px 10px var(--neu-light);
   border-radius: 32px;
   border: none;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Alias .glass para compatibilidad con código existente */

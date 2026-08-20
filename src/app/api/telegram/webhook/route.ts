@@ -50,7 +50,7 @@ const actionSchema: Schema = {
       type: SchemaType.STRING,
       description: "Tipo de intención detectada en el mensaje.",
       format: "enum",
-      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "savings_create", "savings_deposit", "query", "delete_last", "delete_all", "none"]
+      enum: ["transaction", "debt_create", "debt_payment", "budget_update", "savings_create", "savings_deposit", "transfer", "query", "delete_last", "delete_all", "none"]
     },
     is_complete: { 
       type: SchemaType.BOOLEAN, 
@@ -62,7 +62,7 @@ const actionSchema: Schema = {
     },
     amount: { 
       type: SchemaType.NUMBER, 
-      description: "Monto involucrado (transacción, deuda, abono o presupuesto). 0 si no aplica." 
+      description: "Monto involucrado (transacción, deuda, abono, transferencia o presupuesto). 0 si no aplica." 
     },
     transaction_type: { 
       type: SchemaType.STRING, 
@@ -86,9 +86,15 @@ const actionSchema: Schema = {
     },
     payment_method: { 
       type: SchemaType.STRING, 
-      description: "Método de pago deducido",
+      description: "Método de pago deducido (origen para transferencias)",
       format: "enum",
       enum: ["efectivo", "nequi", "daviplata", "banco", "tarjeta", "none"] 
+    },
+    destination_method: {
+      type: SchemaType.STRING,
+      description: "Método de pago de destino (solo para transferencias, ej. retiro de cajero es de banco a efectivo).",
+      format: "enum",
+      enum: ["efectivo", "nequi", "daviplata", "banco", "tarjeta", "none"]
     },
     description: { 
       type: SchemaType.STRING, 
@@ -395,6 +401,28 @@ ${chatHistory}`;
         raw_input: userMessageText,
         transaction_date: currentDate ? new Date().toISOString() : new Date().toISOString()
       })
+    }
+
+    // CASO C.1: Transferencia entre métodos de pago
+    else if (parsedData.action_type === 'transfer' && parsedData.is_complete) {
+      // Retiro del origen
+      await supabaseAdmin.from('transactions').insert({
+        user_id: profile.id,
+        type: 'expense',
+        amount: parsedData.amount,
+        payment_method: parsedData.payment_method !== 'none' ? parsedData.payment_method : 'banco',
+        description: `Transferencia a ${parsedData.destination_method || 'efectivo'}`,
+        source: isVoice ? 'telegram_voice' : 'telegram_text'
+      });
+      // Ingreso al destino
+      await supabaseAdmin.from('transactions').insert({
+        user_id: profile.id,
+        type: 'income',
+        amount: parsedData.amount,
+        payment_method: parsedData.destination_method !== 'none' ? parsedData.destination_method : 'efectivo',
+        description: `Transferencia desde ${parsedData.payment_method || 'banco'}`,
+        source: isVoice ? 'telegram_voice' : 'telegram_text'
+      });
     }
 
     // CASO D: Deuda Nueva
