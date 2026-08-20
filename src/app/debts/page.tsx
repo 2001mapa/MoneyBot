@@ -137,7 +137,7 @@ export default function DebtsPage() {
             ))}
           </div>
         ) : filteredDebts.length === 0 ? (
-          <div className="text-center py-16 glass">
+          <div className="text-center py-16 px-6 glass">
             <p className="text-3xl mb-3">🤝</p>
             <p className="text-muted-foreground text-sm font-medium">No hay deudas registradas aquí</p>
           </div>

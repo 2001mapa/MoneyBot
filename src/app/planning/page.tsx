@@ -60,7 +60,7 @@ export default async function PlanningPage() {
       </header>
 
       {/* 50/30/20 Card */}
-      <div className="glass space-y-6 mb-8 relative overflow-hidden">
+      <div className="glass p-6 space-y-6 mb-8 relative overflow-hidden">
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/10 blur-3xl" />
         
         <div className="relative z-10">
@@ -154,7 +154,7 @@ export default async function PlanningPage() {
 
       <div className="grid grid-cols-1 gap-4">
         {goals.length === 0 ? (
-          <div className="text-center py-10 glass">
+          <div className="text-center py-10 glass p-6">
             <p className="text-3xl mb-2">🎯</p>
             <p className="text-sm text-muted-foreground font-medium">Sin metas activas</p>
             <p className="text-xs text-muted-foreground mt-1 opacity-60">Dile a Luka: "Crea una meta para..."</p>

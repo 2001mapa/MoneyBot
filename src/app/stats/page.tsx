@@ -114,9 +114,8 @@ export default function StatsPage() {
               ))}
             </div>
           </div>
-        </div>
       ) : data.length === 0 ? (
-        <div className="mx-6 text-center py-16 glass">
+        <div className="mx-6 text-center py-16 px-6 glass">
           <p className="text-3xl mb-3">📊</p>
           <p className="text-muted-foreground text-sm font-medium">Sin datos suficientes aún</p>
           <p className="text-xs text-muted-foreground mt-1">Registra gastos con Luka para ver tus estadísticas</p>
