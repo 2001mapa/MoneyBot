@@ -169,51 +169,68 @@ export async function POST(req: Request) {
           body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
         })
 
-    // 2. Extraer Contexto Financiero vía RPC para evitar OOM (Out Of Memory)
-    const { data: summaryData, error: summaryError } = await supabaseAdmin.rpc('get_financial_summary', {
-      p_user_id: profile.id
-    })
+    // 2. Extraer Contexto Financiero en JS para evitar depender de RPC externo
+    const { data: allTxRes } = await supabaseAdmin
+      .from('transactions')
+      .select('amount, type, payment_method, description, transaction_date, created_at')
+      .eq('user_id', profile.id);
 
     let balanceTotal = 0;
     let bankBalance = 0;
     let cashBalance = 0;
     let gastosMes = 0;
+    
+    if (allTxRes) {
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+
+      allTxRes.forEach(tx => {
+        const dateString = (tx.transaction_date || tx.created_at).split('T')[0]
+        const parts = dateString.split('-')
+        const isCurrentMonth = parseInt(parts[0]) === currentYear && parseInt(parts[1]) - 1 === currentMonth
+        const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes((tx.payment_method || '').toLowerCase())
+        const isTransfer = (tx.description || '').toLowerCase().startsWith('transferencia ')
+
+        if (tx.type === 'income') {
+          balanceTotal += Number(tx.amount)
+          if (isBank) bankBalance += Number(tx.amount); else cashBalance += Number(tx.amount)
+        } else if (tx.type === 'expense') {
+          balanceTotal -= Number(tx.amount)
+          if (isBank) bankBalance -= Number(tx.amount); else cashBalance -= Number(tx.amount)
+          if (isCurrentMonth && !isTransfer && !(tx.description || '').toLowerCase().includes('ahorro en meta') && !(tx.description || '').toLowerCase().includes('abono de deuda')) {
+            gastosMes += Number(tx.amount)
+          }
+        }
+      })
+    }
+
     let deboTotal = 0;
     let meDebenTotal = 0;
-    let last3Txs: string[] = [];
     const activeDebtsList: string[] = [];
     const recentTxList: string[] = [];
-
-    if (!summaryError && summaryData) {
-      balanceTotal = Number(summaryData.balanceTotal);
-      bankBalance = Number(summaryData.bankBalance);
-      cashBalance = Number(summaryData.cashBalance);
-      gastosMes = Number(summaryData.gastosMes);
-      deboTotal = Number(summaryData.deboTotal);
-      meDebenTotal = Number(summaryData.meDebenTotal);
-      
-      const txs = summaryData.last3Txs || [];
-      for (let tx of txs) {
-        const amt = Number(tx.amount).toLocaleString();
-        const icon = tx.type === 'income' ? '🟢' : '🔴';
-        const methodStr = tx.payment_method ? ` (${tx.payment_method})` : '';
-        recentTxList.push(`${icon} $${amt} - ${tx.description || 'Sin desc'}${methodStr}`);
-      }
-    }
 
     // Traer deudas para contexto de Luka
     const { data: allDebts } = await supabaseAdmin
       .from('debts')
-      .select('person_name, type, balance_remaining, status, payment_method')
+      .select('person_name, type, debt_type, balance_remaining, status, payment_method')
       .eq('user_id', profile.id)
       .neq('status', 'paid')
 
     if (allDebts) {
       allDebts.forEach(d => {
         if (d.status === 'cancelled') return;
-        if (d.type === 'i_owe') {
+        
+        const isBank = ['tarjeta', 'transferencia', 'nequi', 'daviplata', 'banco'].includes((d.payment_method || '').toLowerCase())
+        if (d.debt_type === 'i_owe') {
+          deboTotal += Number(d.balance_remaining);
+          balanceTotal += Number(d.balance_remaining);
+          if (isBank) bankBalance += Number(d.balance_remaining); else cashBalance += Number(d.balance_remaining);
           activeDebtsList.push(`Debo a ${d.person_name}: $${d.balance_remaining}`);
-        } else {
+        } else if (d.debt_type === 'they_owe') {
+          meDebenTotal += Number(d.balance_remaining);
+          balanceTotal -= Number(d.balance_remaining);
+          if (isBank) bankBalance -= Number(d.balance_remaining); else cashBalance -= Number(d.balance_remaining);
           activeDebtsList.push(`${d.person_name} me debe: $${d.balance_remaining}`);
         }
       });

@@ -81,7 +81,8 @@ export default async function Home() {
   let totalSavings = 0
   if (savingsRes.data) savingsRes.data.forEach(g => { totalSavings += Number(g.current_amount) })
 
-  const availableLiquidity = totalBalance - totalSavings
+  // availableLiquidity is exactly totalBalance because savings deposits are already recorded as expense transactions
+  const availableLiquidity = totalBalance
   const isPositive = availableLiquidity >= 0
 
   // Calc 50/30/20 targets based on income (or monthly_budget if preferred, planning uses income)
