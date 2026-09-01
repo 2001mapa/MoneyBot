@@ -28,11 +28,13 @@ async function sendMessage(chatId: string | number, text: string) {
 async function getVoiceFileBase64(fileId: string): Promise<string | null> {
   try {
     const pathRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/getFile?file_id=${fileId}`)
+    if (!pathRes.ok) return null
     const pathData = await pathRes.json()
     if (!pathData.ok) return null
     
     const filePath = pathData.result.file_path
     const audioRes = await fetch(`https://api.telegram.org/file/bot${TELEGRAM_TOKEN}/${filePath}`)
+    if (!audioRes.ok) return null
     const arrayBuffer = await audioRes.arrayBuffer()
     
     return Buffer.from(arrayBuffer).toString('base64')
