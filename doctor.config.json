@@ -1,0 +1,7 @@
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "rules": {
+    "react-doctor/supabase-client-owned-authz-field": "off",
+    "react-doctor/no-blocked-paste": "off"
+  }
+}

@@ -28,15 +28,15 @@ export function BottomNav() {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex flex-col items-center justify-center flex-1 basis-0 h-full gap-1 transition-all duration-200 relative ${
+                  className={`flex flex-col items-center justify-center flex-1 basis-0 h-full gap-1 transition-colors duration-200 relative ${
                     isActive ? 'text-primary scale-105' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {isActive && (
                     <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-1 rounded-b-full bg-primary" />
                   )}
-                  <Icon strokeWidth={1.5} className={`w-5 h-5 transition-all duration-200`} />
-                  <span className={`text-[11px] font-black uppercase tracking-wide transition-all ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                  <Icon strokeWidth={1.5} className={`w-5 h-5 transition-colors duration-200`} />
+                  <span className={`text-[11px] font-black uppercase tracking-wide transition-colors ${isActive ? 'opacity-100' : 'opacity-60'}`}>
                     {label}
                   </span>
                 </Link>

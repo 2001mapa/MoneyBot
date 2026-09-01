@@ -18,8 +18,7 @@ export default function DebtsPage() {
   const [debtPayments, setDebtPayments] = useState<any[]>([])
   const [loadingDetails, setLoadingDetails] = useState(false)
   const [newDebtModalOpen, setNewDebtModalOpen] = useState(false)
-
-  useEffect(() => { loadDebts() }, [])
+  const [total, setTotal] = useState(0)
 
   const loadDebts = async () => {
     const supabase = createClient()
@@ -31,9 +30,16 @@ export default function DebtsPage() {
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-    if (data) setDebts(data)
+    if (data) {
+      setDebts(data)
+      let t = 0
+      data.forEach(d => { if(d.status !== 'cancelled' && d.status !== 'paid') t += Number(d.balance_remaining) })
+      setTotal(t)
+    }
     setLoading(false)
   }
+
+  useEffect(() => { loadDebts() }, [])
 
   const filteredDebts = debts.filter(d => d.debt_type === tab)
 
@@ -102,7 +108,7 @@ export default function DebtsPage() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 pt-8 pb-6 gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/" className="w-11 h-11 flex items-center justify-center glass border border-border/50 rounded-full hover:border-border transition-all shadow-sm">
+          <Link href="/" className="w-11 h-11 flex items-center justify-center glass border border-border/50 rounded-full hover:border-border transition-colors shadow-sm">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <div>
@@ -136,7 +142,7 @@ export default function DebtsPage() {
         <div className="flex glass p-1">
           <button
             onClick={() => setTab('i_owe')}
-            className={`flex-1 min-h-[44px] text-sm font-bold rounded-xl transition-all ${
+            className={`flex-1 min-h-[44px] text-sm font-bold rounded-xl transition-colors ${
               tab === 'i_owe' ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground'
             }`}
           >
@@ -144,7 +150,7 @@ export default function DebtsPage() {
           </button>
           <button
             onClick={() => setTab('they_owe')}
-            className={`flex-1 min-h-[44px] text-sm font-bold rounded-xl transition-all ${
+            className={`flex-1 min-h-[44px] text-sm font-bold rounded-xl transition-colors ${
               tab === 'they_owe' ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground'
             }`}
           >
@@ -180,7 +186,7 @@ export default function DebtsPage() {
           </div>
         ) : (
           filteredDebts.map(debt => (
-            <div key={debt.id} className={`glass p-5 relative overflow-hidden transition-all ${
+            <div key={debt.id} className={`glass p-5 relative overflow-hidden transition-colors ${
               debt.status === 'paid' ? 'border-border/30 opacity-60' : 'border-border/50'
             }`}>
               {debt.status === 'paid' && (

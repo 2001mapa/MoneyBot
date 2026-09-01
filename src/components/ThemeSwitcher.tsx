@@ -38,7 +38,7 @@ export function ThemeSwitcher() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-2xl glass border-[var(--border)] hover:opacity-80 transition-all min-h-[44px]"
+        className="flex items-center gap-2 px-3 py-2 rounded-2xl glass border-[var(--border)] hover:opacity-80 transition-colors min-h-[44px]"
       >
         {/* Tri-color swatch: app bg + card dark + accent */}
         <span className="w-5 h-5 rounded-full flex-shrink-0 shadow-sm" style={{
@@ -68,7 +68,7 @@ export function ThemeSwitcher() {
               <button
                 key={t.id}
                 onClick={() => { setTheme(t.id); setIsOpen(false) }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left min-h-[44px]"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left min-h-[44px]"
                 style={{
                   background: theme === t.id ? `${t.accent}22` : 'transparent',
                   color: theme === t.id ? t.bg : 'var(--text-main)',

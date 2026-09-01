@@ -105,7 +105,7 @@ export default function ProfilePage() {
 
       {/* Header */}
       <header className="flex items-center gap-4 px-6 pt-10 pb-6">
-        <Link href="/" className="p-2 glass border border-border/50 rounded-xl hover:border-border transition-all">
+        <Link href="/" className="p-2 glass border border-border/50 rounded-xl hover:border-border transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
@@ -189,7 +189,7 @@ export default function ProfilePage() {
                 <a 
                   href="https://t.me/PanelFinancieroBot" 
                   target="_blank"
-                  className="mt-4 block w-full py-2.5 px-4 bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all font-bold text-sm text-center rounded-xl"
+                  className="mt-4 block w-full py-2.5 px-4 bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-colors font-bold text-sm text-center rounded-xl"
                 >
                   Conectar con Telegram
                 </a>
@@ -211,7 +211,7 @@ export default function ProfilePage() {
                 value={profile.bot_alias || ''}
                 onChange={e => setProfile({ ...profile, bot_alias: e.target.value })}
                 placeholder="Ej: Luka, Finanzas, MoneyBot…"
-                className="w-full glass border border-border/50 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                className="w-full glass border border-border/50 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
               />
             </div>
 
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                   type="number"
                   value={profile.monthly_budget || 0}
                   onChange={e => setProfile({ ...profile, monthly_budget: Number(e.target.value) })}
-                  className="w-full glass border border-border/50 rounded-2xl pl-8 pr-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                  className="w-full glass border border-border/50 rounded-2xl pl-8 pr-4 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
                 />
               </div>
             </div>
@@ -311,7 +311,7 @@ export default function ProfilePage() {
                   <button
                     key={c.value}
                     onClick={() => setProfile({ ...profile, currency: c.value })}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-colors ${
                       profile.currency === c.value
                         ? 'border-primary bg-primary/10 text-primary'
                         : 'border-border/40 text-muted-foreground hover:border-border hover:text-foreground'
@@ -338,7 +338,7 @@ export default function ProfilePage() {
                       setProfile({ ...profile, theme: t.value })
                       setTheme(t.value)
                     }}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-colors ${
                       (profile.theme || theme) === t.value
                         ? 'border-primary bg-primary/10 text-primary'
                         : 'border-border/40 text-muted-foreground hover:border-border hover:text-foreground'
@@ -376,14 +376,14 @@ export default function ProfilePage() {
                       router.push('/lock')
                       router.refresh()
                     }}
-                    className="px-4 py-2 border border-border/50 text-muted-foreground text-xs font-bold rounded-lg hover:bg-white/5 transition-all"
+                    className="px-4 py-2 border border-border/50 text-muted-foreground text-xs font-bold rounded-lg hover:bg-white/5 transition-colors"
                   >
                     Bloquear Ahora
                   </button>
                 )}
                 <button 
                   onClick={() => setShowPinSetup(true)}
-                  className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-all"
+                  className="px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-colors"
                 >
                   {profile.pin_hash ? 'Cambiar PIN' : 'Configurar'}
                 </button>
@@ -395,7 +395,7 @@ export default function ProfilePage() {
           <button
             onClick={handleSave}
             disabled={saving || (!hasChanges && !saved)}
-            className={`w-full flex items-center justify-center gap-2 font-bold py-4 rounded-2xl transition-all shadow-lg ${
+            className={`w-full flex items-center justify-center gap-2 font-bold py-4 rounded-2xl transition-colors shadow-lg ${
               saved
                 ? 'bg-income text-white'
                 : hasChanges
@@ -421,7 +421,7 @@ export default function ProfilePage() {
           {/* Reset Data */}
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-expense/25 text-expense font-bold hover:bg-expense/10 transition-all mb-4"
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-expense/25 text-expense font-bold hover:bg-expense/10 transition-colors mb-4"
           >
             <XCircle className="w-4 h-4" />
             <span>Eliminar Todos los Registros</span>
@@ -430,7 +430,7 @@ export default function ProfilePage() {
           {/* Logout */}
           <button
             onClick={() => setShowLogoutModal(true)}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-muted/50 text-foreground font-bold hover:bg-muted transition-all"
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-muted/50 text-foreground font-bold hover:bg-muted transition-colors"
           >
             <LogOut className="w-4 h-4" />
             <span>Cerrar Sesión</span>
@@ -444,7 +444,7 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 bg-[#0B0F19]">
           <button 
             onClick={() => setShowPinSetup(false)}
-            className="absolute top-6 left-6 z-50 p-2 glass border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all"
+            className="absolute top-6 left-6 z-50 p-2 glass border border-white/10 rounded-xl text-white hover:bg-white/10 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -485,14 +485,14 @@ export default function ProfilePage() {
               <button
                 onClick={() => setShowDeleteModal(false)}
                 disabled={deleting}
-                className="py-3 px-4 rounded-xl font-bold text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-all disabled:opacity-50"
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleDeleteData}
                 disabled={deleting}
-                className="py-3 px-4 rounded-xl font-bold text-sm bg-expense text-white shadow-lg shadow-expense/25 hover:opacity-90 transition-all disabled:opacity-50"
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-expense text-white shadow-lg shadow-expense/25 hover:opacity-90 transition-colors disabled:opacity-50"
               >
                 {deleting ? 'Borrando...' : 'Sí, borrar todo'}
               </button>
@@ -517,13 +517,13 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="py-3 px-4 rounded-xl font-bold text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleLogout}
-                className="py-3 px-4 rounded-xl font-bold text-sm bg-foreground text-background shadow-lg hover:opacity-90 transition-all"
+                className="py-3 px-4 rounded-xl font-bold text-sm bg-foreground text-background shadow-lg hover:opacity-90 transition-colors"
               >
                 Sí, salir
               </button>

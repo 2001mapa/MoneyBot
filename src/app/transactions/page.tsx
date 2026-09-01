@@ -88,7 +88,7 @@ function TransactionsContent() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 pt-10 pb-4">
         <div className="flex items-center gap-4">
-          <Link href="/" className="w-11 h-11 flex items-center justify-center glass border border-border/50 rounded-full hover:border-border transition-all shadow-sm">
+          <Link href="/" className="w-11 h-11 flex items-center justify-center glass border border-border/50 rounded-full hover:border-border transition-colors shadow-sm">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <div>
@@ -110,7 +110,7 @@ function TransactionsContent() {
             <button
               key={f.id}
               onClick={() => setType(f.id)}
-              className={`flex-1 min-w-[80px] py-2 text-xs font-bold rounded-xl transition-all ${
+              className={`flex-1 min-w-[80px] py-2 text-xs font-bold rounded-xl transition-colors ${
                 type === f.id 
                   ? f.id === 'income' ? 'bg-income text-white shadow' 
                   : f.id === 'expense' ? 'bg-expense text-white shadow'
@@ -128,7 +128,7 @@ function TransactionsContent() {
             <button
               key={f.id}
               onClick={() => setTimeframe(f.id)}
-              className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg border transition-all ${
+              className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg border transition-colors ${
                 timeframe === f.id
                   ? 'border-primary bg-primary/10 text-primary'
                   : 'border-border/40 text-muted-foreground hover:border-border'
@@ -164,7 +164,7 @@ function TransactionsContent() {
             const date = new Date(tx.transaction_date || tx.created_at)
             const dateStr = date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
             return (
-              <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl glass border border-border/40 hover:border-border/70 transition-all">
+              <div key={tx.id} className="flex justify-between items-center p-4 rounded-2xl glass border border-border/40 hover:border-border/70 transition-colors">
                 <div className="flex items-center space-x-3 min-w-0">
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl glass border border-border/40 flex-shrink-0">
                     {tx.categories?.icon ?? (tx.type === 'income' ? '💵' : '🛒')}

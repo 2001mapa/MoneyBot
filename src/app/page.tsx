@@ -170,7 +170,7 @@ export default async function Home() {
             {/* Needs */}
             <div className="relative h-6 bg-border/50 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="absolute top-0 left-0 h-full rounded-full bg-primary transition-all duration-1000 shadow-[0_0_8px_var(--primary)]"
+                className="absolute top-0 left-0 h-full rounded-full bg-primary transition-colors duration-1000 shadow-[0_0_8px_var(--primary)]"
                 style={{ width: `${needsProgress}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-black tracking-widest text-foreground pointer-events-none drop-shadow-md">
@@ -181,7 +181,7 @@ export default async function Home() {
             {/* Wants */}
             <div className="relative h-6 bg-border/50 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="absolute top-0 left-0 h-full rounded-full bg-expense transition-all duration-1000 shadow-[0_0_8px_var(--expense)]"
+                className="absolute top-0 left-0 h-full rounded-full bg-expense transition-colors duration-1000 shadow-[0_0_8px_var(--expense)]"
                 style={{ width: `${wantsProgress}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-black tracking-widest text-foreground pointer-events-none drop-shadow-md">
@@ -192,7 +192,7 @@ export default async function Home() {
             {/* Savings */}
             <div className="relative h-6 bg-border/50 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="absolute top-0 left-0 h-full rounded-full bg-yellow-500 transition-all duration-1000 shadow-[0_0_8px_var(--color-yellow-500)]"
+                className="absolute top-0 left-0 h-full rounded-full bg-yellow-500 transition-colors duration-1000 shadow-[0_0_8px_var(--color-yellow-500)]"
                 style={{ width: `${savingsProgress}%` }}
               />
               <div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-black tracking-widest text-foreground pointer-events-none drop-shadow-md">

@@ -88,15 +88,15 @@ export default async function PlanningPage() {
           <svg width="180" height="180" viewBox="0 0 120 120" className="-rotate-90 filter drop-shadow-md">
             {/* Needs Ring */}
             <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="8" className="text-primary/20" />
-            <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 50} strokeDashoffset={(2 * Math.PI * 50) * (1 - Math.min(1, needsSpent / (needsTarget || 1)))} className="text-primary transition-all duration-1000" />
+            <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 50} strokeDashoffset={(2 * Math.PI * 50) * (1 - Math.min(1, needsSpent / (needsTarget || 1)))} className="text-primary transition-colors duration-1000" />
             
             {/* Wants Ring */}
             <circle cx="60" cy="60" r="38" fill="none" stroke="currentColor" strokeWidth="8" className="text-expense/20" />
-            <circle cx="60" cy="60" r="38" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 38} strokeDashoffset={(2 * Math.PI * 38) * (1 - Math.min(1, wantsSpent / (wantsTarget || 1)))} className="text-expense transition-all duration-1000" />
+            <circle cx="60" cy="60" r="38" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 38} strokeDashoffset={(2 * Math.PI * 38) * (1 - Math.min(1, wantsSpent / (wantsTarget || 1)))} className="text-expense transition-colors duration-1000" />
             
             {/* Savings Ring */}
             <circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" strokeWidth="8" className="text-yellow-500/20" />
-            <circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 26} strokeDashoffset={(2 * Math.PI * 26) * (1 - Math.min(1, savingsSpent / (savingsTarget || 1)))} className="text-yellow-500 transition-all duration-1000" />
+            <circle cx="60" cy="60" r="26" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 26} strokeDashoffset={(2 * Math.PI * 26) * (1 - Math.min(1, savingsSpent / (savingsTarget || 1)))} className="text-yellow-500 transition-colors duration-1000" />
           </svg>
           {/* Inner text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">

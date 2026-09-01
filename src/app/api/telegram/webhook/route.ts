@@ -279,7 +279,7 @@ export async function POST(req: Request) {
       .limit(10);
       
     if (recentTxsDB) {
-      for (let tx of recentTxsDB) {
+      for (const tx of recentTxsDB) {
         recentTxList.push(`- ${tx.type === 'income' ? '+' : '-'}$${tx.amount} | ${tx.description} | Fecha: ${new Date(tx.created_at).toLocaleString()}`);
       }
     }

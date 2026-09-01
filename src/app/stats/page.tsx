@@ -235,7 +235,7 @@ export default function StatsPage() {
                   />
                   <Bar dataKey="value" radius={[10, 10, 10, 10]}>
                     {data.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={`url(#colorGradient${index})`} className="hover:filter hover:drop-shadow-[0_0_8px_rgba(129,140,248,0.5)] transition-all" />
+                      <Cell key={`cell-${index}`} fill={`url(#colorGradient${index})`} className="hover:filter hover:drop-shadow-[0_0_8px_rgba(129,140,248,0.5)] transition-colors" />
                     ))}
                   </Bar>
                   <defs>

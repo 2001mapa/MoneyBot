@@ -60,7 +60,7 @@ export function GoalCard({ goal: initialGoal, userId }: GoalCardProps) {
   const goalProgress = getProgress(Number(goal.current_amount), Number(goal.target_amount))
 
   return (
-    <div className={`glass p-5 hover:border-blue-500/50 transition-all group ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div className={`glass p-5 hover:border-blue-500/50 transition-colors group ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
       <div className="flex items-center space-x-4 mb-3">
         <div className="w-12 h-12 squircle flex items-center justify-center text-2xl bg-blue-500/10 text-blue-500 flex-shrink-0 group-hover:scale-110 transition-transform">
           {goal.icon || '🎯'}
@@ -85,7 +85,7 @@ export function GoalCard({ goal: initialGoal, userId }: GoalCardProps) {
         </button>
         <div className="flex-1 relative h-5 bg-border/30 rounded-full overflow-hidden shadow-inner">
           <div 
-            className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 shadow-[0_0_12px_rgba(59,130,246,0.5)]" 
+            className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-colors duration-1000 shadow-[0_0_12px_rgba(59,130,246,0.5)]" 
             style={{ width: `${goalProgress}%` }}
           />
         </div>
