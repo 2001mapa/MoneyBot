@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { BottomNav } from "@/components/BottomNav";
+import { RealtimeSync } from "@/components/RealtimeSync";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Providers>
           <div className="flex-1 flex flex-col relative min-h-screen">
+            <RealtimeSync />
             <PageTransition>
               {children}
             </PageTransition>
