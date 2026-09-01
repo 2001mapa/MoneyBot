@@ -632,6 +632,8 @@ ${chatHistory}`;
         const errStr = String(error);
         if (errStr.includes('429') || errStr.includes('quota') || errStr.includes('Too Many Requests')) {
           await sendMessage(chatId, "⚠️ He alcanzado el límite de operaciones de Google Gemini. Por favor intenta en un minuto.")
+        } else if (errStr.includes('503') || errStr.includes('Service Unavailable') || errStr.includes('high demand')) {
+          await sendMessage(chatId, "⚠️ Los servidores de inteligencia artificial (Google Gemini) están muy congestionados en este momento. Por favor intenta tu audio o mensaje de nuevo en unos minutos.")
         } else {
           await sendMessage(chatId, "⚠️ Ocurrió un error inesperado al procesar tu solicitud. Por favor intenta de nuevo más tarde.")
         }
