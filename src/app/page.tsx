@@ -2,6 +2,8 @@ import { TrendingDown, TrendingUp, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { DashboardActions } from '@/components/DashboardActions'
+export const revalidate = 0
+
 export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
