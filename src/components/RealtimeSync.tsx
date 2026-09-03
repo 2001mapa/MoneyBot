@@ -7,48 +7,24 @@ import { refreshData } from '@/app/actions'
 
 export function RealtimeSync() {
   const router = useRouter()
-  // No necesitamos regenerar el cliente en cada render
+
   useEffect(() => {
     const supabase = createClient()
-    
-    // Escuchar cambios en TODAS las tablas relevantes para el usuario actual
-    const channel = supabase.channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'transactions' },
-        async (payload) => {
-          console.log('Cambio detectado en transactions:', payload)
-          await refreshData()
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'savings_goals' },
-        async () => {
-          console.log('Cambio detectado en savings_goals, refrescando UI...')
-          await refreshData()
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'debts' },
-        async () => {
-          console.log('Cambio detectado en debts, refrescando UI...')
-          await refreshData()
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'profiles' },
-        async () => {
-          console.log('Cambio detectado en profiles, refrescando UI...')
-          await refreshData()
-        }
-      )
+
+    async function handleChange(table: string) {
+      console.log(`🔄 Cambio en ${table}, invalidando caché y recargando UI...`)
+      await refreshData()   // 1. Invalida caché en el servidor (Next.js)
+      router.refresh()      // 2. Le dice al navegador que vaya a buscar los datos nuevos
+    }
+
+    const channel = supabase
+      .channel('moneybot-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' },  () => handleChange('transactions'))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'savings_goals' }, () => handleChange('savings_goals'))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'debts' },         () => handleChange('debts'))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' },      () => handleChange('profiles'))
       .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Conectado a Supabase Realtime')
-        }
+        console.log('Supabase Realtime status:', status)
       })
 
     return () => {
