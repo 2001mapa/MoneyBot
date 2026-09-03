@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { refreshData } from '@/app/actions'
 
 export function RealtimeSync() {
   const router = useRouter()
@@ -15,33 +16,33 @@ export function RealtimeSync() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'transactions' },
-        () => {
-          console.log('🔄 Cambio detectado en transactions, refrescando UI...')
-          router.refresh()
+        async (payload) => {
+          console.log('Cambio detectado en transactions:', payload)
+          await refreshData()
         }
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'savings_goals' },
-        () => {
-          console.log('🔄 Cambio detectado en savings_goals, refrescando UI...')
-          router.refresh()
+        async () => {
+          console.log('Cambio detectado en savings_goals, refrescando UI...')
+          await refreshData()
         }
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'debts' },
-        () => {
-          console.log('🔄 Cambio detectado en debts, refrescando UI...')
-          router.refresh()
+        async () => {
+          console.log('Cambio detectado en debts, refrescando UI...')
+          await refreshData()
         }
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'profiles' },
-        () => {
-          console.log('🔄 Cambio detectado en profiles, refrescando UI...')
-          router.refresh()
+        async () => {
+          console.log('Cambio detectado en profiles, refrescando UI...')
+          await refreshData()
         }
       )
       .subscribe((status) => {
